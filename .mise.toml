@@ -1,0 +1,8 @@
+# Local development only — do not install or invoke mise in Docker/Fly production images.
+[tools]
+ruby = "3.4.9"
+node = "22.16.0"
+
+[env]
+# Prefer project-local shims when running from this directory.
+_.path = ["./node_modules/.bin"]
