@@ -1,7 +1,12 @@
 # Fly.io app config — production deploy uses Docker (see Dockerfile), not mise.
+# SQLite DB files and Active Storage live under /rails/storage (persistent volume below).
 app = "safelog-ai"
 primary_region = "waw"
 console_command = "/rails/bin/rails console"
+
+[mounts]
+  source = "data"
+  destination = "/rails/storage"
 
 [build]
 

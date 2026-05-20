@@ -108,7 +108,8 @@ Next: a future skill will set up agent context (CLAUDE.md, AGENTS.md). For now, 
 Useful manual steps:
 
 - `mise trust` (if prompted) then `mise install` — local Ruby 3.4.9 and Node 22.16.0 only on the host.
-- `mise exec -- bin/setup` — deps + `db:prepare` (SQLite file DB once `database.yml` is switched; no DB server).
+- `mise exec -- bundle config set --local path vendor/bundle` && `mise exec -- bundle install` — project-local gems (`.bundle/config` → `vendor/bundle`).
+- `mise exec -- bin/setup` — deps + `db:prepare` (SQLite under `storage/`; no DB server).
 - `mise exec -- bin/rails server` — local dev (port 3000 default).
 - Add React in-repo (e.g. vite_rails) using `mise exec --` for Node tooling; keep asset builds out of production Docker until a `NODE_VERSION` build stage is added.
 - Production: `fly launch` / `fly deploy` using `Dockerfile` (no mise). Set `RAILS_MASTER_KEY`; `DATABASE_URL` only if using PostgreSQL (not required for SQLite MVP).

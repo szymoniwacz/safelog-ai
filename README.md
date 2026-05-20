@@ -4,25 +4,14 @@ Rails app for safe multi-source log debugging. **MVP database: SQLite** — simp
 
 ## Getting started
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Use [mise](https://mise.jdx.dev/) for Ruby/Node (see `.mise.toml`). Gems install **only** into `vendor/bundle` via Bundler — do not use system-wide `gem install`.
 
-Things you may want to cover:
+```bash
+mise install
+mise exec -- bundle config set --local path vendor/bundle
+mise exec -- bundle install
+mise exec -- bin/setup --skip-server   # db:prepare + deps check
+mise exec -- bin/dev                   # http://localhost:3000
+```
 
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+Quality gates: `mise exec -- bin/ci` (RuboCop, Brakeman, bundler-audit). When RSpec is added: `mise exec -- bundle exec rspec spec/`.

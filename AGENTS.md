@@ -24,7 +24,8 @@ SafeLog AI is a Rails 8.1 + SQLite app for safe multi-source log debugging (MVP 
 
 `mise install` once, then:
 
-- `mise exec -- bin/setup` — deps + `db:prepare` (+ dev server unless `--skip-server`)
+- `mise exec -- bundle config set --local path vendor/bundle` && `mise exec -- bundle install` — gems into `vendor/bundle` only (see `.bundle/config`; never `gem install` outside Bundler)
+- `mise exec -- bin/setup` — bundle path + deps + `db:prepare` (+ dev server unless `--skip-server`)
 - `mise exec -- bin/dev` — Puma (port 3000)
 - `mise exec -- bin/ci` — RuboCop, bundler-audit, importmap audit, Brakeman (`@config/ci.rb`, `@.github/workflows/ci.yml`)
 - `mise exec -- bin/rubocop` / `bin/brakeman` / `bin/bundler-audit` — individual gates
