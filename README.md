@@ -1,4 +1,8 @@
-# README
+# SafeLog AI
+
+Rails app for safe multi-source log debugging. **MVP database: SQLite** — simpler, cheaper Fly/course deploy; Rails Active Record Encryption still applies. Agent and product context: `AGENTS.md`, `context/foundation/`.
+
+## Getting started
 
 This README would normally document whatever steps are necessary to get the
 application up and running.

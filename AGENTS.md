@@ -1,6 +1,6 @@
 # Repository Guidelines
 
-SafeLog AI is a Rails 8.1 + PostgreSQL app for safe multi-source log debugging: redact in memory, store sanitized evidence only, then produce hypothesis-framed AI reports. Local toolchains use mise (`@.mise.toml`); Fly.io production uses `@Dockerfile` with pinned Ruby — never mise in Docker or Fly runtime.
+SafeLog AI is a Rails 8.1 + SQLite app for safe multi-source log debugging (MVP database; PostgreSQL optional later for scale): redact in memory, store sanitized evidence only, then produce hypothesis-framed AI reports. Local toolchains use mise (`@.mise.toml`); Fly.io production uses `@Dockerfile` with pinned Ruby — never mise in Docker or Fly runtime.
 
 ## Hard rules for agents
 
@@ -12,7 +12,7 @@ SafeLog AI is a Rails 8.1 + PostgreSQL app for safe multi-source log debugging: 
 - AI receives sanitized evidence only. Never send raw logs, raw identifiers, prompt content with raw values, or raw-to-placeholder mappings to AI.
 - AI reports must be hypothesis-framed, not definitive conclusions.
 - Tests must use a fake AI client. CI must never call real AI providers.
-- Encrypt diagnostic text fields at rest using Rails Active Record Encryption.
+- Encrypt diagnostic text fields at rest using Rails Active Record Encryption (SQLite is the MVP store).
 - Devise should use only `database_authenticatable`, `registerable`, and `validatable` unless explicitly changed.
 - Do not scaffold React/Vite, background jobs, uploads, or external log integrations unless explicitly requested.
 - Never overwrite `context/` documents. Treat them as project source of truth.
