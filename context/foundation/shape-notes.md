@@ -183,7 +183,7 @@ Supporting behavior (user-facing, implementation-agnostic):
 
 Informational notes for downstream stack selection (not PRD sections):
 
-- Rails web app, PostgreSQL, Devise (minimal modules), Rails Active Record Encryption for diagnostic text
+- Rails web app, SQLite (MVP; PostgreSQL optional later), Devise (minimal modules), Rails Active Record Encryption for diagnostic text
 - Provider-agnostic AI adapter; OpenAI as first real provider; fake client for tests/CI
 - RSpec (model, service, request, system), RuboCop, Brakeman in GitHub Actions
 - No React, no Docker requirement for MVP
