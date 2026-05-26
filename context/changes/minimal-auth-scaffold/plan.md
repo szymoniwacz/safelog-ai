@@ -328,9 +328,9 @@ First real migration in the repo. Use `db:migrate` (not hand-editing `schema.rb`
 
 #### Automated
 
-- [ ] 4.1 Full CI: `mise exec -- bin/ci`
+- [x] 4.1 Full CI: `mise exec -- bin/ci`
 
 #### Manual
 
-- [ ] 4.2 End-to-end auth smoke repeated
-- [ ] 4.3 Confirmed auth-only scope (no log/case code)
+- [x] 4.2 End-to-end auth smoke repeated
+- [x] 4.3 Confirmed auth-only scope (no log/case code)
