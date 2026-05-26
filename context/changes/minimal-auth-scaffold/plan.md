@@ -303,8 +303,8 @@ First real migration in the repo. Use `db:migrate` (not hand-editing `schema.rb`
 
 #### Automated
 
-- [ ] 2.1 Routes include Devise and root
-- [ ] 2.2 CI passes: `mise exec -- bin/ci`
+- [x] 2.1 Routes include Devise and root
+- [x] 2.2 CI passes: `mise exec -- bin/ci`
 
 #### Manual
 
