@@ -316,7 +316,7 @@ First real migration in the repo. Use `db:migrate` (not hand-editing `schema.rb`
 
 #### Automated
 
-- [ ] 3.1 CI passes: `mise exec -- bin/ci`
+- [x] 3.1 CI passes: `mise exec -- bin/ci`
 
 #### Manual
 
