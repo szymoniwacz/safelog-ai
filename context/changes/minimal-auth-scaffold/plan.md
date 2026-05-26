@@ -291,9 +291,9 @@ First real migration in the repo. Use `db:migrate` (not hand-editing `schema.rb`
 
 #### Automated
 
-- [ ] 1.1 Bundle resolves: `mise exec -- bundle install`
-- [ ] 1.2 Migration applies: `mise exec -- bin/rails db:migrate`
-- [ ] 1.3 App loads models: `mise exec -- bin/rails runner 'puts User.count'`
+- [x] 1.1 Bundle resolves: `mise exec -- bundle install`
+- [x] 1.2 Migration applies: `mise exec -- bin/rails db:migrate`
+- [x] 1.3 App loads models: `mise exec -- bin/rails runner 'puts User.count'`
 
 #### Manual
 

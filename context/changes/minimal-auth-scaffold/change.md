@@ -1,7 +1,7 @@
 ---
 change_id: minimal-auth-scaffold
 title: Minimal auth scaffold (roadmap F-01)
-status: planned
+status: implementing
 created: 2026-05-26
 updated: 2026-05-26
 archived_at: null
