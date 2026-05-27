@@ -427,8 +427,8 @@ None — schema exists from F-02.
 
 #### Automated
 
-- [ ] 5.1 Security + authorization request specs pass
-- [ ] 5.2 `bin/ci` passes
+- [x] 5.1 Security + authorization request specs pass
+- [x] 5.2 `bin/ci` passes
 
 #### Manual
 
