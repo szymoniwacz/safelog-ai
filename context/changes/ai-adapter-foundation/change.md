@@ -16,3 +16,5 @@ Roadmap **F-03** (`context/foundation/roadmap.md` — change id there: `ai-adapt
 **Phase 2 done:** `Ai::Client` contract, `Request`/`CompletionResult`, `FakeClient`, `ClientResolver` under `app/services/ai/` with 7 service specs.
 
 **Phase 3 done:** `ReportSchema`, `ResponseValidator`, `InvalidResponseError`; canonical fixture aligned; FakeClient validates before returning.
+
+**Phase 4 done:** `OpenAiClient` (ruby-openai, env-gated), param filter, security specs. **S-03 handoff:** call `Ai::ClientResolver.current#complete`, validate with `Ai::ResponseValidator`; retry-once + `AiReport` persistence belong in analyze service.
