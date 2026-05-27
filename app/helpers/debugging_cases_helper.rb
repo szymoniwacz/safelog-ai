@@ -16,4 +16,20 @@ module DebuggingCasesHelper
             .transform_values(&:count)
             .sort_by { |(finding_type, risk_level), _count| [ finding_type, risk_level ] }
   end
+
+  def parse_correlation_signals(correlation_signal)
+    return [] if correlation_signal&.payload.blank?
+
+    JSON.parse(correlation_signal.payload).fetch("signals", [])
+  rescue JSON::ParserError
+    []
+  end
+
+  def parse_ai_report_structured(ai_report)
+    return nil if ai_report&.structured_json.blank?
+
+    JSON.parse(ai_report.structured_json)
+  rescue JSON::ParserError
+    nil
+  end
 end

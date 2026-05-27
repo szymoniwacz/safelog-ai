@@ -15,4 +15,6 @@ Roadmap **S-03** (`context/foundation/roadmap.md`). Synchronous Analyze case: ex
 
 **Phase 2 done:** `Analysis::PromptBuilder`, `Analysis::AnalyzeCase` — extract/persist signals, sanitized prompt, AI call with retry-once, `AiReport` persistence; 5 service specs.
 
-**Phase 3 done (uncommitted):** `POST analyze` member route + controller action; 3 request specs (guest redirect, cross-user 404, owner happy path).
+**Phase 3 done:** `POST analyze` member route + controller action; 3 request specs (guest redirect, cross-user 404, owner happy path).
+
+**Phase 4 done (uncommitted):** Analyze button, correlation signals + hypothesis report partials on show; helper JSON parsing; analyze request spec asserts report UI.
