@@ -24,6 +24,17 @@ class DebuggingCasesController < AuthenticatedController
     end
   end
 
+  def analyze
+    debugging_case = current_user.debugging_cases.find(params[:id])
+    result = Analysis::AnalyzeCase.call(debugging_case: debugging_case)
+
+    if result.success?
+      redirect_to debugging_case_path(debugging_case), notice: "Analysis complete."
+    else
+      redirect_to debugging_case_path(debugging_case), alert: result.user_message
+    end
+  end
+
   private
 
   def case_submission_params

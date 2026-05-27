@@ -13,4 +13,6 @@ Roadmap **S-03** (`context/foundation/roadmap.md`). Synchronous Analyze case: ex
 
 **Phase 1 done:** `Correlation::ExtractSignals` — placeholder-based cross-source signals from sanitized logs + findings; 4 unit specs.
 
-**Phase 2 done (uncommitted):** `Analysis::PromptBuilder`, `Analysis::AnalyzeCase` — extract/persist signals, sanitized prompt, AI call with retry-once, `AiReport` persistence; 5 service specs.
+**Phase 2 done:** `Analysis::PromptBuilder`, `Analysis::AnalyzeCase` — extract/persist signals, sanitized prompt, AI call with retry-once, `AiReport` persistence; 5 service specs.
+
+**Phase 3 done (uncommitted):** `POST analyze` member route + controller action; 3 request specs (guest redirect, cross-user 404, owner happy path).

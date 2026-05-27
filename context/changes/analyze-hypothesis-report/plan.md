@@ -378,8 +378,8 @@ None — uses existing F-02 tables.
 
 #### Automated
 
-- [ ] 3.1 `bundle exec rspec spec/requests/debugging_cases_analyze_spec.rb` passes
-- [ ] 3.2 `bin/ci` passes
+- [x] 3.1 `bundle exec rspec spec/requests/debugging_cases_analyze_spec.rb` passes
+- [x] 3.2 `bin/ci` passes
 
 #### Manual
 
