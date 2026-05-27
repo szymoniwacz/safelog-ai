@@ -423,9 +423,9 @@ Prove schema integrity, guardrails, cascade deletes, and document handoff for S-
 
 #### Automated
 
-- [ ] 3.1 Log sources migration applies
-- [ ] 3.2 `LogSource.source_types` matches PRD set in runner
-- [ ] 3.3 CI passes: `mise exec -- bin/ci`
+- [x] 3.1 Log sources migration applies
+- [x] 3.2 `LogSource.source_types` matches PRD set in runner
+- [x] 3.3 CI passes: `mise exec -- bin/ci`
 
 #### Manual
 
