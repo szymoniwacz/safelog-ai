@@ -1,3 +1,4 @@
+# F-02 schema root. Intake/redaction: S-02. AI adapter: F-03. HTTP: inherit AuthenticatedController.
 class DebuggingCase < ApplicationRecord
   belongs_to :user
 
