@@ -41,6 +41,21 @@ class DebuggingCasesController < AuthenticatedController
     end
   end
 
+  def download_report
+    debugging_case = current_user.debugging_cases.find(params[:id])
+    ai_report = debugging_case.ai_reports.generated.order(created_at: :desc).first
+
+    if ai_report.nil? || ai_report.markdown_body.blank?
+      head :not_found
+      return
+    end
+
+    send_data ai_report.markdown_body,
+              type: "text/markdown",
+              disposition: "attachment",
+              filename: report_download_filename(debugging_case)
+  end
+
   private
 
   def case_submission_params

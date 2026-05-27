@@ -13,6 +13,7 @@ Rails.application.routes.draw do
   resources :debugging_cases, only: [ :new, :create, :show ] do
     member do
       post :analyze
+      get :download_report
     end
   end
 
