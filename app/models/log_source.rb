@@ -1,6 +1,8 @@
 class LogSource < ApplicationRecord
   belongs_to :debugging_case
 
+  has_many :redaction_findings, dependent: :destroy
+
   encrypts :sanitized_content
 
   enum :source_type, {

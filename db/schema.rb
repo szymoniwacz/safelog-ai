@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_27_151250) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_27_152734) do
   create_table "debugging_cases", force: :cascade do |t|
     t.datetime "archived_at"
     t.datetime "created_at", null: false
@@ -34,6 +34,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_27_151250) do
     t.index ["debugging_case_id"], name: "index_log_sources_on_debugging_case_id"
   end
 
+  create_table "redaction_findings", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "finding_type", null: false
+    t.integer "line_number", null: false
+    t.integer "log_source_id", null: false
+    t.string "placeholder", null: false
+    t.string "risk_level", null: false
+    t.datetime "updated_at", null: false
+    t.index ["log_source_id"], name: "index_redaction_findings_on_log_source_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email", default: "", null: false
@@ -44,4 +55,5 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_27_151250) do
 
   add_foreign_key "debugging_cases", "users"
   add_foreign_key "log_sources", "debugging_cases"
+  add_foreign_key "redaction_findings", "log_sources"
 end
