@@ -10,3 +10,5 @@ archived_at: null
 ## Notes
 
 Roadmap **S-02** north star (`context/foundation/roadmap.md`). In-memory redaction, sanitized persistence only, case UI. Prerequisites: F-01, F-02, S-01 complete.
+
+**Phase 1 done (uncommitted):** `Redaction::Engine`, `PlaceholderRegistry`, `Patterns`, `Result` + unit specs (7 examples). Cross-source request_id correlation via shared registry verified.

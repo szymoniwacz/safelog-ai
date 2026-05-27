@@ -383,8 +383,8 @@ None — schema exists from F-02.
 
 #### Automated
 
-- [ ] 1.1 `bundle exec rspec spec/services/redaction/` passes
-- [ ] 1.2 `bin/ci` passes
+- [x] 1.1 `bundle exec rspec spec/services/redaction/` passes
+- [x] 1.2 `bin/ci` passes
 
 #### Manual
 
