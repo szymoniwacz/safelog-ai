@@ -251,8 +251,8 @@ None.
 
 #### Automated
 
-- [ ] 2.1 `bundle exec rspec spec/requests/` passes
-- [ ] 2.2 `bin/ci` passes
+- [x] 2.1 `bundle exec rspec spec/requests/` passes
+- [x] 2.2 `bin/ci` passes
 
 #### Manual
 
