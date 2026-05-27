@@ -188,5 +188,5 @@ Prove cross-user export denial and no raw secret leakage in download body.
 
 #### Automated
 
-- [ ] 3.1 Security + authorization export specs pass
-- [ ] 3.2 `bin/ci` passes
+- [x] 3.1 Security + authorization export specs pass
+- [x] 3.2 `bin/ci` passes
