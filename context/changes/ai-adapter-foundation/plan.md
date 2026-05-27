@@ -381,9 +381,9 @@ No database migrations. Gem additions only.
 
 #### Automated
 
-- [ ] 2.1 `bundle exec rspec spec/services/ai/` passes
-- [ ] 2.2 `rails runner` prints `Ai::FakeClient` for resolver in development
-- [ ] 2.3 `bin/ci` passes
+- [x] 2.1 `bundle exec rspec spec/services/ai/` passes
+- [x] 2.2 `rails runner` prints `Ai::FakeClient` for resolver in development
+- [x] 2.3 `bin/ci` passes
 
 #### Manual
 
