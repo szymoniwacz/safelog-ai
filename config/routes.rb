@@ -14,6 +14,7 @@ Rails.application.routes.draw do
     member do
       post :analyze
       get :download_report
+      post :archive
     end
   end
 

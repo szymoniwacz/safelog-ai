@@ -56,6 +56,13 @@ class DebuggingCasesController < AuthenticatedController
               filename: report_download_filename(debugging_case)
   end
 
+  def archive
+    debugging_case = current_user.debugging_cases.find(params[:id])
+    debugging_case.archive!
+
+    redirect_to root_path, notice: "Case archived."
+  end
+
   private
 
   def case_submission_params

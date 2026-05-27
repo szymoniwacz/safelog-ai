@@ -9,4 +9,17 @@ class DebuggingCase < ApplicationRecord
   has_many :ai_reports, dependent: :destroy
 
   validates :title, presence: true
+
+  scope :active, -> { where(archived_at: nil) }
+  scope :archived, -> { where.not(archived_at: nil) }
+
+  def archived?
+    archived_at.present?
+  end
+
+  def archive!
+    return if archived?
+
+    update!(archived_at: Time.current)
+  end
 end
