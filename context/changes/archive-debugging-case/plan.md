@@ -151,8 +151,8 @@ Prove filter behavior and cross-user index isolation.
 
 #### Automated
 
-- [ ] 2.1 Index request specs pass
-- [ ] 2.2 `bin/ci` passes
+- [x] 2.1 Index request specs pass
+- [x] 2.2 `bin/ci` passes
 
 ### Phase 3: Authorization and Index Specs
 

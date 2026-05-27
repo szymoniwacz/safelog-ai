@@ -38,7 +38,7 @@ RSpec.describe "Debugging case archive", type: :request do
 
       post archive_debugging_case_path(debugging_case)
 
-      expect(response).to redirect_to(root_path)
+      expect(response).to redirect_to(debugging_cases_path)
       expect(flash[:notice]).to eq("Case archived.")
       expect(debugging_case.reload.archived_at).to be_present
       expect(debugging_case).to be_archived

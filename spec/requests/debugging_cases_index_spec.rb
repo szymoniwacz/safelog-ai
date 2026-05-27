@@ -1,0 +1,51 @@
+# frozen_string_literal: true
+
+require "rails_helper"
+
+RSpec.describe "Debugging cases index", type: :request do
+  let(:user) { create(:user, email: "index@example.com") }
+
+  def create_case(title:, user: self.user)
+    Intake::ProcessCaseSubmission.call(
+      user: user,
+      submission: Intake::CaseSubmission.new(
+        title: title,
+        environment: "production",
+        sources: [ { source_type: "rails_log", pasted_content: "ok" } ]
+      )
+    ).debugging_case
+  end
+
+  let!(:active_case) { create_case(title: "Active checkout case") }
+  let!(:archived_case) do
+    create_case(title: "Archived timeout case").tap(&:archive!)
+  end
+
+  describe "GET /debugging_cases" do
+    it "redirects guests to sign in" do
+      get debugging_cases_path
+
+      expect(response).to redirect_to(new_user_session_path)
+    end
+
+    it "lists active cases by default" do
+      sign_in user
+
+      get debugging_cases_path
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("Active checkout case")
+      expect(response.body).not_to include("Archived timeout case")
+    end
+
+    it "lists archived cases when the archived filter is selected" do
+      sign_in user
+
+      get debugging_cases_path(filter: "archived")
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("Archived timeout case")
+      expect(response.body).not_to include("Active checkout case")
+    end
+  end
+end
