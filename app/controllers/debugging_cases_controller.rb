@@ -3,6 +3,12 @@
 class DebuggingCasesController < AuthenticatedController
   include DebuggingCasesHelper
 
+  def index
+    @show_archived = params[:filter] == "archived"
+    scope = @show_archived ? current_user.debugging_cases.archived : current_user.debugging_cases.active
+    @debugging_cases = scope.order(created_at: :desc)
+  end
+
   def new
     @title = @description = @customer_reference = @environment = nil
   end
@@ -60,7 +66,7 @@ class DebuggingCasesController < AuthenticatedController
     debugging_case = current_user.debugging_cases.find(params[:id])
     debugging_case.archive!
 
-    redirect_to root_path, notice: "Case archived."
+    redirect_to debugging_cases_path, notice: "Case archived."
   end
 
   private

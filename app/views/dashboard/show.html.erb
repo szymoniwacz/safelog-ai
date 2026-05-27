@@ -1,4 +1,4 @@
 <h1>SafeLog AI</h1>
 <p>Signed in as <%= current_user.email %>.</p>
-<p><%= link_to "New debugging case", new_debugging_case_path %></p>
+<p><%= link_to "Debugging cases", debugging_cases_path %> · <%= link_to "New debugging case", new_debugging_case_path %></p>
 <p>Create a case with multiple pasted log sources. SafeLog redacts sensitive values in memory and stores sanitized evidence only.</p>

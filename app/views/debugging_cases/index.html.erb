@@ -1,0 +1,41 @@
+<h1>Debugging cases</h1>
+
+<p>
+  <%= link_to "New debugging case", new_debugging_case_path %>
+  · <%= link_to "Dashboard", root_path %>
+</p>
+
+<p>
+  <%= link_to "Active", debugging_cases_path, aria: { current: (@show_archived ? "false" : "page") } %>
+  |
+  <%= link_to "Archived", debugging_cases_path(filter: "archived"), aria: { current: (@show_archived ? "page" : "false") } %>
+</p>
+
+<% if @debugging_cases.any? %>
+  <table>
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Environment</th>
+        <th>Created</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @debugging_cases.each do |debugging_case| %>
+        <tr>
+          <td><%= link_to debugging_case.title, debugging_case_path(debugging_case) %></td>
+          <td><%= debugging_case.environment.presence || "—" %></td>
+          <td><%= l(debugging_case.created_at, format: :short) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>
+    <% if @show_archived %>
+      No archived debugging cases.
+    <% else %>
+      No active debugging cases yet. <%= link_to "Create one", new_debugging_case_path %>.
+    <% end %>
+  </p>
+<% end %>

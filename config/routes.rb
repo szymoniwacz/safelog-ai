@@ -10,7 +10,7 @@ Rails.application.routes.draw do
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
-  resources :debugging_cases, only: [ :new, :create, :show ] do
+  resources :debugging_cases, only: [ :index, :new, :create, :show ] do
     member do
       post :analyze
       get :download_report
