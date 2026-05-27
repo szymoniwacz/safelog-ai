@@ -4,6 +4,7 @@ require "rails_helper"
 
 RSpec.describe "Debugging cases index", type: :request do
   let(:user) { create(:user, email: "index@example.com") }
+  let(:other_user) { create(:user, email: "other-index@example.com") }
 
   def create_case(title:, user: self.user)
     Intake::ProcessCaseSubmission.call(
@@ -46,6 +47,29 @@ RSpec.describe "Debugging cases index", type: :request do
       expect(response).to have_http_status(:ok)
       expect(response.body).to include("Archived timeout case")
       expect(response.body).not_to include("Active checkout case")
+    end
+
+    it "does not list another user's cases on the active index" do
+      other_case = create_case(title: "Other user private case", user: other_user)
+
+      sign_in user
+
+      get debugging_cases_path
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).not_to include(other_case.title)
+    end
+
+    it "does not list another user's cases on the archived index" do
+      other_case = create_case(title: "Other user archived case", user: other_user)
+      other_case.archive!
+
+      sign_in user
+
+      get debugging_cases_path(filter: "archived")
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).not_to include(other_case.title)
     end
   end
 end
