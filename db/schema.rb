@@ -10,7 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_27_153441) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_27_153954) do
+  create_table "ai_reports", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "debugging_case_id", null: false
+    t.text "markdown_body"
+    t.string "status", default: "pending", null: false
+    t.text "structured_json"
+    t.datetime "updated_at", null: false
+    t.index ["debugging_case_id"], name: "index_ai_reports_on_debugging_case_id"
+  end
+
   create_table "correlation_signals", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "debugging_case_id", null: false
@@ -61,6 +71,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_27_153441) do
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
+  add_foreign_key "ai_reports", "debugging_cases"
   add_foreign_key "correlation_signals", "debugging_cases"
   add_foreign_key "debugging_cases", "users"
   add_foreign_key "log_sources", "debugging_cases"

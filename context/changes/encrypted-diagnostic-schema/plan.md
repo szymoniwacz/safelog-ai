@@ -287,7 +287,7 @@ AI report storage with status enum and two encrypted text columns for structured
 
 **File:** `app/models/ai_report.rb`
 
-**Intent:** `belongs_to :debugging_case`; `encrypts :structured_json, :markdown_body`; `enum :status` with `pending`, `completed`, `failed` (align FR-007 failure path).
+**Intent:** `belongs_to :debugging_case`; `encrypts :structured_json, :markdown_body`; `enum :status` with `pending`, `processing`, `generated`, `failed` (align FR-007 failure path).
 
 **Contract:** `DebuggingCase` `has_many :ai_reports, dependent: :destroy` (or `has_one` if product expects single report — use `has_many` for retry/history flexibility unless PRD mandates one; **default `has_many`** for failed retry rows).
 
@@ -296,7 +296,7 @@ AI report storage with status enum and two encrypted text columns for structured
 #### Automated Verification:
 
 - Migration applies
-- `mise exec -- bin/rails runner 'AiReport.statuses.keys'` includes `pending`, `completed`, `failed`
+- `mise exec -- bin/rails runner 'AiReport.statuses.keys'` includes `pending`, `processing`, `generated`, `failed`
 - `mise exec -- bin/ci`
 
 #### Manual Verification:
@@ -457,9 +457,9 @@ Prove schema integrity, guardrails, cascade deletes, and document handoff for S-
 
 #### Automated
 
-- [ ] 6.1 AI reports migration applies
-- [ ] 6.2 `AiReport.statuses` includes pending, completed, failed
-- [ ] 6.3 CI passes: `mise exec -- bin/ci`
+- [x] 6.1 AI reports migration applies
+- [x] 6.2 `AiReport.statuses` includes pending, processing, generated, failed
+- [x] 6.3 CI passes: `mise exec -- bin/ci`
 
 #### Manual
 

@@ -31,7 +31,7 @@ Five related tables exist with correct associations and `dependent: :destroy` fr
 | CorrelationSignal | Encrypted `payload` per row | Diagnostic correlation JSON at rest | Plan |
 | Migrations | One migration per table | Easier review and rollback | Plan |
 | Source ordering | `log_sources.position` (integer, default 0) | Stable multi-source display order for S-02 | Plan review |
-| AiReport status | `pending` / `completed` / `failed` | FR-007 invalid-response path | Plan |
+| AiReport status | `pending` / `processing` / `generated` / `failed` | FR-007 analyze lifecycle | Plan |
 | Deletes | `dependent: :destroy` from case | Clean tree when case removed | Plan |
 | Deterministic encryption | None | No DB lookup on ciphertext in MVP | Plan |
 
