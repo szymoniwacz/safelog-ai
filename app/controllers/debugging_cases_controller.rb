@@ -2,11 +2,13 @@
 
 class DebuggingCasesController < AuthenticatedController
   def new
+    @title = @description = @customer_reference = @environment = nil
   end
 
   def show
     @debugging_case = current_user.debugging_cases.includes(log_sources: :redaction_findings).find(params[:id])
     @log_sources = @debugging_case.log_sources.order(:position)
+    @findings = @log_sources.flat_map(&:redaction_findings)
   end
 
   def create

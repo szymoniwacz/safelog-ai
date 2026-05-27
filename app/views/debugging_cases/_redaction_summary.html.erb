@@ -1,0 +1,27 @@
+<% summary = redaction_summary_counts(findings) %>
+
+<% if summary.any? %>
+  <section>
+    <h2>Redaction summary</h2>
+    <p>Sensitive patterns were replaced with placeholders before storage.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Risk</th>
+          <th>Count</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% summary.each do |(finding_type, risk_level), count| %>
+          <tr>
+            <td><%= finding_type_label(finding_type) %></td>
+            <td><%= risk_level %></td>
+            <td><%= count %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </section>
+<% end %>

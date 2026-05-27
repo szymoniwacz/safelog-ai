@@ -416,8 +416,8 @@ None — schema exists from F-02.
 
 #### Automated
 
-- [ ] 4.1 Full `bundle exec rspec` passes
-- [ ] 4.2 `bin/ci` passes
+- [x] 4.1 Full `bundle exec rspec` passes
+- [x] 4.2 `bin/ci` passes
 
 #### Manual
 
