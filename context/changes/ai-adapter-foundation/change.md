@@ -14,3 +14,5 @@ Roadmap **F-03** (`context/foundation/roadmap.md` — change id there: `ai-adapt
 **Phase 1 done:** RSpec + WebMock + `bin/ci` RSpec step. GHA `test` job requires repository secret `RAILS_MASTER_KEY` (decrypts credentials for Rails boot in CI).
 
 **Phase 2 done:** `Ai::Client` contract, `Request`/`CompletionResult`, `FakeClient`, `ClientResolver` under `app/services/ai/` with 7 service specs.
+
+**Phase 3 done:** `ReportSchema`, `ResponseValidator`, `InvalidResponseError`; canonical fixture aligned; FakeClient validates before returning.

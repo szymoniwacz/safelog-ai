@@ -20,6 +20,7 @@ RSpec.describe Ai::FakeClient do
       expect(first.markdown).to eq(second.markdown)
       expect(first.structured[:hypotheses]).not_to be_empty
       expect(first.structured[:uncertainty_notes]).not_to be_empty
+      expect { Ai::ResponseValidator.call(first.structured) }.not_to raise_error
     end
 
     it "records the last request in memory only" do
