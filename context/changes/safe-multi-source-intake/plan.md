@@ -405,8 +405,8 @@ None — schema exists from F-02.
 
 #### Automated
 
-- [ ] 3.1 `bundle exec rspec spec/requests/debugging_cases_spec.rb` passes
-- [ ] 3.2 `bin/ci` passes
+- [x] 3.1 `bundle exec rspec spec/requests/debugging_cases_spec.rb` passes
+- [x] 3.2 `bin/ci` passes
 
 #### Manual
 
