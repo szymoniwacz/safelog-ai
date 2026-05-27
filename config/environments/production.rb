@@ -86,4 +86,14 @@ Rails.application.configure do
   #
   # Skip DNS rebinding protection for the default health check endpoint.
   # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+
+  # Active Record Encryption — Fly secrets (context/deployment/deploy-plan.md):
+  # RAILS_ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY,
+  # RAILS_ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY,
+  # RAILS_ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT
+  if ENV["RAILS_ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY"].present?
+    config.active_record.encryption.primary_key = ENV["RAILS_ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY"]
+    config.active_record.encryption.deterministic_key = ENV["RAILS_ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY"]
+    config.active_record.encryption.key_derivation_salt = ENV["RAILS_ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT"]
+  end
 end

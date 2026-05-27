@@ -399,13 +399,13 @@ Prove schema integrity, guardrails, cascade deletes, and document handoff for S-
 
 #### Automated
 
-- [ ] 1.1 Init prints keys; pasted into credentials via `credentials:edit`
-- [ ] 1.2 App boots with encryption config: `mise exec -- bin/rails runner` config check
-- [ ] 1.3 CI passes: `mise exec -- bin/ci`
+- [x] 1.1 Init prints keys; pasted into credentials via `credentials:edit` — 898131b
+- [x] 1.2 App boots with encryption config: `mise exec -- bin/rails runner` config check — 898131b
+- [x] 1.3 CI passes: `mise exec -- bin/ci` — 898131b
 
 #### Manual
 
-- [ ] 1.4 Credentials contain `active_record_encryption` keys after edit (not logged)
+- [x] 1.4 Credentials contain `active_record_encryption` keys after edit (not logged) — 898131b
 
 ### Phase 2: DebuggingCase
 
