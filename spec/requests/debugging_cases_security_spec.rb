@@ -1,0 +1,89 @@
+# frozen_string_literal: true
+
+require "rails_helper"
+
+RSpec.describe "Debugging cases security (AGENTS.md guardrails)", type: :request do
+  let(:user) { create(:user, email: "security@example.com") }
+  let(:secret_email) { "agents-md-#{SecureRandom.hex(4)}@secret.example" }
+  let(:secret_token) { "sk-agents-md-#{SecureRandom.hex(8)}" }
+  let(:shared_request_id) { "req-http-#{SecureRandom.hex(6)}" }
+
+  def submission_params
+    {
+      debugging_case: {
+        title: "Security guardrail case",
+        description: "Validates sanitized persistence only",
+        customer_reference: "Contact #{secret_email}",
+        environment: "production",
+        sources: [
+          {
+            source_type: "rails_log",
+            name: "Rails",
+            pasted_content: <<~LOG.strip
+              User login failed for #{secret_email}
+              Authorization: Bearer #{secret_token}
+            LOG
+          },
+          {
+            source_type: "aws_cloudwatch",
+            name: "CloudWatch",
+            pasted_content: "Timeout for request_id=#{shared_request_id}"
+          },
+          {
+            source_type: "browser_console",
+            name: "Browser",
+            pasted_content: "Error for request_id=#{shared_request_id}"
+          }
+        ]
+      }
+    }
+  end
+
+  def assert_no_raw_substring_in_persisted_data(raw_substring)
+    DebuggingCase.find_each do |debugging_case|
+      [
+        debugging_case.title,
+        debugging_case.description,
+        debugging_case.environment,
+        debugging_case.customer_reference
+      ].compact.each do |value|
+        expect(value.to_s).not_to include(raw_substring)
+      end
+    end
+
+    LogSource.find_each do |log_source|
+      expect(log_source.sanitized_content.to_s).not_to include(raw_substring)
+    end
+
+    RedactionFinding.find_each do |finding|
+      expect(finding.attributes.values.compact.join).not_to include(raw_substring)
+    end
+  end
+
+  describe "POST /debugging_cases" do
+    before do
+      sign_in user
+      post debugging_cases_path, params: submission_params
+      follow_redirect!
+    end
+
+    it "does not persist raw log substrings in diagnostic text columns (AGENTS.md)" do
+      assert_no_raw_substring_in_persisted_data(secret_email)
+      assert_no_raw_substring_in_persisted_data(secret_token)
+      assert_no_raw_substring_in_persisted_data(shared_request_id)
+    end
+
+    it "does not expose raw secrets in the show response (AGENTS.md)" do
+      expect(response).to have_http_status(:ok)
+      expect(response.body).not_to include(secret_email)
+      expect(response.body).not_to include(secret_token)
+      expect(response.body).not_to include(shared_request_id)
+      expect(response.body).to include("[EMAIL_1]")
+      expect(response.body).to include("[AUTH_1]")
+    end
+
+    it "correlates shared request ids across sources in the HTTP intake flow" do
+      expect(response.body.scan("[REQUEST_1]").size).to be >= 2
+    end
+  end
+end

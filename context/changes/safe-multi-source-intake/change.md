@@ -1,7 +1,7 @@
 ---
 change_id: safe-multi-source-intake
 title: Safe multi-source intake (S-02)
-status: plan_reviewed
+status: implemented
 created: 2026-05-27
 updated: 2026-05-27
 archived_at: null
@@ -11,10 +11,14 @@ archived_at: null
 
 Roadmap **S-02** north star (`context/foundation/roadmap.md`). In-memory redaction, sanitized persistence only, case UI. Prerequisites: F-01, F-02, S-01 complete.
 
-**Phase 1 done:** `Redaction::Engine`, `PlaceholderRegistry`, `Patterns`, `Result` + unit specs (7 examples). Cross-source request_id correlation via shared registry verified.
+**Delivered:** Redaction engine, intake service, controller/routes, case UI, security and authorization request specs. 53 RSpec examples; `bin/ci` green.
 
-**Phase 2 done:** `Intake::CaseSubmission`, `Intake::ProcessCaseSubmission` — transactional create with shared registry; `customer_reference` redacted per plan review F2; 5 service specs prove no raw persistence.
+**Handoff to S-03:** Sanitized cases are ready for analyze flow (correlation extraction + AI adapter). Analyze button/UI deferred to next slice.
 
-**Phase 3 done:** `DebuggingCasesController`, routes, param filtering for pasted content; minimal new/show stubs; 6 request specs (auth gating, create redirect, sanitized show). Restart dev server after filter_parameter_logging change.
+## Phase log
 
-**Phase 4 done (uncommitted):** Full new form (3 fixed source slots), show with metadata/redaction summary/readonly copy textareas, helper, dashboard link. Manual browser check recommended.
+- Phase 1: `Redaction::Engine`, registry, patterns
+- Phase 2: `Intake::CaseSubmission`, `Intake::ProcessCaseSubmission` (`customer_reference` redacted via shared registry)
+- Phase 3: `DebuggingCasesController`, routes, param filtering (`:pasted_content`, etc.)
+- Phase 4: New/show UI, redaction summary, dashboard link
+- Phase 5: AGENTS.md security specs + cross-user 404 authorization specs
