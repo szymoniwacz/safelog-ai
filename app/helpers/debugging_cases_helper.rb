@@ -32,4 +32,9 @@ module DebuggingCasesHelper
   rescue JSON::ParserError
     nil
   end
+
+  def report_download_filename(debugging_case)
+    base = debugging_case.title.to_s.parameterize.presence || "debugging-case-#{debugging_case.id}"
+    "#{base}-report.md"
+  end
 end
