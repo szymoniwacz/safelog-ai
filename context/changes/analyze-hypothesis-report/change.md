@@ -11,4 +11,6 @@ archived_at: null
 
 Roadmap **S-03** (`context/foundation/roadmap.md`). Synchronous Analyze case: extract correlation signals from sanitized evidence, call F-03 AI adapter, validate hypothesis-framed report, display on case detail. Prerequisites: S-02, F-03 complete.
 
-**Phase 1 done (uncommitted):** `Correlation::ExtractSignals` — placeholder-based cross-source signals from sanitized logs + findings; 4 unit specs.
+**Phase 1 done:** `Correlation::ExtractSignals` — placeholder-based cross-source signals from sanitized logs + findings; 4 unit specs.
+
+**Phase 2 done (uncommitted):** `Analysis::PromptBuilder`, `Analysis::AnalyzeCase` — extract/persist signals, sanitized prompt, AI call with retry-once, `AiReport` persistence; 5 service specs.
