@@ -158,5 +158,5 @@ Prove filter behavior and cross-user index isolation.
 
 #### Automated
 
-- [ ] 3.1 Full `bundle exec rspec` passes
-- [ ] 3.2 `bin/ci` passes
+- [x] 3.1 Full `bundle exec rspec` passes
+- [x] 3.2 `bin/ci` passes
