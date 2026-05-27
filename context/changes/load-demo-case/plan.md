@@ -135,8 +135,8 @@ Dashboard button; explicit production 404 spec.
 
 #### Automated
 
-- [ ] 2.1 Load demo request specs pass
-- [ ] 2.2 `bin/ci` passes
+- [x] 2.1 Load demo request specs pass
+- [x] 2.2 `bin/ci` passes
 
 ### Phase 3: UI and Production Guard Spec
 

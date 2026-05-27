@@ -11,6 +11,10 @@ Rails.application.routes.draw do
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   resources :debugging_cases, only: [ :index, :new, :create, :show ] do
+    collection do
+      post :load_demo
+    end
+
     member do
       post :analyze
       get :download_report

@@ -69,6 +69,21 @@ class DebuggingCasesController < AuthenticatedController
     redirect_to debugging_cases_path, notice: "Case archived."
   end
 
+  def load_demo
+    unless Demo::LoadCase.available?
+      head :not_found
+      return
+    end
+
+    result = Demo::LoadCase.call(user: current_user)
+
+    if result.success?
+      redirect_to debugging_case_path(result.debugging_case), notice: "Demo case loaded."
+    else
+      redirect_to debugging_cases_path, alert: "Could not load demo case."
+    end
+  end
+
   private
 
   def case_submission_params
