@@ -1,0 +1,12 @@
+<h1><%= @debugging_case.title %></h1>
+
+<% if @debugging_case.description.present? %>
+  <p><%= @debugging_case.description %></p>
+<% end %>
+
+<% @log_sources.each do |source| %>
+  <section>
+    <h2><%= source.name.presence || source.source_type.humanize %></h2>
+    <pre><%= source.sanitized_content %></pre>
+  </section>
+<% end %>
