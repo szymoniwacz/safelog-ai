@@ -435,8 +435,8 @@ Prove schema integrity, guardrails, cascade deletes, and document handoff for S-
 
 #### Automated
 
-- [ ] 4.1 Redaction findings migration applies
-- [ ] 4.2 CI passes: `mise exec -- bin/ci`
+- [x] 4.1 Redaction findings migration applies
+- [x] 4.2 CI passes: `mise exec -- bin/ci`
 
 #### Manual
 
