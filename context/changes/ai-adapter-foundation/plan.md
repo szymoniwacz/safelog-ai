@@ -393,9 +393,9 @@ No database migrations. Gem additions only.
 
 #### Automated
 
-- [ ] 3.1 `bundle exec rspec spec/services/ai/response_validator_spec.rb` passes
-- [ ] 3.2 `bundle exec rspec spec/services/ai/` passes
-- [ ] 3.3 `bin/ci` passes
+- [x] 3.1 `bundle exec rspec spec/services/ai/response_validator_spec.rb` passes
+- [x] 3.2 `bundle exec rspec spec/services/ai/` passes
+- [x] 3.3 `bin/ci` passes
 
 #### Manual
 
