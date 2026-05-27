@@ -411,9 +411,9 @@ Prove schema integrity, guardrails, cascade deletes, and document handoff for S-
 
 #### Automated
 
-- [ ] 2.1 Migration applies: `mise exec -- bin/rails db:migrate`
-- [ ] 2.2 User ↔ DebuggingCase association loads in runner (full child tree in Phase 7)
-- [ ] 2.3 CI passes: `mise exec -- bin/ci`
+- [x] 2.1 Migration applies: `mise exec -- bin/rails db:migrate`
+- [x] 2.2 User ↔ DebuggingCase association loads in runner (full child tree in Phase 7)
+- [x] 2.3 CI passes: `mise exec -- bin/ci`
 
 #### Manual
 
