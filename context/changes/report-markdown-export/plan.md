@@ -177,8 +177,8 @@ Prove cross-user export denial and no raw secret leakage in download body.
 
 #### Automated
 
-- [ ] 2.1 Full `bundle exec rspec` passes
-- [ ] 2.2 `bin/ci` passes
+- [x] 2.1 Full `bundle exec rspec` passes
+- [x] 2.2 `bin/ci` passes
 
 #### Manual
 

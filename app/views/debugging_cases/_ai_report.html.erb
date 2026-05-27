@@ -34,6 +34,12 @@
         <% end %>
       </ul>
     <% end %>
+
+    <% if ai_report.markdown_body.present? %>
+      <h3>Markdown export</h3>
+      <p>Select all and copy the Markdown below, or <%= link_to "download the report", download_report_debugging_case_path(debugging_case) %>.</p>
+      <textarea readonly rows="12" aria-label="Report Markdown"><%= ai_report.markdown_body %></textarea>
+    <% end %>
   <% elsif ai_report.failed? %>
     <p><%= Analysis::AnalyzeCase::FAILURE_MESSAGE %></p>
   <% else %>
