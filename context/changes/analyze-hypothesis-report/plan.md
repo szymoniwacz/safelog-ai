@@ -400,8 +400,8 @@ None — uses existing F-02 tables.
 
 #### Automated
 
-- [ ] 5.1 Security + authorization analyze specs pass
-- [ ] 5.2 `bin/ci` passes
+- [x] 5.1 Security + authorization analyze specs pass
+- [x] 5.2 `bin/ci` passes
 
 #### Manual
 
