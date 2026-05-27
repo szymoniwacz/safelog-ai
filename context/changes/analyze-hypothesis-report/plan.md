@@ -356,8 +356,8 @@ None — uses existing F-02 tables.
 
 #### Automated
 
-- [ ] 1.1 `bundle exec rspec spec/services/correlation/` passes
-- [ ] 1.2 `bin/ci` passes
+- [x] 1.1 `bundle exec rspec spec/services/correlation/` passes
+- [x] 1.2 `bin/ci` passes
 
 #### Manual
 
