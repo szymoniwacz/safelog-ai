@@ -14,3 +14,5 @@ Roadmap **S-01** (`context/foundation/roadmap.md`). Thin vertical proof that F-0
 **Phase 1 done:** FactoryBot, `:user` factory, Devise `IntegrationHelpers` for request specs.
 
 **Phase 2 done:** Request specs for registration, session, sign-out, and root gating (7 examples).
+
+**Phase 3 done:** SafeLog-branded auth copy + dashboard welcome. **S-02 handoff:** case routes, intake/redaction, cross-user `DebuggingCase` authorization request specs.
