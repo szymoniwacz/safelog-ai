@@ -10,7 +10,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_27_152734) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_27_153441) do
+  create_table "correlation_signals", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "debugging_case_id", null: false
+    t.text "payload"
+    t.datetime "updated_at", null: false
+    t.index ["debugging_case_id"], name: "index_correlation_signals_on_debugging_case_id"
+  end
+
   create_table "debugging_cases", force: :cascade do |t|
     t.datetime "archived_at"
     t.datetime "created_at", null: false
@@ -53,6 +61,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_27_152734) do
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
+  add_foreign_key "correlation_signals", "debugging_cases"
   add_foreign_key "debugging_cases", "users"
   add_foreign_key "log_sources", "debugging_cases"
   add_foreign_key "redaction_findings", "log_sources"
