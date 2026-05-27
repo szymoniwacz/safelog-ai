@@ -369,9 +369,9 @@ No database migrations. Gem additions only.
 
 #### Automated
 
-- [ ] 1.1 `bundle install` succeeds with new gems
-- [ ] 1.2 `bundle exec rspec` passes
-- [ ] 1.3 `bin/ci` passes
+- [x] 1.1 `bundle install` succeeds with new gems
+- [x] 1.2 `bundle exec rspec` passes
+- [x] 1.3 `bin/ci` passes
 
 #### Manual
 

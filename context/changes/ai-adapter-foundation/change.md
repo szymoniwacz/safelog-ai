@@ -10,3 +10,5 @@ archived_at: null
 ## Notes
 
 Roadmap **F-03** (`context/foundation/roadmap.md` — change id there: `ai-adapter-test-harness`). Provider-agnostic AI adapter interface with fake client for tests/CI; OpenAI as first real provider behind env gate. Prerequisites: F-02 (`encrypted-diagnostic-schema`) complete.
+
+**Phase 1 done:** RSpec + WebMock + `bin/ci` RSpec step. GHA `test` job requires repository secret `RAILS_MASTER_KEY` (decrypts credentials for Rails boot in CI).
