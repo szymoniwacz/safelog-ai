@@ -43,5 +43,17 @@ RSpec.describe "Debugging case load demo", type: :request do
 
       expect(response).to have_http_status(:not_found)
     end
+
+    it "returns not found in production" do
+      sign_in user
+      allow(Rails.env).to receive(:development?).and_return(false)
+      allow(Rails.env).to receive(:test?).and_return(false)
+
+      expect {
+        post load_demo_debugging_cases_path
+      }.not_to change(DebuggingCase, :count)
+
+      expect(response).to have_http_status(:not_found)
+    end
   end
 end

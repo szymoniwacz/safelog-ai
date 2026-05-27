@@ -142,4 +142,4 @@ Dashboard button; explicit production 404 spec.
 
 #### Automated
 
-- [ ] 3.1 Full `bin/ci` passes
+- [x] 3.1 Full `bin/ci` passes
