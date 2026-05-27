@@ -1,7 +1,7 @@
 ---
 change_id: encrypted-diagnostic-schema
 title: Encrypted diagnostic schema (roadmap F-02)
-status: planned
+status: plan_reviewed
 created: 2026-05-27
 updated: 2026-05-25
 archived_at: null

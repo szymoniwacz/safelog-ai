@@ -54,7 +54,7 @@ Configure AR Encryption once (credentials in dev/test; credentials + documented 
 
 **Encryption before first encrypted row:** Run `mise exec -- bin/rails db:encryption:init` and wire keys in `config/application.rb` (or environment-specific config) **before** creating records in Phase 2+. Without keys, encrypted attributes raise at runtime.
 
-**Column type for encrypted text:** Use `:text` (SQLite) for `customer_reference`, `sanitized_content`, `payload`, `structured_json`, and `markdown_body`. AR Encryption stores ciphertext in the column; do not add separate `*_ciphertext` columns manually unless Rails generator does so for a chosen API — follow Rails 8.1 encryption guides for `encrypts`.
+**Column type for encrypted text:** Migrations declare plain `:text` columns for `customer_reference`, `sanitized_content`, `payload`, `structured_json`, and `markdown_body`; models add `encrypts` so ciphertext is stored in those same columns (in-place). Do not add manual `*_ciphertext` columns in this change.
 
 **Forbidden columns:** Migrations and models must never introduce `raw_content`, `original_content`, `encrypted_raw_content`, `raw_*`, or mapping tables for raw-to-placeholder values.
 
@@ -70,17 +70,17 @@ Generate encryption keys, configure the app to read them from credentials (with 
 
 **Files:** `config/credentials.yml.enc` (via editor after init), optionally `config/credentials/development.yml.enc` if project splits env credentials
 
-**Intent:** Run `db:encryption:init` and store `primary_key`, `deterministic_key`, and `key_derivation_salt` in credentials. Deterministic key is required by Rails even though no attributes use deterministic encryption.
+**Intent:** Run `db:encryption:init` (prints a credentials YAML snippet to stdout), copy the `active_record_encryption` block into credentials via `mise exec -- bin/rails credentials:edit`, and save. Deterministic key is required by Rails even though no attributes use deterministic encryption.
 
-**Contract:** `mise exec -- bin/rails db:encryption:init` succeeds; credentials contain the three encryption keys (do not commit plaintext keys outside encrypted credentials).
+**Contract:** `db:encryption:init` prints keys; after `credentials:edit`, encrypted credentials contain `primary_key`, `deterministic_key`, and `key_derivation_salt` (never paste keys into chat/logs).
 
 #### 2. Application encryption config
 
 **File:** `config/application.rb` (or `config/initializers/active_record_encryption.rb` if generator creates one)
 
-**Intent:** Point `config.active_record.encryption.*` at credentials in development/test and support `ENV` overrides for production (`RAILS_ACTIVE_RECORD_ENCRYPTION_*` per `context/deployment/deploy-plan.md`).
+**Intent:** Point `config.active_record.encryption.*` at credentials in development/test. In production, rely on Fly-injected `RAILS_ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY`, `RAILS_ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY`, and `RAILS_ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT` (Rails reads these ENV vars when set — document the mapping in a short comment in `config/environments/production.rb` or the encryption initializer).
 
-**Contract:** App boots; `Rails.application.config.active_record.encryption` is configured without hardcoding secrets in source.
+**Contract:** App boots in development; production config comment names the three Fly secret env vars from `context/deployment/deploy-plan.md`; no hardcoded secrets in source. Optional local check: `RAILS_ENV=production mise exec -- bin/rails runner 'puts ActiveRecord::Encryption.config.primary_key.present?'` when env vars are exported.
 
 #### 3. Documentation touchpoint
 
@@ -94,13 +94,13 @@ Generate encryption keys, configure the app to read them from credentials (with 
 
 #### Automated Verification:
 
-- `mise exec -- bin/rails db:encryption:init` (idempotent if already run — keys present)
+- `mise exec -- bin/rails db:encryption:init` prints snippet; credentials edited and saved with `active_record_encryption` keys
 - `mise exec -- bin/rails runner 'puts ActiveRecord::Encryption.config.primary_key.present?'` (or equivalent config check)
 - `mise exec -- bin/ci`
 
 #### Manual Verification:
 
-- Developer can open credentials and see encryption key entries (without pasting keys into chat/logs)
+- After `credentials:edit`, developer confirms `active_record_encryption` keys exist (without pasting keys into chat/logs)
 
 **Implementation Note**: Pause for human confirmation after automated checks before Phase 2.
 
@@ -317,9 +317,9 @@ Prove schema integrity, guardrails, cascade deletes, and document handoff for S-
 
 #### 1. Schema guardrail check
 
-**Intent:** Script or one-off runner/grep proving `db/schema.rb` and `app/models/` contain none of: `raw_content`, `original_content`, `encrypted_raw_content`, `raw_`.
+**Intent:** Script or one-off grep proving `db/schema.rb` and `app/models/` contain none of the forbidden identifiers: `raw_content`, `original_content`, `encrypted_raw_content`, and column names prefixed `original_` (redaction originals).
 
-**Contract:** Zero forbidden identifiers in schema and models.
+**Contract:** Zero forbidden identifiers in schema and models (use explicit patterns — not a broad `raw_` substring grep).
 
 #### 2. Association cascade smoke
 
@@ -378,6 +378,7 @@ Prove schema integrity, guardrails, cascade deletes, and document handoff for S-
 ## Migration Notes
 
 - Greenfield DB: linear migrations only.
+- Referential integrity: `belongs_to` + indexes in F-02; DB-level `add_foreign_key` optional on SQLite (AR-only integrity acceptable for MVP if omitted).
 - If encryption keys rotate later, follow Rails encryption key rotation guides — out of F-02 scope.
 - Production: set Fly secrets before first encrypted write in production.
 
@@ -398,20 +399,20 @@ Prove schema integrity, guardrails, cascade deletes, and document handoff for S-
 
 #### Automated
 
-- [ ] 1.1 Encryption keys generated via `mise exec -- bin/rails db:encryption:init`
+- [ ] 1.1 Init prints keys; pasted into credentials via `credentials:edit`
 - [ ] 1.2 App boots with encryption config: `mise exec -- bin/rails runner` config check
 - [ ] 1.3 CI passes: `mise exec -- bin/ci`
 
 #### Manual
 
-- [ ] 1.4 Credentials contain encryption keys (not logged)
+- [ ] 1.4 Credentials contain `active_record_encryption` keys after edit (not logged)
 
 ### Phase 2: DebuggingCase
 
 #### Automated
 
 - [ ] 2.1 Migration applies: `mise exec -- bin/rails db:migrate`
-- [ ] 2.2 User ↔ DebuggingCase association loads in runner
+- [ ] 2.2 User ↔ DebuggingCase association loads in runner (full child tree in Phase 7)
 - [ ] 2.3 CI passes: `mise exec -- bin/ci`
 
 #### Manual
