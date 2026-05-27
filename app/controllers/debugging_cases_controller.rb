@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class DebuggingCasesController < AuthenticatedController
+  include DebuggingCasesHelper
+
   def new
     @title = @description = @customer_reference = @environment = nil
   end
@@ -9,6 +11,10 @@ class DebuggingCasesController < AuthenticatedController
     @debugging_case = current_user.debugging_cases.includes(log_sources: :redaction_findings).find(params[:id])
     @log_sources = @debugging_case.log_sources.order(:position)
     @findings = @log_sources.flat_map(&:redaction_findings)
+    @correlation_signal = @debugging_case.correlation_signals.order(:created_at).last
+    @correlation_signals = parse_correlation_signals(@correlation_signal)
+    @ai_report = @debugging_case.ai_reports.order(:created_at).last
+    @ai_report_structured = parse_ai_report_structured(@ai_report)
   end
 
   def create

@@ -53,6 +53,10 @@ RSpec.describe "Debugging case analyze", type: :request do
 
       expect(response).to have_http_status(:ok)
       expect(flash[:notice]).to eq("Analysis complete.")
+      expect(response.body).to include("Hypothesis report")
+      expect(response.body).to include("Checkout timeout may be caused by downstream payment latency.")
+      expect(response.body).to include("[REQUEST_1]")
+      expect(response.body).not_to include("req-analyze-http-1")
 
       ai_report = debugging_case.reload.ai_reports.order(:created_at).last
       expect(ai_report).to be_generated

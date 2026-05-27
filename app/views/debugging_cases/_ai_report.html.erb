@@ -1,0 +1,42 @@
+<section>
+  <h2>Hypothesis report</h2>
+
+  <% if ai_report.nil? %>
+    <p>No analysis has been run yet.</p>
+  <% elsif ai_report.generated? && structured.present? %>
+    <p><strong>Summary:</strong> <%= structured["summary"] %></p>
+
+    <h3>Hypotheses</h3>
+    <ol>
+      <% Array(structured["hypotheses"]).each do |hypothesis| %>
+        <li>
+          <strong><%= hypothesis["title"] %></strong>
+          — <%= hypothesis["description"] %>
+          <% if hypothesis["confidence"].present? %>
+            <em>(<%= hypothesis["confidence"] %>)</em>
+          <% end %>
+        </li>
+      <% end %>
+    </ol>
+
+    <h3>Uncertainty</h3>
+    <ul>
+      <% Array(structured["uncertainty_notes"]).each do |note| %>
+        <li><%= note %></li>
+      <% end %>
+    </ul>
+
+    <% if structured["correlation_highlights"].present? %>
+      <h3>Correlation highlights</h3>
+      <ul>
+        <% Array(structured["correlation_highlights"]).each do |highlight| %>
+          <li><%= highlight %></li>
+        <% end %>
+      </ul>
+    <% end %>
+  <% elsif ai_report.failed? %>
+    <p><%= Analysis::AnalyzeCase::FAILURE_MESSAGE %></p>
+  <% else %>
+    <p>Analysis is in progress.</p>
+  <% end %>
+</section>

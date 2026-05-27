@@ -1,0 +1,28 @@
+<section>
+  <h2>Correlation signals</h2>
+
+  <% if correlation_signals.any? %>
+    <table>
+      <thead>
+        <tr>
+          <th>Placeholder</th>
+          <th>Finding types</th>
+          <th>Source types</th>
+          <th>Occurrences</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% correlation_signals.each do |signal| %>
+          <tr>
+            <td><%= signal["placeholder"] %></td>
+            <td><%= Array(signal["finding_types"]).map { |type| finding_type_label(type) }.join(", ") %></td>
+            <td><%= Array(signal["source_types"]).map(&:humanize).join(", ") %></td>
+            <td><%= signal["occurrence_count"] %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p>No correlation signals yet. Run Analyze case to extract shared placeholders across sources.</p>
+  <% end %>
+</section>
