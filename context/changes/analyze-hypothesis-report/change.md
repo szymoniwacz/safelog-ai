@@ -1,7 +1,7 @@
 ---
 change_id: analyze-hypothesis-report
 title: Analyze hypothesis report (S-03)
-status: planned
+status: implemented
 created: 2026-05-27
 updated: 2026-05-27
 archived_at: null
@@ -11,10 +11,14 @@ archived_at: null
 
 Roadmap **S-03** (`context/foundation/roadmap.md`). Synchronous Analyze case: extract correlation signals from sanitized evidence, call F-03 AI adapter, validate hypothesis-framed report, display on case detail. Prerequisites: S-02, F-03 complete.
 
-**Phase 1 done:** `Correlation::ExtractSignals` — placeholder-based cross-source signals from sanitized logs + findings; 4 unit specs.
+**Delivered:** Correlation extractor, prompt builder, analyze orchestrator, POST analyze route, case show UI for signals + report, AGENTS.md security specs. 68 RSpec examples; `bin/ci` green.
 
-**Phase 2 done:** `Analysis::PromptBuilder`, `Analysis::AnalyzeCase` — extract/persist signals, sanitized prompt, AI call with retry-once, `AiReport` persistence; 5 service specs.
+**Handoff to S-04:** `AiReport#markdown_body` and structured JSON are ready for copy/download Markdown export.
 
-**Phase 3 done:** `POST analyze` member route + controller action; 3 request specs (guest redirect, cross-user 404, owner happy path).
+## Phase log
 
-**Phase 4 done (uncommitted):** Analyze button, correlation signals + hypothesis report partials on show; helper JSON parsing; analyze request spec asserts report UI.
+- Phase 1: `Correlation::ExtractSignals`
+- Phase 2: `Analysis::PromptBuilder`, `Analysis::AnalyzeCase` (retry-once)
+- Phase 3: Analyze route + controller action
+- Phase 4: Analyze button, correlation signals + hypothesis report UI
+- Phase 5: Analyze security request specs (sanitized AI prompts, correlation payload, show response)
