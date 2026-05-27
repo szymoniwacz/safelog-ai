@@ -20,5 +20,22 @@ RSpec.describe "Dashboard", type: :request do
       expect(response).to have_http_status(:ok)
       expect(response.body).to include("Signed in as dashboard@example.com")
     end
+
+    it "shows the load demo action when the demo loader is available" do
+      sign_in user
+
+      get root_path
+
+      expect(response.body).to include("Load demo case")
+    end
+
+    it "hides the load demo action when the demo loader is unavailable" do
+      sign_in user
+      allow(Demo::LoadCase).to receive(:available?).and_return(false)
+
+      get root_path
+
+      expect(response.body).not_to include("Load demo case")
+    end
   end
 end
