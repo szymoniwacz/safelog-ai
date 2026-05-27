@@ -405,9 +405,9 @@ No database migrations. Gem additions only.
 
 #### Automated
 
-- [ ] 4.1 Full `bundle exec rspec` passes
-- [ ] 4.2 `bin/ci` passes
-- [ ] 4.3 `bin/bundler-audit` passes
+- [x] 4.1 Full `bundle exec rspec` passes
+- [x] 4.2 `bin/ci` passes
+- [x] 4.3 `bin/bundler-audit` passes
 
 #### Manual
 
