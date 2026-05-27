@@ -446,8 +446,8 @@ Prove schema integrity, guardrails, cascade deletes, and document handoff for S-
 
 #### Automated
 
-- [ ] 5.1 Correlation signals migration applies
-- [ ] 5.2 CI passes: `mise exec -- bin/ci`
+- [x] 5.1 Correlation signals migration applies
+- [x] 5.2 CI passes: `mise exec -- bin/ci`
 
 #### Manual
 
