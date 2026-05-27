@@ -1,12 +1,33 @@
 <h1><%= @debugging_case.title %></h1>
 
-<% if @debugging_case.description.present? %>
-  <p><%= @debugging_case.description %></p>
-<% end %>
+<p><%= link_to "New debugging case", new_debugging_case_path %> · <%= link_to "Dashboard", root_path %></p>
 
-<% @log_sources.each do |source| %>
-  <section>
-    <h2><%= source.name.presence || source.source_type.humanize %></h2>
-    <pre><%= source.sanitized_content %></pre>
-  </section>
-<% end %>
+<section>
+  <h2>Case metadata</h2>
+
+  <% if @debugging_case.description.present? %>
+    <p><strong>Description:</strong> <%= @debugging_case.description %></p>
+  <% end %>
+
+  <% if @debugging_case.customer_reference.present? %>
+    <p><strong>Customer reference:</strong> <%= @debugging_case.customer_reference %></p>
+  <% end %>
+
+  <% if @debugging_case.environment.present? %>
+    <p><strong>Environment:</strong> <%= @debugging_case.environment %></p>
+  <% end %>
+</section>
+
+<%= render "redaction_summary", findings: @findings %>
+
+<section>
+  <h2>Sanitized log sources</h2>
+  <p>Raw content is not stored. Select all and copy from each field to reuse sanitized logs elsewhere.</p>
+
+  <% @log_sources.each do |source| %>
+    <article>
+      <h3><%= source.name.presence || source.source_type.humanize %></h3>
+      <textarea readonly rows="10" aria-label="Sanitized log for <%= source.name.presence || source.source_type.humanize %>"><%= source.sanitized_content %></textarea>
+    </article>
+  <% end %>
+</section>

@@ -1,3 +1,4 @@
 <h1>SafeLog AI</h1>
 <p>Signed in as <%= current_user.email %>.</p>
-<p>Debugging cases and sanitized log intake arrive in the next release. You are ready to build cases once that slice lands.</p>
+<p><%= link_to "New debugging case", new_debugging_case_path %></p>
+<p>Create a case with multiple pasted log sources. SafeLog redacts sensitive values in memory and stores sanitized evidence only.</p>

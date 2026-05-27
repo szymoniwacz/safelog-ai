@@ -1,3 +1,73 @@
 <h1>New debugging case</h1>
 
-<p>Case intake form lands in Phase 4.</p>
+<p>Paste raw logs from every source in one submission. Content is redacted on submit and cannot be shown again.</p>
+
+<% if @errors.present? %>
+  <div id="error_explanation">
+    <h2><%= pluralize(@errors.count, "error") %> prohibited this case from being saved:</h2>
+    <ul>
+      <% @errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<%= form_with url: debugging_cases_path, scope: :debugging_case, local: true do |form| %>
+  <fieldset>
+    <legend>Case details</legend>
+
+    <div>
+      <%= form.label :title, "Title" %>
+      <%= form.text_field :title, value: @title, required: true %>
+    </div>
+
+    <div>
+      <%= form.label :description, "Description" %>
+      <%= form.text_area :description, value: @description, rows: 3 %>
+    </div>
+
+    <div>
+      <%= form.label :customer_reference, "Customer reference" %>
+      <%= form.text_field :customer_reference, value: @customer_reference %>
+    </div>
+
+    <div>
+      <%= form.label :environment, "Environment" %>
+      <%= form.text_field :environment, value: @environment, placeholder: "e.g. production" %>
+    </div>
+  </fieldset>
+
+  <% DebuggingCasesHelper::SOURCE_SLOT_COUNT.times do |index| %>
+    <fieldset>
+      <legend>Log source <%= index + 1 %></legend>
+
+      <div>
+        <label for="debugging_case_sources_<%= index %>_source_type">Source type</label>
+        <%= select_tag "debugging_case[sources][][source_type]",
+              options_for_select(log_source_type_options),
+              include_blank: "Select type",
+              id: "debugging_case_sources_#{index}_source_type" %>
+      </div>
+
+      <div>
+        <label for="debugging_case_sources_<%= index %>_name">Name (optional)</label>
+        <%= text_field_tag "debugging_case[sources][][name]", nil,
+              id: "debugging_case_sources_#{index}_name",
+              placeholder: "e.g. Rails app log" %>
+      </div>
+
+      <div>
+        <label for="debugging_case_sources_<%= index %>_pasted_content">Pasted content</label>
+        <%= text_area_tag "debugging_case[sources][][pasted_content]", nil,
+              id: "debugging_case_sources_#{index}_pasted_content",
+              rows: 8,
+              placeholder: "Paste raw logs here. Processed once on submit." %>
+      </div>
+    </fieldset>
+  <% end %>
+
+  <%= form.submit "Create debugging case" %>
+<% end %>
+
+<p><%= link_to "Back to dashboard", root_path %></p>
