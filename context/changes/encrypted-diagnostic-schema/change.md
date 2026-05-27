@@ -11,8 +11,11 @@ archived_at: null
 
 F-02 z @context/foundation/roadmap.md
 
-Plan: `context/changes/encrypted-diagnostic-schema/plan.md` — schema/models/encryption only; no case routes.
+**Delivered:** Five domain tables (`debugging_cases`, `log_sources`, `redaction_findings`, `correlation_signals`, `ai_reports`) with Active Record Encryption on diagnostic text (`customer_reference`, `sanitized_content`, `payload`, `structured_json`, `markdown_body`). No case routes, controllers, or intake/AI services in this change.
 
-Production deploy: set `RAILS_ACTIVE_RECORD_ENCRYPTION_*` Fly secrets per `context/deployment/deploy-plan.md` before encrypted writes.
+**Handoff:**
+- **S-02** (`safe-multi-source-intake`) — redaction engine, case controllers (inherit `AuthenticatedController`), persist sanitized evidence only.
+- **F-03** (`ai-adapter-test-harness`) — provider-agnostic AI client + fake for CI.
+- **S-03+** — analyze flow; `AiReport#status`: `pending` → `processing` → `generated` / `failed`.
 
-Next slices: **S-02** intake/redaction (services + controllers), **F-03** AI adapter.
+Production: set `RAILS_ACTIVE_RECORD_ENCRYPTION_*` Fly secrets per `context/deployment/deploy-plan.md` before encrypted writes in production.

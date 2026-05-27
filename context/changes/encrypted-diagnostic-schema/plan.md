@@ -469,10 +469,10 @@ Prove schema integrity, guardrails, cascade deletes, and document handoff for S-
 
 #### Automated
 
-- [ ] 7.1 All migrations up: `db:migrate:status`
-- [ ] 7.2 Cascade destroy runner succeeds
-- [ ] 7.3 Forbidden raw-column grep clean
-- [ ] 7.4 CI passes: `mise exec -- bin/ci`
+- [x] 7.1 All migrations up: `db:migrate:status`
+- [x] 7.2 Cascade destroy runner succeeds
+- [x] 7.3 Forbidden raw-column grep clean
+- [x] 7.4 CI passes: `mise exec -- bin/ci`
 
 #### Manual
 
