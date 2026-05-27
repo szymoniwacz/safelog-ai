@@ -10,3 +10,5 @@ archived_at: null
 ## Notes
 
 Roadmap **S-01** (`context/foundation/roadmap.md`). Thin vertical proof that F-01 Devise auth works in the browser and in automated request specs before S-02 intake. Prerequisites: F-01 complete.
+
+**Phase 1 done:** FactoryBot, `:user` factory, Devise `IntegrationHelpers` for request specs.

@@ -239,9 +239,9 @@ None.
 
 #### Automated
 
-- [ ] 1.1 `bundle install` succeeds with FactoryBot
-- [ ] 1.2 User factory creates valid records in test
-- [ ] 1.3 `bin/ci` passes
+- [x] 1.1 `bundle install` succeeds with FactoryBot
+- [x] 1.2 User factory creates valid records in test
+- [x] 1.3 `bin/ci` passes
 
 #### Manual
 
