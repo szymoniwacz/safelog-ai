@@ -64,7 +64,7 @@
 - **Location**: `spec/models/` (missing)
 - **Detail**: F-02 requires diagnostic text unreadable in SQLite without keys. Suite checks semantic absence of raw secrets but not that encrypted columns store ciphertext (raw SQL read does not contain known plaintext).
 - **Fix**: Add one example per encrypted model reading column via `ActiveRecord::Base.connection.select_value` expecting ciphertext, not plaintext.
-- **Decision**: PENDING
+- **Decision**: FIXED — added `spec/models/encryption_at_rest_spec.rb` covering all encrypted diagnostic columns
 
 ### F3 — Authorization coverage is action-scattered, not end-to-end
 
