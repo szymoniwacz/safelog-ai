@@ -284,9 +284,9 @@ None — no schema or data migration.
 
 #### Automated
 
-- [ ] 1.1 Service specs pass for correlation/redaction/analysis read-path
-- [ ] 1.2 Relevant request specs pass
-- [ ] 1.3 `bin/ci` passes
+- [x] 1.1 Service specs pass for correlation/redaction/analysis read-path
+- [x] 1.2 Relevant request specs pass
+- [x] 1.3 `bin/ci` passes
 
 #### Manual
 

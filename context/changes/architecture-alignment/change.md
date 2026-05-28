@@ -1,7 +1,7 @@
 ---
 change_id: architecture-alignment
 title: Architecture alignment cleanup
-status: planned
+status: implementing
 created: 2026-05-28
 updated: 2026-05-28
 archived_at: null
