@@ -54,7 +54,7 @@
 - **Location**: `app/services/intake/process_case_submission.rb:30`, `app/services/analysis/prompt_builder.rb:41`
 - **Detail**: Only `customer_reference` passes through `redact_metadata`. `description` (and `title`) are stored and sent to AI as plain text. Secrets pasted into description persist unencrypted and appear in analyze prompts — outside log-intake path but violates spirit of PRD NFR when metadata is misused.
 - **Fix**: Run `description` (and optionally `title`) through the same shared-registry `redact_metadata` helper. Add one request spec with secret email in `description` asserting DB + analyze prompt contain `[EMAIL_1]` only.
-- **Decision**: PENDING
+- **Decision**: FIXED — redacted `description` via shared registry; added request spec in `debugging_cases_security_spec.rb`
 
 ### F2 — No test proves encryption-at-rest for diagnostic columns
 

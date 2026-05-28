@@ -27,7 +27,7 @@ module Intake
       DebuggingCase.transaction do
         debugging_case = @user.debugging_cases.create!(
           title: @submission.title,
-          description: @submission.description,
+          description: redact_metadata(@submission.description, registry),
           environment: @submission.environment,
           customer_reference: redact_metadata(@submission.customer_reference, registry)
         )

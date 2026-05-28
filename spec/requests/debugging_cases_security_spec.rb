@@ -86,4 +86,38 @@ RSpec.describe "Debugging cases security (AGENTS.md guardrails)", type: :request
       expect(response.body.scan("[REQUEST_1]").size).to be >= 2
     end
   end
+
+  describe "description metadata redaction" do
+    let(:description_secret_email) { "desc-meta-#{SecureRandom.hex(4)}@secret.example" }
+    let(:fake_client) { Ai::FakeClient.new }
+
+    before do
+      allow(Ai::ClientResolver).to receive(:current).and_return(fake_client)
+      sign_in user
+      post debugging_cases_path, params: {
+        debugging_case: {
+          title: "Metadata redaction case",
+          description: "Reporter contact: #{description_secret_email}",
+          sources: [
+            { source_type: "rails_log", pasted_content: "Started GET /health" }
+          ]
+        }
+      }
+      follow_redirect!
+    end
+
+    it "redacts secrets in description on persist and in analyze prompts" do
+      debugging_case = DebuggingCase.last
+
+      expect(debugging_case.description).to include("[EMAIL_1]")
+      expect(debugging_case.description).not_to include(description_secret_email)
+
+      post analyze_debugging_case_path(debugging_case)
+      follow_redirect!
+
+      prompt = fake_client.last_request.messages.map { |message| message[:content] }.join("\n")
+      expect(prompt).to include("[EMAIL_1]")
+      expect(prompt).not_to include(description_secret_email)
+    end
+  end
 end
