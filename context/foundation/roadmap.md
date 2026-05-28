@@ -1,9 +1,9 @@
 ---
 project: SafeLog AI
 version: 1
-status: draft
+status: active
 created: 2026-05-25
-updated: 2026-05-25
+updated: 2026-05-28
 prd_version: 1
 main_goal: speed
 top_blocker: time
@@ -29,15 +29,15 @@ When debugging production incidents, engineers paste multi-source logs into AI t
 
 | ID | Change ID | Outcome (user can …) | Prerequisites | PRD refs | Status |
 |---|---|---|---|---|---|
-| F-01 | minimal-auth-scaffold | (foundation) Devise email/password; routes gated; User model | — | Access Control, FR-001 | proposed |
-| F-02 | encrypted-diagnostic-schema | (foundation) Domain schema + Active Record Encryption on diagnostic text | F-01 | NFR (encryption), FR-002 | proposed |
-| F-03 | ai-adapter-test-harness | (foundation) Provider-agnostic AI adapter + fake client for tests/CI | F-02 | Success Criteria guardrails, FR-007 | proposed |
-| S-01 | account-access | sign up and sign in with email and password | F-01 | FR-001, US-01 | proposed |
-| S-02 | safe-multi-source-intake | submit a case with multiple pasted sources and view/copy sanitized logs plus redaction summary | F-01, F-02, S-01 | FR-002, FR-003, FR-004, FR-005, FR-006, US-01 | proposed |
-| S-03 | analyze-hypothesis-report | run Analyze case and view a structured, hypothesis-framed AI debugging report | S-02, F-03 | FR-007, FR-008, US-01 | proposed |
-| S-04 | report-markdown-export | copy and download the report as Markdown | S-03 | FR-009, US-01 | proposed |
-| S-05 | archive-debugging-case | archive a case; default list hides it; Archived filter shows it | S-02 | FR-010 | proposed |
-| S-06 | load-demo-case | load a pre-built demo case in development and test only | S-02 | FR-011 | proposed |
+| F-01 | minimal-auth-scaffold | (foundation) Devise email/password; routes gated; User model | — | Access Control, FR-001 | done |
+| F-02 | encrypted-diagnostic-schema | (foundation) Domain schema + Active Record Encryption on diagnostic text | F-01 | NFR (encryption), FR-002 | done |
+| F-03 | ai-adapter-test-harness | (foundation) Provider-agnostic AI adapter + fake client for tests/CI | F-02 | Success Criteria guardrails, FR-007 | done |
+| S-01 | account-access | sign up and sign in with email and password | F-01 | FR-001, US-01 | done |
+| S-02 | safe-multi-source-intake | submit a case with multiple pasted sources and view/copy sanitized logs plus redaction summary | F-01, F-02, S-01 | FR-002, FR-003, FR-004, FR-005, FR-006, US-01 | done |
+| S-03 | analyze-hypothesis-report | run Analyze case and view a structured, hypothesis-framed AI debugging report | S-02, F-03 | FR-007, FR-008, US-01 | done |
+| S-04 | report-markdown-export | copy and download the report as Markdown | S-03 | FR-009, US-01 | done |
+| S-05 | archive-debugging-case | archive a case; default list hides it; Archived filter shows it | S-02 | FR-010 | done |
+| S-06 | load-demo-case | load a pre-built demo case in development and test only | S-02 | FR-011 | done |
 
 ## Streams
 
@@ -52,15 +52,14 @@ Navigation aid — groups items that share a Prerequisites chain. Canonical orde
 
 ## Baseline
 
-What's already in place in the codebase as of `2026-05-25` (auto-researched + user-confirmed).
-Foundations below assume these are present and do NOT re-scaffold them.
+What's in place as of **2026-05-28** (MVP feature slices F-01–S-06 implemented).
 
-- **Frontend:** partial — Hotwire gems (`turbo-rails`, `stimulus-rails`), Propshaft, importmap in `Gemfile`; no `app/javascript/`, no product routes or pages (`config/routes.rb` health only)
-- **Backend / API:** partial — Rails 8.1 + Puma; `ApplicationController` + `GET /up` only; no domain controllers or `app/services/`
-- **Data:** partial — SQLite + Active Record wired (`Gemfile`, `config/database.yml`); `db/schema.rb` empty (no tables/migrations)
-- **Auth:** absent — no Devise, no `User` model, no route guards (planned per PRD)
-- **Deploy / infra:** present — Fly.io `Dockerfile`, `fly.toml`, `.dockerignore`; CI in `.github/workflows/ci.yml`; no auto-deploy workflow yet
-- **Observability:** partial — Rails default logging only; no Sentry/metrics/OTel
+- **Frontend:** server-rendered Rails views (Hotwire, Propshaft, importmap); dashboard, case CRUD, analyze, export, archive UI
+- **Backend:** Rails 8.1 services under `app/services/{redaction,intake,correlation,analysis,ai,demo}/`; authenticated case flows
+- **Data:** SQLite domain schema with Active Record Encryption on diagnostic text; 105 RSpec examples
+- **Auth:** Devise email/password; `AuthenticatedController` gates app routes
+- **Deploy / infra:** Fly.io `Dockerfile`, `fly.toml` (fra, always-on), production host/SSL config; manual deploy; CI in `.github/workflows/ci.yml`
+- **Observability:** Rails default logging; `/up` health check
 
 ## Foundations
 
@@ -75,7 +74,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Auth is absent in baseline but gates every user story; sequencing it first avoids rework on case ownership and authorization specs.
-- **Status:** proposed
+- **Status:** done
 
 ### F-02: Encrypted diagnostic schema
 
@@ -88,7 +87,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Empty `db/schema.rb` blocks all persistence; doing schema + encryption before intake prevents migrating sensitive columns later under time pressure.
-- **Status:** proposed
+- **Status:** done
 
 ### F-03: AI adapter test harness
 
@@ -101,7 +100,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Analyze case is on the critical path but untestable without a fake client; landing the harness before S-03 keeps the ~3-week schedule from stalling on CI/provider wiring.
-- **Status:** proposed
+- **Status:** done
 
 ## Slices
 
@@ -115,7 +114,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Thin vertical proof that F-01 works in the browser before investing in the heavier intake slice.
-- **Status:** proposed
+- **Status:** done
 
 ### S-02: Safe multi-source intake
 
@@ -127,7 +126,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** North star — proves the security wedge (in-memory redaction, no raw persistence) before AI spend; largest single slice under a time budget.
-- **Status:** proposed
+- **Status:** done
 
 ### S-03: Analyze hypothesis report
 
@@ -139,7 +138,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Depends on sanitized evidence quality from S-02; synchronous session-only analysis per PRD NFR.
-- **Status:** proposed
+- **Status:** done
 
 ### S-04: Report Markdown export
 
@@ -151,7 +150,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Small follow-on once report structure exists; completes US-01 sharing path.
-- **Status:** proposed
+- **Status:** done
 
 ### S-05: Archive debugging case
 
@@ -163,7 +162,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Independent of AI path — good parallel work after north star when time is tight.
-- **Status:** proposed
+- **Status:** done
 
 ### S-06: Load demo case
 
@@ -175,25 +174,15 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Course demo and README walkthrough; sequenced after real intake so demo reuses production code paths.
-- **Status:** proposed
+- **Status:** done
 
 ## Backlog Handoff
 
-| Roadmap ID | Change ID | Suggested issue title | Ready for `/10x-plan` | Notes |
-|---|---|---|---|---|
-| F-01 | minimal-auth-scaffold | Land Devise auth scaffold and route protection | no | Unblocks all slices |
-| F-02 | encrypted-diagnostic-schema | Domain schema with encrypted diagnostic fields | no | Requires F-01 |
-| F-03 | ai-adapter-test-harness | AI adapter + fake client for CI | no | Requires F-02 |
-| S-01 | account-access | Sign up and sign in (email/password) | no | Requires F-01 |
-| S-02 | safe-multi-source-intake | Safe multi-source log intake and sanitized case detail | no | North star; requires F-01, F-02, S-01 |
-| S-03 | analyze-hypothesis-report | Analyze case with hypothesis-framed AI report | no | Requires S-02, F-03 |
-| S-04 | report-markdown-export | Copy and download report as Markdown | no | Requires S-03 |
-| S-05 | archive-debugging-case | Archive cases with Archived filter | no | Requires S-02; can parallel S-03 |
-| S-06 | load-demo-case | Load demo case (dev/test only) | no | Requires S-02; can parallel S-03 |
+MVP slices complete. Next work is post-MVP (deploy, observability, Postgres scale) — pick from Parked or open a new change via `/10x-new`.
 
 ## Open Roadmap Questions
 
-1. **Server-rendered Rails views vs same-repo React for MVP UI** — Owner: user. Block: roadmap-wide. PRD Non-Goals specify server-rendered pages for MVP; `context/foundation/tech-stack.md` notes React in the same repo. Resolve before frontend-heavy planning on S-02+.
+_Resolved: MVP uses server-rendered Rails views per PRD Non-Goals (2026-05-28)._
 
 ## Parked
 
@@ -209,4 +198,12 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 ## Done
 
-(Empty on first generation. `/10x-archive` appends here when a matching change is archived.)
+- **F-01: (foundation) Devise email/password sign-up and sign-in work; application routes require authentication where needed.** — Archived 2026-05-28 → `context/archive/2026-05-26-minimal-auth-scaffold/`. Lesson: —.
+- **F-02: (foundation) Debugging-case domain tables exist; diagnostic text fields use Active Record Encryption at rest.** — Archived 2026-05-28 → `context/archive/2026-05-27-encrypted-diagnostic-schema/`. Lesson: —.
+- **F-03: (foundation) Provider-agnostic AI adapter interface exists with a fake implementation used in tests and CI (no real provider calls).** — Archived 2026-05-28 → `context/archive/2026-05-27-ai-adapter-foundation/` (change id `ai-adapter-foundation`). Lesson: —.
+- **S-01: user can sign up and sign in with email and password.** — Archived 2026-05-28 → `context/archive/2026-05-27-account-access/`. Lesson: —.
+- **S-02: user can create a debugging case with title, description, customer_reference, and environment, submit multiple pasted log sources in one request, and view/copy sanitized logs plus a redaction/security summary (no raw content shown again).** — Archived 2026-05-28 → `context/archive/2026-05-27-safe-multi-source-intake/`. Lesson: —.
+- **S-03: user can run Analyze case and view correlation signals plus a structured, hypothesis-framed AI debugging report from sanitized evidence only.** — Archived 2026-05-28 → `context/archive/2026-05-27-analyze-hypothesis-report/`. Lesson: —.
+- **S-04: user can copy and download the AI debugging report as Markdown (`.md`).** — Archived 2026-05-28 → `context/archive/2026-05-27-report-markdown-export/`. Lesson: —.
+- **S-05: user can archive a debugging case; archived cases are hidden from the default list and visible via an Archived filter.** — Archived 2026-05-28 → `context/archive/2026-05-27-archive-debugging-case/`. Lesson: —.
+- **S-06: user can load a pre-built checkout/payment-timeout demo case in development and test environments only.** — Archived 2026-05-28 → `context/archive/2026-05-27-load-demo-case/`. Lesson: —.

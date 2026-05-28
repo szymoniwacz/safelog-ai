@@ -2,14 +2,15 @@
 
 ## Scope
 
-Deploy the **current Rails shell** (health check only, empty schema) to Fly.io as a **public MVP demo** using:
+Deploy the **full MVP** (F-01–S-06) to Fly.io as a **public course demo** using:
 
 - Docker image from [`Dockerfile`](../../Dockerfile)
 - SQLite files on a Fly Volume mounted at `/rails/storage`
-- Single Machine in **`fra`** (Frankfurt)
+- Single Machine in **`fra`** (Frankfurt), `min_machines_running = 1`
+- Devise auth, encrypted diagnostic schema, safe intake, analyze, export, archive
 - **Manual** `fly deploy` (no GitHub Actions deploy workflow yet — per [`context/foundation/infrastructure.md`](../foundation/infrastructure.md))
 
-**Out of scope for this deploy:** CI auto-deploy, staging app, Postgres, Redis, LiteFS, backups automation, domain/DNS, full product features (Devise, encryption, AI).
+**Out of scope for this deploy:** CI auto-deploy, staging app, Postgres, Redis, LiteFS, backups automation, custom domain/DNS.
 
 ```mermaid
 flowchart LR
@@ -17,7 +18,7 @@ flowchart LR
   build --> machine[Single_Fly_Machine_fra]
   machine --> volume["Volume_data_/rails/storage"]
   volume --> sqlite["storage/production*.sqlite3"]
-  machine --> publicURL["https://safelog-ai.fly.dev/up"]
+  machine --> publicURL["https://safelog-ai.fly.dev/"]
 ```
 
 ---
@@ -40,8 +41,8 @@ flowchart LR
 
 | File | Current state | Required change |
 |------|---------------|-----------------|
-| [`fly.toml`](../../fly.toml) | ~~`primary_region = "waw"` (deprecated)~~ | Set `primary_region = "fra"` per infrastructure decision |
-| [`fly.toml`](../../fly.toml) | ~~`min_machines_running = 0`~~ | Set `min_machines_running = 1` for reliable demo URL (avoids cold starts) |
+| [`fly.toml`](../../fly.toml) | `primary_region = "fra"`, `min_machines_running = 1` | ✅ Applied — verify before deploy |
+| [`config/environments/production.rb`](../../config/environments/production.rb) | `config.hosts`, SSL, AR encryption env | ✅ Applied — verify |
 
 ### Verify (likely OK; fix only if deploy fails)
 
@@ -52,20 +53,19 @@ flowchart LR
 | [`bin/docker-entrypoint`](../../bin/docker-entrypoint) | Runs `db:prepare` before server — args `./bin/thrust ./bin/rails server` still match `${@: -2:1}` / `${@: -1:1}` check |
 | [`Dockerfile`](../../Dockerfile) | Ruby `3.4.9`, `sqlite3`/`libsqlite3-dev`, no mise; production bundle path is image-local (`/usr/local/bundle`) — separate from dev `vendor/bundle` |
 | [`.dockerignore`](../../.dockerignore) | Excludes `config/master.key`, local `storage/*.sqlite3` (correct — DB created on volume at boot) |
-| [`config/environments/production.rb`](../../config/environments/production.rb) | If deploy returns 403/blocked host, enable `config.hosts` for `safelog-ai.fly.dev` and optionally `config.assume_ssl = true` |
-| [`db/schema.rb`](../../db/schema.rb) | Empty schema (version 0) — first boot creates empty DBs via `db:prepare` |
+| [`config/environments/production.rb`](../../config/environments/production.rb) | `safelog-ai.fly.dev` in hosts; SSL; AR encryption from Fly env |
+| [`db/schema.rb`](../../db/schema.rb) | Full MVP schema — `db:prepare` on boot creates/migrates on volume |
 
 ### Optional follow-ups (not blocking shell deploy)
 
 | File | Note |
 |------|------|
-| [`.dockerignore`](../../.dockerignore) | Add `/vendor/bundle` to shrink Docker build context (Dockerfile already runs `bundle install` in build stage) |
+| [`.dockerignore`](../../.dockerignore) | `/vendor/bundle` excluded | ✅ Applied |
 | [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) | Add deploy workflow later; not part of first manual deploy |
 | [`context/foundation/tech-stack.md`](../foundation/tech-stack.md) | Still says SQLite migration is “planned” — doc sync only |
 
 ### Do not change for this deploy
 
-- Application domain code, migrations, models
 - Local `.bundle/config` / `vendor/bundle` setup
 - Dockerfile production `BUNDLE_PATH` (intentionally different from local dev)
 
@@ -115,26 +115,37 @@ fly secrets set RAILS_MASTER_KEY="$(cat config/master.key)" --app safelog-ai
 
 Rails 8 derives `SECRET_KEY_BASE` from credentials via `RAILS_MASTER_KEY` — no separate `SECRET_KEY_BASE` secret needed if credentials are configured.
 
-#### Required before product features (set when implemented)
-
-From [`context/foundation/infrastructure.md`](../foundation/infrastructure.md):
+#### Required before first MVP deploy (not just `/up`)
 
 ```bash
+fly secrets set RAILS_MASTER_KEY="$(cat config/master.key)" --app safelog-ai
+
+# Required — encrypted diagnostic fields fail without these:
 fly secrets set \
-  OPENAI_API_KEY="..." \
   RAILS_ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY="..." \
   RAILS_ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY="..." \
   RAILS_ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT="..." \
   --app safelog-ai
 ```
 
-Generate encryption keys locally when wiring AR Encryption:
+Generate encryption keys locally:
 
 ```bash
 mise exec -- bin/rails db:encryption:init
 ```
 
-**Not needed** for first `/up` health-check deploy.
+#### Optional — real AI analyze (otherwise FakeClient + UI notice)
+
+```bash
+fly secrets set OPENAI_API_KEY="..." --app safelog-ai
+```
+
+#### Previously shell-only (now superseded)
+
+```bash
+# OPENAI_API_KEY and AR encryption were listed as "before product features"
+# — both are required for a working MVP demo with persisted cases.
+```
 
 #### Not needed for SQLite MVP
 
@@ -223,8 +234,9 @@ fly ssh console --app safelog-ai -C "bin/rails runner 'puts ActiveRecord::Base.c
 
 ### Browser / functional
 
-- Visit `https://safelog-ai.fly.dev/up` — Rails health page / 200
-- Visit `https://safelog-ai.fly.dev/` — may 404 (no root route yet); that is OK for shell deploy
+- Visit `https://safelog-ai.fly.dev/` — sign up / sign in; dashboard loads
+- Create a case, analyze (demo AI notice if no `OPENAI_API_KEY`), export report
+- Visit `https://safelog-ai.fly.dev/up` — health check 200
 - Fly dashboard: Machine **started**, volume **attached**, health check **passing**
 
 ### Failure triage quick reference
@@ -249,9 +261,8 @@ fly ssh console --app safelog-ai -C "bin/rails runner 'puts ActiveRecord::Base.c
 | No backup strategy | Demo data loss on corruption/bad migration | Manual `fly ssh` + file copy before risky migrations |
 | `min_machines_running = 0` | Cold starts break live demos | Use `1` for demo period |
 | Deprecated `waw` region | Deploy failure | Use `fra` |
-| Public URL, minimal auth | Anyone can hit `/up`; app routes unprotected until Devise | Accept for course demo; add auth before real data |
-| Secrets in Fly vault | Org members with Fly access can read secrets | Limit org access; rotate keys if leaked |
-| AR Encryption not wired yet | Infrastructure doc lists keys; app does not use them yet | Set secrets when encryption lands |
+| Public URL with Devise auth | Unauthenticated users see sign-in only; register open for course demo | Accept for course demo; restrict registration later if needed |
+| AR Encryption keys required | App boot may fail or diagnostic writes error without Fly encryption secrets | Set all three `RAILS_ACTIVE_RECORD_ENCRYPTION_*` before demo |
 | Manual deploy only | Drift between local and prod until CI deploy added | Document deploy commands; add GH Action later |
 | Estimated cost ~$6–8/mo | Not zero-cost | Budget for course demo window |
 
