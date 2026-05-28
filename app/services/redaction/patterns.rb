@@ -3,6 +3,11 @@
 module Redaction
   module Patterns
     # PRD MVP detectors — heuristic regexes, not exhaustive DLP.
+    #
+    # Known gaps (accepted for MVP; extend here rather than ad-hoc regex elsewhere):
+    # - Standalone API keys (e.g. bare sk-… on a line without "token=" or
+    #   Authorization: Bearer) are not matched; use labeled token= / Bearer forms
+    #   in fixtures and course demos, or add a dedicated pattern when needed.
     ALL = [
       {
         finding_type: "authorization_header",

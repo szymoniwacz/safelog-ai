@@ -94,7 +94,7 @@
 - **Location**: `app/services/redaction/patterns.rb`
 - **Detail**: Regex-heuristic patterns may miss standalone secrets without `token=` / `Authorization:` prefixes. PRD acknowledges MVP detectors; main checkout-timeout patterns covered in tests.
 - **Fix**: No engine rewrite. Optionally add pattern for bare `sk-…` API keys if course demos need it.
-- **Decision**: PENDING
+- **Decision**: FIXED — documented known heuristic gaps in `Redaction::Patterns` (no new regex)
 
 ### F6 — Production analyze falls back to FakeClient without API key
 
