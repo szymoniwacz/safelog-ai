@@ -19,7 +19,7 @@ module Analysis
           { role: "system", content: system_message },
           { role: "user", content: user_message }
         ],
-        case_ref: @debugging_case.id
+        case_ref: @debugging_case.id.to_s
       )
     end
 

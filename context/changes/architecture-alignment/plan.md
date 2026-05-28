@@ -296,8 +296,8 @@ None — no schema or data migration.
 
 #### Automated
 
-- [ ] 2.1 Intake/analysis specs pass
-- [ ] 2.2 `bin/ci` passes
+- [x] 2.1 Intake/analysis specs pass
+- [x] 2.2 `bin/ci` passes
 
 ### Phase 3: Documentation & Dead-Code Cleanup
 

@@ -46,6 +46,7 @@ module Analysis
     private
 
     def persist_correlation_signal!(correlation_payload)
+      # Correlation::ExtractSignals is pure; this orchestrator owns persistence (S-03).
       @debugging_case.correlation_signals.create!(
         payload: JSON.generate(correlation_payload)
       )
