@@ -18,9 +18,10 @@ class DebuggingCasesController < AuthenticatedController
     @log_sources = @debugging_case.log_sources.order(:position)
     @findings = @log_sources.flat_map(&:redaction_findings)
     @correlation_signal = @debugging_case.correlation_signals.order(:created_at).last
-    @correlation_signals = parse_correlation_signals(@correlation_signal)
+    @correlation_signals = Correlation::ParsePayload.call(correlation_signal: @correlation_signal)
     @ai_report = @debugging_case.ai_reports.order(:created_at).last
-    @ai_report_structured = parse_ai_report_structured(@ai_report)
+    @ai_report_structured = Analysis::ParseStructuredReport.call(ai_report: @ai_report)
+    @redaction_summary = Redaction::SummaryCounts.call(findings: @findings)
     @fake_ai_client_active = Ai::ClientResolver.fake_client_active?
   end
 
@@ -60,7 +61,7 @@ class DebuggingCasesController < AuthenticatedController
     send_data ai_report.markdown_body,
               type: "text/markdown",
               disposition: "attachment",
-              filename: report_download_filename(debugging_case)
+              filename: Analysis::ReportFilename.call(debugging_case: debugging_case)
   end
 
   def archive
