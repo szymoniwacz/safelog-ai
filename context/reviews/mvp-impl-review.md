@@ -74,7 +74,7 @@
 - **Location**: `spec/requests/debugging_cases_authorization_spec.rb`
 - **Detail**: Cross-user 404 tested per feature file but `debugging_cases_authorization_spec.rb` only covers GET show. Regression in one mutating action could slip through if that file's specs are removed.
 - **Fix**: Extend authorization spec with POST analyze, POST archive, GET download_report returning 404 for `other_user`.
-- **Decision**: PENDING
+- **Decision**: FIXED — consolidated cross-user 404 examples in `debugging_cases_authorization_spec.rb`
 
 ### F4 — AI request guard is metadata-only
 
