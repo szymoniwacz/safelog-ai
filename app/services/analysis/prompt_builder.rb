@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 module Analysis
+  # Builds Ai::Request payloads from persisted sanitized evidence only.
+  # Do not pass raw intake fields (pasted_content, pre-redaction metadata) here.
   class PromptBuilder
     def self.call(debugging_case:, correlation_payload:)
       new(debugging_case: debugging_case, correlation_payload: correlation_payload).call

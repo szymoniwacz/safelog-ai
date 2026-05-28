@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
 module Ai
+  # Outbound AI request envelope. Sanitization is enforced upstream: only
+  # Analysis::PromptBuilder (and future callers) may construct messages, and
+  # those services must use redacted/sanitized case evidence only. This class
+  # validates request shape and blocks forbidden metadata keys; it does not
+  # re-scan message content — see request + analyze security specs for proof.
   class Request
     FORBIDDEN_KEY_PATTERN = /raw|original|mapping/i
 

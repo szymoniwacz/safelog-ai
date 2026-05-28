@@ -84,7 +84,7 @@
 - **Location**: `app/services/ai/request.rb`
 - **Detail**: `Ai::Request` validates metadata key names but not message content. Upstream services and tests enforce sanitization today; future `PromptBuilder` bug would not be caught at adapter boundary.
 - **Fix (optional)**: Lightweight content scan in `Ai::Request` for obvious raw patterns, or document `PromptBuilder` as sole gate.
-- **Decision**: PENDING
+- **Decision**: FIXED — documented PromptBuilder as sole sanitization gate in `Ai::Request`, `PromptBuilder`, and guard spec
 
 ### F5 — Redaction heuristics are intentionally incomplete
 
