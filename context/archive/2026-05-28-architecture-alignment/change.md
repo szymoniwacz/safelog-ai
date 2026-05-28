@@ -1,10 +1,10 @@
 ---
 change_id: architecture-alignment
 title: Architecture alignment cleanup
-status: implemented
+status: archived
 created: 2026-05-28
 updated: 2026-05-28
-archived_at: null
+archived_at: 2026-05-28T19:48:42Z
 ---
 
 ## Notes
