@@ -5,8 +5,7 @@ require "rails_helper"
 RSpec.describe Ai::ResponseValidator do
   subject(:result) { described_class.call(structured) }
 
-  let(:fixture_path) { Rails.root.join("spec/support/fixtures/ai/valid_report.json") }
-  let(:valid_structured) { JSON.parse(File.read(fixture_path), symbolize_names: true) }
+  let(:valid_structured) { Ai::ReportSchema::CANONICAL_STRUCTURED }
 
   context "with a valid fixture" do
     let(:structured) { valid_structured }
@@ -18,7 +17,7 @@ RSpec.describe Ai::ResponseValidator do
     end
 
     it "accepts string keys" do
-      expect(described_class.call(JSON.parse(File.read(fixture_path)))).to be_a(
+      expect(described_class.call(JSON.parse(valid_structured.to_json))).to be_a(
         Ai::ResponseValidator::ValidationResult
       )
     end

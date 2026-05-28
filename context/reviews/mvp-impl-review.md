@@ -6,7 +6,7 @@
 - **Date**: 2026-05-27
 - **Verdict**: APPROVED
 - **Findings**: 0 critical · 0 warnings · 0 observations (7 fixed)
-- **CI**: `bin/ci` green — 94 examples, 0 failures
+- **CI**: `bin/ci` green — 116 examples, 0 failures
 
 ## Verdicts
 
@@ -14,7 +14,7 @@
 |-----------|---------|
 | Plan Adherence | PASS |
 | Scope Discipline | PASS |
-| Safety & Quality | WARNING |
+| Safety & Quality | PASS |
 | Architecture | PASS |
 | Pattern Consistency | PASS |
 | Success Criteria | PASS |
@@ -38,7 +38,7 @@
 | Raw logs filtered from param logging | PASS | `filter_parameter_logging.rb` |
 | Placeholder registry in-memory only | PASS | `PlaceholderRegistry`; no persistence path |
 | Per-user case isolation | PASS | Controller scoping + cross-user 404 specs |
-| Encrypted diagnostic fields | PASS (impl) / gap (tests) | Models correct; F2 test gap |
+| Encrypted diagnostic fields | PASS | Models + `encryption_at_rest_spec.rb` |
 | Demo dev/test only | PASS | `Demo::LoadCase.available?` + production 404 |
 | Fake AI in CI/tests | PASS | `ClientResolver` → `FakeClient` in test |
 | No out-of-scope features | PASS | No analyze jobs, no React, minimal Devise |
