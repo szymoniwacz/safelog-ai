@@ -1,10 +1,10 @@
 ---
 change_id: ai-adapter-foundation
 title: AI adapter foundation (F-03)
-status: plan_reviewed
+status: archived
 created: 2026-05-27
-updated: 2026-05-27
-archived_at: null
+updated: 2026-05-28
+archived_at: 2026-05-28T17:40:13Z
 ---
 
 ## Notes

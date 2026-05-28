@@ -4,8 +4,8 @@
 - **Plan**: Cross-cutting review — `context/changes/{minimal-auth-scaffold,encrypted-diagnostic-schema,ai-adapter-foundation,account-access,safe-multi-source-intake,analyze-hypothesis-report,report-markdown-export,archive-debugging-case,load-demo-case}/plan.md`
 - **Scope**: Full MVP — foundations F-01, F-02, F-03 and slices S-01 through S-06
 - **Date**: 2026-05-27
-- **Verdict**: NEEDS ATTENTION
-- **Findings**: 0 critical · 3 warnings · 4 observations
+- **Verdict**: APPROVED
+- **Findings**: 0 critical · 0 warnings · 0 observations (7 fixed)
 - **CI**: `bin/ci` green — 94 examples, 0 failures
 
 ## Verdicts
@@ -114,7 +114,7 @@
 - **Location**: `context/foundation/roadmap.md`, `context/deployment/deploy-plan.md`
 - **Detail**: Roadmap marks F-01–S-06 as `proposed`; deploy plan describes empty-schema shell deploy. Does not affect runtime.
 - **Fix**: Run `/10x-archive` per completed change; update roadmap Done section and deploy-plan scope.
-- **Decision**: PENDING
+- **Decision**: FIXED — archived 9 MVP change folders; updated `roadmap.md` and `deploy-plan.md`
 
 ## Recommended Fix Order
 
