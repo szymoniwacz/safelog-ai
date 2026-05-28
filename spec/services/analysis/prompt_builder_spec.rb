@@ -40,7 +40,7 @@ RSpec.describe Analysis::PromptBuilder do
       expect(content).to include("Checkout failure")
       expect(content).to include("Correlation signals:")
       expect(content).not_to include(secret_email)
-      expect(request.case_ref).to eq(debugging_case.id)
+      expect(request.case_ref).to eq(debugging_case.id.to_s)
     end
   end
 end
