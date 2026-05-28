@@ -29,9 +29,9 @@ SafeLog AI is a Rails 8.1 + SQLite app for safe multi-source log debugging (MVP 
 - `mise exec -- bin/dev` — Puma (port 3000)
 - `mise exec -- bin/ci` — RuboCop, bundler-audit, importmap audit, Brakeman (`@config/ci.rb`, `@.github/workflows/ci.yml`)
 - `mise exec -- bin/rubocop` / `bin/brakeman` / `bin/bundler-audit` — individual gates
-- `mise exec -- bundle exec rspec spec/` - when Rspec is added
+- `mise exec -- bundle exec rspec spec/` — full RSpec suite (116+ examples; `bin/ci` runs this gate)
 
-No test suite yet; add RSpec under `spec/` per `@context/foundation/prd.md` and extend CI. New tests must prove raw logs never persist and never reach AI stubs.
+RSpec lives under `spec/` with request, service, and model coverage. Run `mise exec -- bin/ci` before pushing — it runs RuboCop, security audits, and the full test suite. New tests must prove raw logs never persist and never reach AI stubs.
 
 ## Style and commits
 

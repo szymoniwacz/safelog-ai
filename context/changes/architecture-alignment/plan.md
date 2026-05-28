@@ -303,8 +303,8 @@ None — no schema or data migration.
 
 #### Automated
 
-- [ ] 3.1 `bin/ci` passes after fixture removal
+- [x] 3.1 `bin/ci` passes after fixture removal
 
 #### Manual
 
-- [ ] 3.2 No dangling references to deleted fixture
+- [x] 3.2 No dangling references to deleted fixture
