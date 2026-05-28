@@ -104,7 +104,7 @@
 - **Location**: `app/services/ai/client_resolver.rb:6-9`
 - **Detail**: Without `OPENAI_API_KEY`, production analyze succeeds with canned fake output. Safe for security but misleading for real AI demo.
 - **Fix**: Set `OPENAI_API_KEY` in Fly secrets before public demo, or surface UI notice when fake client is active.
-- **Decision**: PENDING
+- **Decision**: FIXED — `ClientResolver.fake_client_active?` + notice on case show when no API key (non-test)
 
 ### F7 — Roadmap and deploy docs are stale
 

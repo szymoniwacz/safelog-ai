@@ -94,5 +94,14 @@ RSpec.describe "Debugging cases", type: :request do
       expect(response.body).to include("[REQUEST_1]")
       expect(response.body).not_to include("req-show-123")
     end
+
+    it "shows a demo AI notice when the fake client is active outside test" do
+      sign_in user
+      allow(Ai::ClientResolver).to receive(:fake_client_active?).and_return(true)
+
+      get debugging_case_path(debugging_case)
+
+      expect(response.body).to include("Demo AI client active")
+    end
   end
 end

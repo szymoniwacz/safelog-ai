@@ -21,6 +21,7 @@ class DebuggingCasesController < AuthenticatedController
     @correlation_signals = parse_correlation_signals(@correlation_signal)
     @ai_report = @debugging_case.ai_reports.order(:created_at).last
     @ai_report_structured = parse_ai_report_structured(@ai_report)
+    @fake_ai_client_active = Ai::ClientResolver.fake_client_active?
   end
 
   def create
