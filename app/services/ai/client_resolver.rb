@@ -8,5 +8,9 @@ module Ai
 
       FakeClient.new
     end
+
+    def self.fake_client_active?
+      !Rails.env.test? && ENV["OPENAI_API_KEY"].blank?
+    end
   end
 end

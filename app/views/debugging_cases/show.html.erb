@@ -9,6 +9,9 @@
 <section>
   <h2>Analysis</h2>
   <p>Generate correlation signals and a hypothesis-framed debugging report from sanitized evidence only.</p>
+  <% if @fake_ai_client_active %>
+    <p><em>Demo AI client active — analyze returns sample output until OPENAI_API_KEY is configured.</em></p>
+  <% end %>
   <%= button_to "Analyze case", analyze_debugging_case_path(@debugging_case), method: :post %>
 </section>
 
