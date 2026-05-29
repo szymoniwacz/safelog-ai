@@ -1,7 +1,9 @@
-<%- if controller_name != "sessions" %>
-  <p><%= link_to "Already have an account? Sign in", new_session_path(resource_name) %></p>
-<% end %>
+<div class="auth-links">
+  <%- if controller_name != "sessions" %>
+    <p><%= link_to "Already have an account? Sign in", new_session_path(resource_name) %></p>
+  <% end %>
 
-<%- if controller_name != "registrations" %>
-  <p><%= link_to "Need an account? Create one", new_registration_path(resource_name) %></p>
-<% end %>
+  <%- if controller_name != "registrations" %>
+    <p><%= link_to "Need an account? Create one", new_registration_path(resource_name) %></p>
+  <% end %>
+</div>

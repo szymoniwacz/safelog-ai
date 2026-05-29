@@ -1,8 +1,8 @@
-<section>
+<section class="card">
   <h2>Correlation signals</h2>
 
   <% if correlation_signals.any? %>
-    <table>
+    <table class="data-table">
       <thead>
         <tr>
           <th>Placeholder</th>
@@ -14,7 +14,7 @@
       <tbody>
         <% correlation_signals.each do |signal| %>
           <tr>
-            <td><%= signal["placeholder"] %></td>
+            <td><code><%= signal["placeholder"] %></code></td>
             <td><%= Array(signal["finding_types"]).map { |type| finding_type_label(type) }.join(", ") %></td>
             <td><%= Array(signal["source_types"]).map(&:humanize).join(", ") %></td>
             <td><%= signal["occurrence_count"] %></td>
@@ -23,6 +23,6 @@
       </tbody>
     </table>
   <% else %>
-    <p>No correlation signals yet. Run Analyze case to extract shared placeholders across sources.</p>
+    <p class="card__hint">No correlation signals yet. Run Analyze case to extract shared placeholders across sources.</p>
   <% end %>
 </section>

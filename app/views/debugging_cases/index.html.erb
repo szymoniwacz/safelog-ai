@@ -1,18 +1,19 @@
-<h1>Debugging cases</h1>
+<header class="page-header">
+  <h1>Debugging cases</h1>
+</header>
 
-<p>
-  <%= link_to "New debugging case", new_debugging_case_path %>
-  · <%= link_to "Dashboard", root_path %>
-</p>
+<div class="page-actions">
+  <%= link_to "New debugging case", new_debugging_case_path, class: "btn" %>
+  <%= link_to "Dashboard", root_path %>
+</div>
 
-<p>
+<nav class="filter-tabs" aria-label="Case list filter">
   <%= link_to "Active", debugging_cases_path, aria: { current: (@show_archived ? "false" : "page") } %>
-  |
   <%= link_to "Archived", debugging_cases_path(filter: "archived"), aria: { current: (@show_archived ? "page" : "false") } %>
-</p>
+</nav>
 
 <% if @debugging_cases.any? %>
-  <table>
+  <table class="data-table">
     <thead>
       <tr>
         <th>Title</th>
@@ -31,7 +32,7 @@
     </tbody>
   </table>
 <% else %>
-  <p>
+  <p class="empty-state">
     <% if @show_archived %>
       No archived debugging cases.
     <% else %>

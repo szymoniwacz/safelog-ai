@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <title><%= content_for(:title) || "SafeLog AI" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -12,24 +12,39 @@
     <link rel="icon" href="/icon.png" type="image/png">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
 
-    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
   </head>
 
-  <body>
-    <% if notice.present? %>
-      <p class="notice"><%= notice %></p>
-    <% end %>
-    <% if alert.present? %>
-      <p class="alert"><%= alert %></p>
-    <% end %>
-
-    <% if user_signed_in? %>
-      <p>
-        <%= current_user.email %>
-        <%= button_to "Sign out", destroy_user_session_path, method: :delete %>
-      </p>
+  <body class="<%= "auth-page" if devise_controller? %>">
+    <% if notice.present? || alert.present? %>
+      <div class="flash-messages" role="status" aria-live="polite">
+        <% if notice.present? %>
+          <p class="flash flash--notice"><%= notice %></p>
+        <% end %>
+        <% if alert.present? %>
+          <p class="flash flash--alert"><%= alert %></p>
+        <% end %>
+      </div>
     <% end %>
 
-    <%= yield %>
+    <header class="site-header">
+      <div class="container site-header__inner">
+        <%= link_to "SafeLog AI", root_path, class: "site-brand" %>
+
+        <% if user_signed_in? %>
+          <nav class="site-nav" aria-label="Main">
+            <%= link_to "Dashboard", root_path %>
+            <%= link_to "Cases", debugging_cases_path %>
+            <%= link_to "New case", new_debugging_case_path %>
+            <span class="site-nav__user"><%= current_user.email %></span>
+            <%= button_to "Sign out", destroy_user_session_path, method: :delete, class: "btn btn--secondary" %>
+          </nav>
+        <% end %>
+      </div>
+    </header>
+
+    <main class="container main-content">
+      <%= yield %>
+    </main>
   </body>
 </html>
