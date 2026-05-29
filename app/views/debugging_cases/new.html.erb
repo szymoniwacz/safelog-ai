@@ -1,6 +1,7 @@
-<h1>New debugging case</h1>
-
-<p>Paste raw logs from every source in one submission. Content is redacted on submit and cannot be shown again.</p>
+<header class="page-header">
+  <h1>New debugging case</h1>
+  <p class="page-header__lead">Paste raw logs from every source in one submission. Content is redacted on submit and cannot be shown again.</p>
+</header>
 
 <% if @errors.present? %>
   <div id="error_explanation">
@@ -13,26 +14,26 @@
   </div>
 <% end %>
 
-<%= form_with url: debugging_cases_path, scope: :debugging_case, local: true do |form| %>
+<%= form_with url: debugging_cases_path, scope: :debugging_case, local: true, html: { class: "form-panel" } do |form| %>
   <fieldset>
     <legend>Case details</legend>
 
-    <div>
+    <div class="form-field">
       <%= form.label :title, "Title" %>
       <%= form.text_field :title, value: @title, required: true %>
     </div>
 
-    <div>
+    <div class="form-field">
       <%= form.label :description, "Description" %>
       <%= form.text_area :description, value: @description, rows: 3 %>
     </div>
 
-    <div>
+    <div class="form-field">
       <%= form.label :customer_reference, "Customer reference" %>
       <%= form.text_field :customer_reference, value: @customer_reference %>
     </div>
 
-    <div>
+    <div class="form-field">
       <%= form.label :environment, "Environment" %>
       <%= form.text_field :environment, value: @environment, placeholder: "e.g. production" %>
     </div>
@@ -42,7 +43,7 @@
     <fieldset>
       <legend>Log source <%= index + 1 %></legend>
 
-      <div>
+      <div class="form-field">
         <label for="debugging_case_sources_<%= index %>_source_type">Source type</label>
         <%= select_tag "debugging_case[sources][][source_type]",
               options_for_select(log_source_type_options),
@@ -50,14 +51,14 @@
               id: "debugging_case_sources_#{index}_source_type" %>
       </div>
 
-      <div>
+      <div class="form-field">
         <label for="debugging_case_sources_<%= index %>_name">Name (optional)</label>
         <%= text_field_tag "debugging_case[sources][][name]", nil,
               id: "debugging_case_sources_#{index}_name",
               placeholder: "e.g. Rails app log" %>
       </div>
 
-      <div>
+      <div class="form-field">
         <label for="debugging_case_sources_<%= index %>_pasted_content">Pasted content</label>
         <%= text_area_tag "debugging_case[sources][][pasted_content]", nil,
               id: "debugging_case_sources_#{index}_pasted_content",
@@ -67,7 +68,9 @@
     </fieldset>
   <% end %>
 
-  <%= form.submit "Create debugging case" %>
+  <div class="form-actions">
+    <%= form.submit "Create debugging case", class: "btn" %>
+  </div>
 <% end %>
 
 <p><%= link_to "Back to dashboard", root_path %></p>

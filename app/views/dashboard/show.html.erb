@@ -1,10 +1,16 @@
-<h1>SafeLog AI</h1>
-<p>Signed in as <%= current_user.email %>.</p>
-<p>
+<header class="page-header">
+  <h1>SafeLog AI</h1>
+  <p class="page-header__lead">Signed in as <%= current_user.email %>.</p>
+</header>
+
+<div class="page-actions">
   <%= link_to "Debugging cases", debugging_cases_path %>
-  · <%= link_to "New debugging case", new_debugging_case_path %>
+  <%= link_to "New debugging case", new_debugging_case_path, class: "btn" %>
   <% if Demo::LoadCase.available? %>
-    · <%= button_to "Load demo case", load_demo_debugging_cases_path, method: :post %>
+    <%= button_to "Load demo case", load_demo_debugging_cases_path, method: :post, class: "btn btn--secondary" %>
   <% end %>
-</p>
-<p>Create a case with multiple pasted log sources. SafeLog redacts sensitive values in memory and stores sanitized evidence only.</p>
+</div>
+
+<section class="card">
+  <p class="card__hint">Create a case with multiple pasted log sources. SafeLog redacts sensitive values in memory and stores sanitized evidence only.</p>
+</section>
