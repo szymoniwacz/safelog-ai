@@ -103,6 +103,35 @@ RSpec.describe Intake::ProcessCaseSubmission do
       assert_no_raw_substring_in_persisted_data(secret_email)
     end
 
+    it "redacts secrets in title and description metadata on persist" do
+      title_secret = "title-intake-#{SecureRandom.hex(4)}@secret.example"
+      description_secret = "desc-intake-#{SecureRandom.hex(4)}@secret.example"
+
+      submission = build_submission(
+        title: "Incident for #{title_secret}",
+        description: "Reporter contact: #{description_secret}",
+        customer_reference: "Ticket #12345",
+        sources: [
+          {
+            source_type: "rails_log",
+            pasted_content: "Started GET /health"
+          }
+        ]
+      )
+
+      result = described_class.call(user: user, submission: submission)
+      expect(result).to be_success
+
+      debugging_case = result.debugging_case
+      expect(debugging_case.title).to include("[EMAIL_1]")
+      expect(debugging_case.title).not_to include(title_secret)
+      expect(debugging_case.description).to include("[EMAIL_2]")
+      expect(debugging_case.description).not_to include(description_secret)
+
+      assert_no_raw_substring_in_persisted_data(title_secret)
+      assert_no_raw_substring_in_persisted_data(description_secret)
+    end
+
     it "returns errors when submission is invalid" do
       submission = Intake::CaseSubmission.new(title: "", sources: [])
 

@@ -312,7 +312,7 @@ None — test-only change.
 
 #### Automated
 
-- [ ] 3.1 `mise exec -- bundle exec rspec spec/services/intake/process_case_submission_spec.rb` passes with title/description example
+- [x] 3.1 `mise exec -- bundle exec rspec spec/services/intake/process_case_submission_spec.rb` passes with title/description example — 56376ab
 
 ### Phase 4: Request Layer — Customer Reference Isolation in Analyze
 
