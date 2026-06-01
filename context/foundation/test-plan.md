@@ -6,7 +6,7 @@
 >
 > Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
 >
-> Last updated: 2026-05-30
+> Last updated: 2026-06-01
 
 ## 1. Strategy
 
@@ -68,7 +68,7 @@ orchestrator updates Status as artifacts appear on disk.
 
 | # | Phase name | Goal (one line) | Risks covered | Test types | Status | Change folder |
 |---|------------|-----------------|---------------|------------|--------|---------------|
-| 1 | Security guardrail cookbook | Codify security spec patterns; close residual metadata/export/analyze gaps | #1, #2, #4 | request + service + model | planned | testing-security-guardrail-cookbook |
+| 1 | Security guardrail cookbook | Codify security spec patterns; close residual metadata/export/analyze gaps | #1, #2, #4 | request + service + model | complete | testing-security-guardrail-cookbook |
 | 2 | Critical HTTP path regression | Defend full request journeys: create → show → analyze → export → archive; demo path | #3, #6, #7 | request/integration | not started | — |
 | 3 | Quality gates alignment | Document and verify local `bin/ci` ↔ GitHub Actions parity | cross-cutting | gates | not started | — |
 
@@ -79,7 +79,7 @@ The classic test base for this project. AI-native tools (if any) carry a
 
 | Layer | Tool | Version | Notes |
 |-------|------|---------|-------|
-| unit + integration | RSpec | 3.x (via rspec-rails) | Primary layer; 116+ examples across services, requests, models |
+| unit + integration | RSpec | 3.x (via rspec-rails) | Primary layer; 119 examples across services, requests, models |
 | HTTP integration | RSpec request specs | — | Preferred over browser e2e for auth + case flows |
 | API mocking | WebMock | — | Blocks real OpenAI calls; used with FakeClient |
 | factories | FactoryBot | — | User and domain fixtures |
@@ -103,7 +103,7 @@ The full set of gates that must pass before a change reaches production.
 | bundler-audit | `bin/ci`, GHA `scan_ruby` | required | vulnerable gems |
 | importmap audit | `bin/ci`, GHA `scan_js` | required | JS dependency CVEs |
 | Brakeman | `bin/ci`, GHA `scan_ruby` | required | Rails security patterns |
-| RSpec (116+) | `bin/ci`, GHA `test` | required | logic and security regressions |
+| RSpec (119) | `bin/ci`, GHA `test` | required | logic and security regressions |
 | Full `bin/ci` locally before push | developer workflow | required (AGENTS.md) | combined gate failures |
 | Browser e2e on critical flows | — | not planned | — |
 | Post-edit agent hook | — | not planned | — |
@@ -118,7 +118,24 @@ the relevant rollout phase ships; before that, the sub-section reads
 
 ### 6.1 Adding a service unit test
 
-TBD — see §3 Phase 1. Reference: `spec/services/redaction/engine_spec.rb`. Run: `mise exec -- bundle exec rspec spec/services/<domain>/<file>_spec.rb`.
+Use a **service spec** when you need to prove behavior inside a single service
+boundary without HTTP overhead — especially redaction, prompt assembly, or
+orchestration that request specs would duplicate at higher cost.
+
+**When to prefer service vs request:** Service specs for `PromptBuilder`,
+`ProcessCaseSubmission`, and correlation extractors; request specs when auth,
+routing, redirects, or full intake→analyze journeys matter (see §6.2).
+
+**References:**
+- Intake + metadata persist: `spec/services/intake/process_case_submission_spec.rb`
+- AI prompt assembly: `spec/services/analysis/prompt_builder_spec.rb`
+- Redaction engine: `spec/services/redaction/engine_spec.rb`
+
+**Run:** `mise exec -- bundle exec rspec spec/services/<domain>/<file>_spec.rb`
+
+**Security note:** For risks #1/#4 metadata paths, include
+`assert_no_raw_substring_in_persisted_data` (§6.5) or prompt content
+inspection (§6.3) — not only attribute equality on one field.
 
 ### 6.2 Adding a request/integration test
 
@@ -126,19 +143,80 @@ TBD — see §3 Phase 2. Reference: `spec/requests/debugging_cases_spec.rb`. Run
 
 ### 6.3 Adding a security guardrail test
 
-TBD — see §3 Phase 1 for raw-log persistence and AI-boundary patterns. Reference: `spec/requests/debugging_cases_security_spec.rb`, `spec/services/ai/sanitized_prompt_guard_spec.rb`.
+Security guardrails prove **PRD/AGENTS.md invariants**, not happy paths.
+Pick the cheapest layer that catches the risk (see §2 Risk Response Guidance).
+
+**Risk #1 — raw never persists after intake**
+- Canonical request pattern: `spec/requests/debugging_cases_security_spec.rb`
+- Shared DB-scan oracle: `spec/support/security_persistence_helpers.rb`
+  (`assert_no_raw_substring_in_persisted_data`) — scans `DebuggingCase`
+  diagnostic columns, all `LogSource#sanitized_content`, and
+  `RedactionFinding` rows.
+- **Anti-pattern:** `spec/requests/debugging_cases_spec.rb` POST example
+  asserts show response only — placeholders on the page do not prove SQLite
+  is clean.
+
+**Risk #2 — sanitized-only AI**
+- Canonical request pattern: `spec/requests/debugging_cases_analyze_security_spec.rb`
+- Capture prompts via `Ai::FakeClient#last_request`; join message contents
+  and assert raw substrings absent. Success from FakeClient alone is not
+  proof — inspect the prompt.
+- Service layer: `spec/services/analysis/prompt_builder_spec.rb`,
+  `spec/services/analysis/analyze_case_spec.rb`
+- Boundary docs: `spec/services/ai/sanitized_prompt_guard_spec.rb`
+
+**Risk #4 — metadata (title, description, customer_reference)**
+- Per-field HTTP blocks: `spec/requests/debugging_cases_security_spec.rb`
+  (title, description)
+- Metadata-only in analyze prompts (no overlapping log secret):
+  `spec/requests/debugging_cases_analyze_security_spec.rb`
+  (`customer_reference metadata redaction`)
+- Service metadata persist: `spec/services/intake/process_case_submission_spec.rb`
+
+**Run:** `mise exec -- bundle exec rspec spec/requests/debugging_cases_security_spec.rb spec/requests/debugging_cases_analyze_security_spec.rb`
 
 ### 6.4 Adding an encryption-at-rest check
 
-TBD — see §3 Phase 1. Reference: `spec/models/encryption_at_rest_spec.rb`. Pattern: raw SQL column read must not contain plaintext marker.
+Encryption at rest (risk **#5**) is already covered — do not duplicate unless
+a new encrypted column ships.
+
+**Reference:** `spec/models/encryption_at_rest_spec.rb`
+
+**Pattern:** Read the SQLite column with raw SQL (`select_value`) and assert
+the stored value does **not** contain a known plaintext marker; separately
+assert the decrypted Active Record attribute round-trips. Declaring
+`encrypts` on the model is necessary but not sufficient proof.
+
+**Run:** `mise exec -- bundle exec rspec spec/models/encryption_at_rest_spec.rb`
 
 ### 6.5 Adding tests for new intake or redaction behavior
 
-TBD — see §3 Phase 1. Reference: `spec/services/intake/process_case_submission_spec.rb`. Must prove raw substrings absent from persisted data.
+Any new intake or redaction path must prove **raw substrings never persist**
+after the change — not only that placeholders appear in the UI.
+
+**Required oracle:** Call `assert_no_raw_substring_in_persisted_data(secret)`
+from `spec/support/security_persistence_helpers.rb` after intake (service or
+request). Use unique random secrets per example (`SecureRandom`) so tests
+do not collide.
+
+**References:**
+- HTTP intake: `spec/requests/debugging_cases_security_spec.rb`
+- Service intake: `spec/services/intake/process_case_submission_spec.rb`
+- Redaction unit: `spec/services/redaction/engine_spec.rb`
+
+**Run:** `mise exec -- bundle exec rspec spec/services/intake/process_case_submission_spec.rb spec/requests/debugging_cases_security_spec.rb`
 
 ### 6.6 Per-rollout-phase notes
 
-(Optional. Filled as phases complete.)
+**Phase 1 — Security guardrail cookbook** (`testing-security-guardrail-cookbook`,
+2026-06-01): Closed gap-fill coverage for risks #1, #2, #4. Baseline grew
+116 → 119 examples (+ shared helper extraction, PromptBuilder metadata-only
+prompt, intake title/description persist, analyze customer_reference-only
+isolation). Request-layer guardrails were already strong; additions are
+service/request depth and cookbook documentation. **Deferred:** `environment`
+metadata redaction; risk #3 authorization matrix (Phase 2 rollout); new
+encryption model examples (risk #5 — documented in §6.4 only); export spec
+duplication.
 
 ## 7. What We Deliberately Don't Test
 
@@ -155,8 +233,8 @@ contributors should respect these unless the underlying assumption changes.
 
 ## 8. Freshness Ledger
 
-- Strategy (§1–§5) last reviewed: 2026-05-29
-- Stack versions last verified: 2026-05-29
+- Strategy (§1–§5) last reviewed: 2026-06-01
+- Stack versions last verified: 2026-06-01
 - AI-native tool references last verified: 2026-05-29
 
 Refresh (`/10x-test-plan --refresh`) when:
