@@ -1,10 +1,10 @@
 ---
 change_id: testing-security-guardrail-cookbook
 title: Security guardrail cookbook
-status: complete
+status: archived
 created: 2026-06-01
 updated: 2026-06-01
-archived_at: null
+archived_at: 2026-06-01T13:19:16Z
 ---
 
 ## Notes
