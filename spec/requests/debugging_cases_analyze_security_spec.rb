@@ -85,4 +85,39 @@ RSpec.describe "Debugging case analyze security (AGENTS.md guardrails)", type: :
       expect(response.body).not_to include(shared_request_id)
     end
   end
+
+  describe "customer_reference metadata redaction" do
+    let(:customer_reference_secret_email) { "cr-meta-#{SecureRandom.hex(4)}@secret.example" }
+
+    before do
+      sign_in user
+      post debugging_cases_path, params: {
+        debugging_case: {
+          title: "Analyze metadata case",
+          description: "Payment step hangs",
+          customer_reference: "Contact #{customer_reference_secret_email}",
+          sources: [
+            { source_type: "rails_log", pasted_content: "Started GET /health" }
+          ]
+        }
+      }
+      follow_redirect!
+    end
+
+    it "redacts secrets in customer_reference on persist and in analyze prompts" do
+      debugging_case = DebuggingCase.last
+
+      expect(debugging_case.customer_reference).to include("[EMAIL_1]")
+      expect(debugging_case.customer_reference).not_to include(customer_reference_secret_email)
+
+      assert_no_raw_substring_in_persisted_data(customer_reference_secret_email)
+
+      post analyze_debugging_case_path(debugging_case)
+      follow_redirect!
+
+      prompt = fake_client.last_request.messages.map { |message| message[:content] }.join("\n")
+      expect(prompt).to include("[EMAIL_1]")
+      expect(prompt).not_to include(customer_reference_secret_email)
+    end
+  end
 end

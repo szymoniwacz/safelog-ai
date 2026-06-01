@@ -318,7 +318,7 @@ None — test-only change.
 
 #### Automated
 
-- [ ] 4.1 `mise exec -- bundle exec rspec spec/requests/debugging_cases_analyze_security_spec.rb` passes with customer_reference-only block
+- [x] 4.1 `mise exec -- bundle exec rspec spec/requests/debugging_cases_analyze_security_spec.rb` passes with customer_reference-only block
 
 ### Phase 5: Cookbook Documentation (§6)
 
