@@ -295,18 +295,18 @@ None — test-only change.
 
 #### Automated
 
-- [x] 1.1 `mise exec -- bundle exec rspec spec/requests/debugging_cases_security_spec.rb spec/services/intake/process_case_submission_spec.rb` passes after helper extraction
-- [x] 1.2 RuboCop clean on `spec/support/security_persistence_helpers.rb` and edited specs
+- [x] 1.1 `mise exec -- bundle exec rspec spec/requests/debugging_cases_security_spec.rb spec/services/intake/process_case_submission_spec.rb` passes after helper extraction — 5019c31
+- [x] 1.2 RuboCop clean on `spec/support/security_persistence_helpers.rb` and edited specs — 5019c31
 
 #### Manual
 
-- [x] 1.3 Helper loaded via support glob, not executed as standalone spec file
+- [x] 1.3 Helper loaded via support glob, not executed as standalone spec file — 5019c31
 
 ### Phase 2: Service Layer — Metadata in AI Prompts
 
 #### Automated
 
-- [ ] 2.1 `mise exec -- bundle exec rspec spec/services/analysis/prompt_builder_spec.rb` passes with metadata-only example
+- [x] 2.1 `mise exec -- bundle exec rspec spec/services/analysis/prompt_builder_spec.rb` passes with metadata-only example — 8e5c53a
 
 ### Phase 3: Service Layer — Metadata Persist on Intake
 
