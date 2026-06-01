@@ -39,27 +39,6 @@ RSpec.describe "Debugging cases security (AGENTS.md guardrails)", type: :request
     }
   end
 
-  def assert_no_raw_substring_in_persisted_data(raw_substring)
-    DebuggingCase.find_each do |debugging_case|
-      [
-        debugging_case.title,
-        debugging_case.description,
-        debugging_case.environment,
-        debugging_case.customer_reference
-      ].compact.each do |value|
-        expect(value.to_s).not_to include(raw_substring)
-      end
-    end
-
-    LogSource.find_each do |log_source|
-      expect(log_source.sanitized_content.to_s).not_to include(raw_substring)
-    end
-
-    RedactionFinding.find_each do |finding|
-      expect(finding.attributes.values.compact.join).not_to include(raw_substring)
-    end
-  end
-
   describe "POST /debugging_cases" do
     before do
       sign_in user
