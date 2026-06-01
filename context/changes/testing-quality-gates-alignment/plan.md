@@ -176,11 +176,11 @@ None.
 
 #### Automated
 
-- [ ] 1.1 `mise exec -- bin/ci` passes after GHA Brakeman flag alignment
+- [x] 1.1 `mise exec -- bin/ci` passes after GHA Brakeman flag alignment
 
 #### Manual
 
-- [ ] 1.2 Brakeman flags in `config/ci.rb` and `.github/workflows/ci.yml` match
+- [x] 1.2 Brakeman flags in `config/ci.rb` and `.github/workflows/ci.yml` match
 
 ### Phase 2: Gate Cookbook + Contributor Doc Refresh
 
