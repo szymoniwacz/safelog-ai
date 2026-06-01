@@ -66,7 +66,7 @@ RSpec.describe Analysis::AnalyzeCase do
           { source_type: "rails_log", pasted_content: "request_id=req-retry-ok-1" }
         ]
       )
-      client = InvalidOnceClient.new
+      client = AiTestClients::InvalidOnceClient.new
 
       result = described_class.call(debugging_case: debugging_case, client: client)
 
@@ -81,7 +81,7 @@ RSpec.describe Analysis::AnalyzeCase do
           { source_type: "rails_log", pasted_content: "request_id=req-retry-fail-1" }
         ]
       )
-      client = InvalidClient.new
+      client = AiTestClients::InvalidClient.new
 
       result = described_class.call(debugging_case: debugging_case, client: client)
 
@@ -91,45 +91,6 @@ RSpec.describe Analysis::AnalyzeCase do
       expect(result.ai_report.structured_json).to be_nil
       expect(result.ai_report.markdown_body).to be_nil
       expect(client.complete_calls).to eq(2)
-    end
-  end
-
-  class InvalidOnceClient
-    include Ai::Client
-
-    attr_reader :complete_calls, :last_request
-
-    def initialize
-      @complete_calls = 0
-      @fallback = Ai::FakeClient.new
-    end
-
-    def complete(request)
-      @complete_calls += 1
-      @last_request = request
-
-      if @complete_calls == 1
-        Ai::CompletionResult.new(structured: { summary: "" }, markdown: "")
-      else
-        @fallback.complete(request)
-      end
-    end
-  end
-
-  class InvalidClient
-    include Ai::Client
-
-    attr_reader :complete_calls, :last_request
-
-    def initialize
-      @complete_calls = 0
-    end
-
-    def complete(request)
-      @complete_calls += 1
-      @last_request = request
-
-      Ai::CompletionResult.new(structured: { summary: "" }, markdown: "")
     end
   end
 end

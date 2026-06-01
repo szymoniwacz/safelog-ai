@@ -5,6 +5,7 @@ require "rails_helper"
 RSpec.describe "Debugging cases authorization", type: :request do
   let(:owner) { create(:user, email: "owner@example.com") }
   let(:other_user) { create(:user, email: "other@example.com") }
+  let(:generated_report_summary) { "Checkout timeout may be caused by downstream payment latency." }
 
   let!(:debugging_case) do
     result = Intake::ProcessCaseSubmission.call(
@@ -25,7 +26,11 @@ RSpec.describe "Debugging cases authorization", type: :request do
 
       get debugging_case_path(debugging_case)
 
-      expect(response).to have_http_status(:not_found)
+      expect_not_found_without_forbidden
+      # Title literals from this spec can appear in local error-page stack traces;
+      # assert case-specific show content instead (risk #3 body-leak oracle).
+      expect(response.body).not_to include("[REQUEST_1]")
+      expect(response.body).not_to include("req-owner-only-1")
     end
 
     it "returns success for the owning user" do
@@ -44,9 +49,11 @@ RSpec.describe "Debugging cases authorization", type: :request do
     it "returns not found for another user's case" do
       sign_in other_user
 
-      post analyze_debugging_case_path(debugging_case)
+      expect {
+        post analyze_debugging_case_path(debugging_case)
+      }.not_to change { debugging_case.reload.correlation_signals.count }
 
-      expect(response).to have_http_status(:not_found)
+      expect_not_found_without_forbidden
       expect(debugging_case.ai_reports.count).to eq(0)
     end
   end
@@ -57,7 +64,7 @@ RSpec.describe "Debugging cases authorization", type: :request do
 
       post archive_debugging_case_path(debugging_case)
 
-      expect(response).to have_http_status(:not_found)
+      expect_not_found_without_forbidden
       expect(debugging_case.reload.archived_at).to be_nil
     end
   end
@@ -68,7 +75,23 @@ RSpec.describe "Debugging cases authorization", type: :request do
 
       get download_report_debugging_case_path(debugging_case)
 
-      expect(response).to have_http_status(:not_found)
+      expect_not_found_without_forbidden
+    end
+
+    it "returns not found for another user when the owner has a generated report" do
+      fake_client = Ai::FakeClient.new
+      allow(Ai::ClientResolver).to receive(:current).and_return(fake_client)
+
+      sign_in owner
+      post analyze_debugging_case_path(debugging_case)
+      expect(response).to redirect_to(debugging_case_path(debugging_case))
+      expect(debugging_case.reload.ai_reports.last).to be_generated
+
+      sign_in other_user
+      get download_report_debugging_case_path(debugging_case)
+
+      expect_not_found_without_forbidden
+      expect(response.body).not_to include(generated_report_summary)
     end
   end
 end
