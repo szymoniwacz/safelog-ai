@@ -69,7 +69,7 @@ orchestrator updates Status as artifacts appear on disk.
 | # | Phase name | Goal (one line) | Risks covered | Test types | Status | Change folder |
 |---|------------|-----------------|---------------|------------|--------|---------------|
 | 1 | Security guardrail cookbook | Codify security spec patterns; close residual metadata/export/analyze gaps | #1, #2, #4 | request + service + model | complete | testing-security-guardrail-cookbook |
-| 2 | Critical HTTP path regression | Defend full request journeys: create → show → analyze → export → archive; demo path | #3, #6, #7 | request/integration | not started | — |
+| 2 | Critical HTTP path regression | Defend full request journeys: create → show → analyze → export → archive; demo path | #3, #6, #7 | request/integration | change opened | testing-critical-http-path-regression |
 | 3 | Quality gates alignment | Document and verify local `bin/ci` ↔ GitHub Actions parity | cross-cutting | gates | not started | — |
 
 ## 4. Stack
