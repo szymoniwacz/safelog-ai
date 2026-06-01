@@ -254,19 +254,19 @@ None.
 
 #### Automated
 
-- [x] 1.1 `mise exec -- bundle exec rspec spec/services/analysis/analyze_case_spec.rb` passes after client extraction
-- [x] 1.2 `mise exec -- bundle exec rspec spec/requests/debugging_cases_authorization_spec.rb` passes with strengthened matrix
-- [x] 1.3 RuboCop clean on new/edited spec/support and request files
+- [x] 1.1 `mise exec -- bundle exec rspec spec/services/analysis/analyze_case_spec.rb` passes after client extraction — 4fc03fd
+- [x] 1.2 `mise exec -- bundle exec rspec spec/requests/debugging_cases_authorization_spec.rb` passes with strengthened matrix — 4fc03fd
+- [x] 1.3 RuboCop clean on new/edited spec/support and request files — 4fc03fd
 
 #### Manual
 
-- [ ] 1.4 `spec/support/ai_test_clients.rb` loaded via support glob, not executed as standalone spec
+- [x] 1.4 `spec/support/ai_test_clients.rb` loaded via support glob, not executed as standalone spec — 4fc03fd
 
 ### Phase 2: Analyze Failure HTTP Path
 
 #### Automated
 
-- [ ] 2.1 `mise exec -- bundle exec rspec spec/requests/debugging_cases_analyze_spec.rb` passes including failure example
+- [x] 2.1 `mise exec -- bundle exec rspec spec/requests/debugging_cases_analyze_spec.rb` passes including failure example
 
 #### Manual
 

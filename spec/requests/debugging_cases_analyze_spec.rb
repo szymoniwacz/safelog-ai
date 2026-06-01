@@ -66,5 +66,33 @@ RSpec.describe "Debugging case analyze", type: :request do
       expect(ai_report.structured_json).to be_present
       expect(debugging_case.correlation_signals.count).to eq(1)
     end
+
+    it "surfaces a safe failure after retry exhaustion" do
+      invalid_client = AiTestClients::InvalidClient.new
+      allow(Ai::ClientResolver).to receive(:current).and_return(invalid_client)
+
+      sign_in owner
+
+      post analyze_debugging_case_path(debugging_case)
+
+      expect(response).to redirect_to(debugging_case_path(debugging_case))
+      expect(flash[:alert]).to eq(Analysis::AnalyzeCase::FAILURE_MESSAGE)
+
+      follow_redirect!
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include(Analysis::AnalyzeCase::FAILURE_MESSAGE)
+      expect(response.body).not_to include("Checkout timeout may be caused by downstream payment latency.")
+
+      ai_report = debugging_case.reload.ai_reports.order(:created_at).last
+      expect(ai_report).to be_failed
+      expect(ai_report.structured_json).to be_nil
+      expect(ai_report.markdown_body).to be_nil
+      expect(invalid_client.complete_calls).to eq(2)
+
+      get download_report_debugging_case_path(debugging_case)
+
+      expect(response).to have_http_status(:not_found)
+    end
   end
 end
