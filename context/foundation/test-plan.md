@@ -1,0 +1,167 @@
+# Test Plan
+
+> Phased test rollout for this project. Strategy is frozen at the top
+> (§1–§5); cookbook patterns at the bottom (§6) fill in as phases ship.
+> Read before writing any new test.
+>
+> Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
+>
+> Last updated: 2026-05-30
+
+## 1. Strategy
+
+Tests follow three non-negotiable principles for this project:
+
+1. **Cost × signal.** The cheapest test that gives a real signal for the
+   risk wins. Do not promote to e2e because e2e "feels safer." Do not put a
+   vision model on top of a deterministic diff that already catches the
+   regression.
+2. **User concerns are first-class evidence.** Risks anchored in "the team
+   is worried about X, and the failure would surface somewhere in the
+   intake/redaction/AI pipeline" carry the same weight as PRD lines or
+   hot-spot data.
+3. **Risks are scenarios, not code locations.** This plan documents *what
+   could fail* and *why we believe it's likely* — drawn from documents,
+   interview, and codebase *signal* (churn, structure, test base). It does
+   NOT claim to know which line owns the failure. That knowledge is
+   produced by `/10x-research` during each rollout phase. If the plan and
+   research disagree about where the failure lives, research is the
+   ground truth.
+
+Hot-spot scope used for likelihood weighting: `app/`, `spec/`, `config/`.
+
+## 2. Risk Map
+
+The top failure scenarios this project must protect against, ordered by
+risk = impact × likelihood. Risks are failure scenarios in user / business
+terms, not test names. The Source column cites the *evidence that surfaced
+this risk* — never a specific file as "where the failure lives" (that is
+research's job, see §1 principle #3).
+
+| # | Risk (failure scenario) | Impact | Likelihood | Source (evidence — not anchor) |
+|---|-------------------------|--------|------------|--------------------------------|
+| 1 | Raw log substring persists in database after intake | High | High | PRD guardrails; AGENTS.md; interview Q1; hot-spot dir `spec/requests/` (21 commits/30d) |
+| 2 | Raw secret reaches AI prompt or correlation payload | High | High | PRD US-01; AGENTS.md; interview Q1; hot-spot dir `app/services/ai/` (11 commits/30d) |
+| 3 | User B accesses User A's debugging case (IDOR) | High | Medium | PRD Access Control; interview Q3; archive safe-multi-source-intake plan |
+| 4 | Secret in case metadata (title, description, customer_reference) stored or sent to AI unredacted | High | Medium | PRD FR-002; interview Q2; architecture-alignment change notes |
+| 5 | Diagnostic text stored as readable plaintext in SQLite | High | Low | PRD NFR encryption; roadmap F-02; interview Q2 (GHA encryption boot) |
+| 6 | Demo case loader reachable in production | Medium | Low | PRD FR-011; interview Q5 negative space |
+| 7 | Invalid AI output presented without hypothesis framing or uncertainty | Medium | Medium | PRD guardrails; interview Q3; hot-spot dir `app/services/analysis/` (7 commits/30d) |
+
+### Risk Response Guidance
+
+| Risk | What would prove protection | Must challenge | Context `/10x-research` must ground | Likely cheapest layer | Anti-pattern to avoid |
+|------|-----------------------------|----------------|--------------------------------------|-----------------------|-----------------------|
+| #1 | Known secret email/token in pasted content never appears in persisted diagnostic columns after POST intake | Placeholders on show page prove redaction ran, not that DB is clean | Intake transaction path; which columns hold diagnostic text; encrypted vs plain fields | Request spec scanning all persisted models + show response | Asserting response body only without DB scan |
+| #2 | Analyze flow never sends raw intake substrings to fake AI client or correlation JSON | FakeClient returning canned output means prompts were never inspected | Prompt assembly boundary; correlation extractor inputs; ClientResolver in test | Request/service spec with FakeClient capture + joined prompt text | Mocking redaction internals instead of exercising HTTP intake |
+| #3 | Cross-user show, analyze, archive, and export return 404 (not 403 leak) | Signed-in user implies only their own cases are reachable | Controller scoping pattern; all mutating routes on DebuggingCase | Request spec matrix per action with two users | Testing only GET show while leaving analyze/export unguarded |
+| #4 | Secrets in title, description, and customer_reference redact on persist and in analyze prompts | Title/description treated as safe because they are not log paste fields | Shared registry in intake; metadata fields included in PromptBuilder | Request security spec per metadata field | Testing description only while title stays plain |
+| #5 | Encrypted diagnostic columns store ciphertext, not plaintext markers | Model `encrypts` declaration alone proves nothing at rest | Which models/columns use Active Record Encryption; test env key source | Model spec with raw SQL `select_value` | Reading decrypted attribute only without SQLite column check |
+| #6 | Load demo returns 404 outside development/test | Demo fixture content matters less than availability gate | Demo availability check; production env config | Request spec with `allow` on availability helper | Testing happy path only in development |
+| #7 | Generated reports require hypotheses and uncertainty_notes; invalid JSON retries then fails safely | First successful analyze proves validator exists, not retry/failure path | Analyze orchestration; ResponseValidator rules; report status enum | Service spec for invalid response + request spec for failed status | Asserting markdown contains keywords copied from FakeClient fixture |
+
+## 3. Phased Rollout
+
+Each row is a discrete rollout phase that will open its own change folder
+via `/10x-new`. Status moves left-to-right through the values below; the
+orchestrator updates Status as artifacts appear on disk.
+
+| # | Phase name | Goal (one line) | Risks covered | Test types | Status | Change folder |
+|---|------------|-----------------|---------------|------------|--------|---------------|
+| 1 | Security guardrail cookbook | Codify security spec patterns; close residual metadata/export/analyze gaps | #1, #2, #4 | request + service + model | planned | testing-security-guardrail-cookbook |
+| 2 | Critical HTTP path regression | Defend full request journeys: create → show → analyze → export → archive; demo path | #3, #6, #7 | request/integration | not started | — |
+| 3 | Quality gates alignment | Document and verify local `bin/ci` ↔ GitHub Actions parity | cross-cutting | gates | not started | — |
+
+## 4. Stack
+
+The classic test base for this project. AI-native tools (if any) carry a
+`checked:` date so future readers can see which lines need re-verification.
+
+| Layer | Tool | Version | Notes |
+|-------|------|---------|-------|
+| unit + integration | RSpec | 3.x (via rspec-rails) | Primary layer; 116+ examples across services, requests, models |
+| HTTP integration | RSpec request specs | — | Preferred over browser e2e for auth + case flows |
+| API mocking | WebMock | — | Blocks real OpenAI calls; used with FakeClient |
+| factories | FactoryBot | — | User and domain fixtures |
+| static security | Brakeman + bundler-audit + importmap audit | — | Wired in `bin/ci` and GitHub Actions |
+| e2e / browser | none | — | Request specs sufficient for MVP; see §7 |
+| accessibility | none | — | Manual smoke for UI changes; no axe wired |
+
+**Stack grounding tools (current session):**
+- Docs: none (Context7 / framework docs MCP not available in session) — skipped; checked: 2026-05-29
+- Search: web search MCP available — used for Rails encryption CI patterns during plan write; checked: 2026-05-29
+- Runtime/browser: none — request specs preferred over Playwright; checked: 2026-05-29
+- Provider/platform: GitHub Actions workflow present — quality-gate parity relevant for Phase 3; checked: 2026-05-29
+
+## 5. Quality Gates
+
+The full set of gates that must pass before a change reaches production.
+
+| Gate | Where | Required? | Catches |
+|------|-------|-----------|---------|
+| RuboCop | `bin/ci`, GHA `lint` | required | style drift |
+| bundler-audit | `bin/ci`, GHA `scan_ruby` | required | vulnerable gems |
+| importmap audit | `bin/ci`, GHA `scan_js` | required | JS dependency CVEs |
+| Brakeman | `bin/ci`, GHA `scan_ruby` | required | Rails security patterns |
+| RSpec (116+) | `bin/ci`, GHA `test` | required | logic and security regressions |
+| Full `bin/ci` locally before push | developer workflow | required (AGENTS.md) | combined gate failures |
+| Browser e2e on critical flows | — | not planned | — |
+| Post-edit agent hook | — | not planned | — |
+
+Phase 3 rollout documents gate parity (local vs GHA env vars, command wrappers).
+
+## 6. Cookbook Patterns
+
+How to add new tests in this project. Each sub-section is filled in once
+the relevant rollout phase ships; before that, the sub-section reads
+"TBD — see §3 Phase N."
+
+### 6.1 Adding a service unit test
+
+TBD — see §3 Phase 1. Reference: `spec/services/redaction/engine_spec.rb`. Run: `mise exec -- bundle exec rspec spec/services/<domain>/<file>_spec.rb`.
+
+### 6.2 Adding a request/integration test
+
+TBD — see §3 Phase 2. Reference: `spec/requests/debugging_cases_spec.rb`. Run: `mise exec -- bundle exec rspec spec/requests/<file>_spec.rb`.
+
+### 6.3 Adding a security guardrail test
+
+TBD — see §3 Phase 1 for raw-log persistence and AI-boundary patterns. Reference: `spec/requests/debugging_cases_security_spec.rb`, `spec/services/ai/sanitized_prompt_guard_spec.rb`.
+
+### 6.4 Adding an encryption-at-rest check
+
+TBD — see §3 Phase 1. Reference: `spec/models/encryption_at_rest_spec.rb`. Pattern: raw SQL column read must not contain plaintext marker.
+
+### 6.5 Adding tests for new intake or redaction behavior
+
+TBD — see §3 Phase 1. Reference: `spec/services/intake/process_case_submission_spec.rb`. Must prove raw substrings absent from persisted data.
+
+### 6.6 Per-rollout-phase notes
+
+(Optional. Filled as phases complete.)
+
+## 7. What We Deliberately Don't Test
+
+Exclusions agreed during the rollout (Phase 2 interview, Q5). Future
+contributors should respect these unless the underlying assumption changes.
+
+- **Browser e2e / Capybara / Playwright flows** — request specs cover auth and case HTTP paths with higher signal per cost. Re-evaluate if UI becomes a rich client or critical flows need JavaScript-only behavior. (Source: Phase 2 interview Q5; user /10x-test-plan input.)
+- **UI snapshot tests** — brittle for server-rendered Rails views; low regression signal for PRD guardrails. Re-evaluate if a rich client ships. (Source: user /10x-test-plan input.)
+- **View cosmetic / CSS-only changes** — no automated test budget; prioritize raw-log, AI-boundary, encryption, and authorization specs. (Source: user /10x-test-plan input.)
+- **AI-native vision or multimodal review** — security regressions are deterministic; FakeClient + prompt inspection suffices. Re-evaluate if UI-only leaks become a top risk. (Source: Phase 2 interview Q5.)
+- **Exhaustive redaction regex catalog** — heuristic gaps are documented in code comments; tests cover representative patterns, not every edge token shape. Re-evaluate if new pattern classes ship. (Source: Phase 2 interview Q5; AGENTS.md guardrails.)
+- **Real OpenAI API in CI or local default** — violates AGENTS.md; WebMock + FakeClient only. Re-evaluate never for CI; production uses optional `OPENAI_API_KEY`. (Source: AGENTS.md.)
+- **Rate limiting / abuse flood scenarios** — solo course MVP with flat user ownership; low blast radius. Re-evaluate if multi-tenant or public signup scales. (Source: Phase 2 interview Q5.)
+
+## 8. Freshness Ledger
+
+- Strategy (§1–§5) last reviewed: 2026-05-29
+- Stack versions last verified: 2026-05-29
+- AI-native tool references last verified: 2026-05-29
+
+Refresh (`/10x-test-plan --refresh`) when:
+
+- a new top-3 risk surfaces from the roadmap or archive,
+- a recommended tool's `checked:` date is older than three months,
+- the project's tech stack changes (new framework, new test runner),
+- §7 negative-space no longer matches what the team believes.
