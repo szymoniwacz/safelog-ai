@@ -1,10 +1,10 @@
 ---
 change_id: testing-critical-http-path-regression
 title: Critical HTTP path regression
-status: implemented
+status: archived
 created: 2026-06-01
 updated: 2026-06-01
-archived_at: null
+archived_at: 2026-06-01T14:14:30Z
 ---
 
 ## Notes
