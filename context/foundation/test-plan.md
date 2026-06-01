@@ -69,7 +69,7 @@ orchestrator updates Status as artifacts appear on disk.
 | # | Phase name | Goal (one line) | Risks covered | Test types | Status | Change folder |
 |---|------------|-----------------|---------------|------------|--------|---------------|
 | 1 | Security guardrail cookbook | Codify security spec patterns; close residual metadata/export/analyze gaps | #1, #2, #4 | request + service + model | complete | testing-security-guardrail-cookbook |
-| 2 | Critical HTTP path regression | Defend full request journeys: create → show → analyze → export → archive; demo path | #3, #6, #7 | request/integration | change opened | testing-critical-http-path-regression |
+| 2 | Critical HTTP path regression | Defend full request journeys: create → show → analyze → export → archive; demo path | #3, #6, #7 | request/integration | complete | testing-critical-http-path-regression |
 | 3 | Quality gates alignment | Document and verify local `bin/ci` ↔ GitHub Actions parity | cross-cutting | gates | not started | — |
 
 ## 4. Stack
@@ -79,7 +79,7 @@ The classic test base for this project. AI-native tools (if any) carry a
 
 | Layer | Tool | Version | Notes |
 |-------|------|---------|-------|
-| unit + integration | RSpec | 3.x (via rspec-rails) | Primary layer; 119 examples across services, requests, models |
+| unit + integration | RSpec | 3.x (via rspec-rails) | Primary layer; 122 examples across services, requests, models |
 | HTTP integration | RSpec request specs | — | Preferred over browser e2e for auth + case flows |
 | API mocking | WebMock | — | Blocks real OpenAI calls; used with FakeClient |
 | factories | FactoryBot | — | User and domain fixtures |
@@ -103,7 +103,7 @@ The full set of gates that must pass before a change reaches production.
 | bundler-audit | `bin/ci`, GHA `scan_ruby` | required | vulnerable gems |
 | importmap audit | `bin/ci`, GHA `scan_js` | required | JS dependency CVEs |
 | Brakeman | `bin/ci`, GHA `scan_ruby` | required | Rails security patterns |
-| RSpec (119) | `bin/ci`, GHA `test` | required | logic and security regressions |
+| RSpec (122) | `bin/ci`, GHA `test` | required | logic and security regressions |
 | Full `bin/ci` locally before push | developer workflow | required (AGENTS.md) | combined gate failures |
 | Browser e2e on critical flows | — | not planned | — |
 | Post-edit agent hook | — | not planned | — |
@@ -139,7 +139,69 @@ inspection (§6.3) — not only attribute equality on one field.
 
 ### 6.2 Adding a request/integration test
 
-TBD — see §3 Phase 2. Reference: `spec/requests/debugging_cases_spec.rb`. Run: `mise exec -- bundle exec rspec spec/requests/<file>_spec.rb`.
+Use a **request spec** when auth, routing, redirects, status codes, or a
+full HTTP journey matter — especially IDOR scoping, environment gates, and
+controller → service orchestration. Prefer **service specs** for retry/validator
+logic that request specs would duplicate at higher cost (see §6.1); add the
+request layer when the risk is about what the user receives over HTTP.
+
+**When to prefer request vs service:**
+
+| Concern | Layer | Why |
+|---------|-------|-----|
+| Cross-user 404, flash, redirect | Request | Proves HTTP status and response oracles |
+| Demo loader gate outside dev/test | Request (+ light service) | Request proves route + env wiring; service anchors `available?` |
+| Analyze retry / validator rules | Service first, then request | Service proves orchestration; request proves safe failure UI + export block |
+
+**Risk #3 — authorization matrix (IDOR)**
+
+- Canonical file: `spec/requests/debugging_cases_authorization_spec.rb`
+- Shared helper: `spec/support/request_status_helpers.rb`
+  (`expect_not_found_without_forbidden`) — assert 404, not 403.
+- Matrix: `owner` vs `other_user` on every `:id` action (show, analyze,
+  archive, download_report). Assert side effects (no `ai_reports`, no
+  archive, no export body leak) — not status alone.
+- Body-leak oracle on cross-user show: assert case-specific sanitized
+  content absent (e.g. `[REQUEST_1]`), not title strings (local error pages
+  can echo spec literals in stack traces).
+- Export-with-report: owner analyzes first (`Ai::ClientResolver` →
+  `FakeClient`), then cross-user download must 404 without report markdown.
+- **Guest redirects** live in per-feature specs (not duplicated here):
+  `debugging_cases_spec.rb`, `debugging_cases_analyze_spec.rb`,
+  `debugging_cases_archive_spec.rb`, `debugging_cases_report_export_spec.rb`,
+  `debugging_cases_load_demo_spec.rb`, `debugging_cases_index_spec.rb`.
+- **Anti-pattern:** testing only GET show while leaving analyze/export
+  unguarded; asserting signed-in user implies access without a second user.
+
+**Risk #6 — demo loader gate**
+
+- Canonical request pattern: `spec/requests/debugging_cases_load_demo_spec.rb`
+  (`returns not found in production` — stub `Rails.env.development?` and
+  `test?` to false; assert 404 and no case created).
+- Service anchor: `spec/services/demo/load_case_spec.rb` (`.available?` false
+  when `production?` stubbed).
+- UI visibility: `spec/requests/dashboard_spec.rb` (button hidden when
+  unavailable).
+- **Anti-pattern:** happy path only in test env without a production-like
+  gate; stubbing `available?` alone without exercising env logic.
+
+**Risk #7 — analyze journey**
+
+- Success path: `spec/requests/debugging_cases_analyze_spec.rb` (owner POST →
+  redirect, hypothesis report UI, `be_generated`).
+- Failure after retry: same file — stub `Ai::ClientResolver.current` →
+  `AiTestClients::InvalidClient` (`spec/support/ai_test_clients.rb`); assert
+  alert flash, `failed` report, no generated summary text, export 404, two
+  client calls.
+- Service depth (retry logic): `spec/services/analysis/analyze_case_spec.rb`
+- **Anti-pattern:** FakeClient success alone proves validator/retry paths;
+  copying fixture strings into assertions without independent oracle.
+
+**Run:**
+
+```bash
+mise exec -- bundle exec rspec spec/requests/debugging_cases_authorization_spec.rb spec/requests/debugging_cases_load_demo_spec.rb spec/requests/debugging_cases_analyze_spec.rb
+```
 
 ### 6.3 Adding a security guardrail test
 
@@ -218,6 +280,18 @@ metadata redaction; risk #3 authorization matrix (Phase 2 rollout); new
 encryption model examples (risk #5 — documented in §6.4 only); export spec
 duplication.
 
+**Phase 2 — Critical HTTP path regression** (`testing-critical-http-path-regression`,
+2026-06-01): Closed gap-fill coverage for risks #3, #6, #7. Baseline grew
+119 → 122 examples (+ shared `AiTestClients` / `RequestStatusHelpers`,
+authorization matrix oracles, analyze HTTP failure path, demo `.available?`
+production service example, §6.2 cookbook). Files touched:
+`spec/support/ai_test_clients.rb`, `spec/support/request_status_helpers.rb`,
+`spec/requests/debugging_cases_authorization_spec.rb`,
+`spec/requests/debugging_cases_analyze_spec.rb`,
+`spec/services/demo/load_case_spec.rb`, `spec/services/analysis/analyze_case_spec.rb`
+(client extraction). **Deferred:** dedup of cross-user examples in
+per-feature request specs; OpenAI invalid-JSON parse specs; correlation
+persisted-on-failure service assertion.
 ## 7. What We Deliberately Don't Test
 
 Exclusions agreed during the rollout (Phase 2 interview, Q5). Future

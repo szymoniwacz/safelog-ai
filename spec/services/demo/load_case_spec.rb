@@ -9,6 +9,14 @@ RSpec.describe Demo::LoadCase do
     it "is true in the test environment" do
       expect(described_class.available?).to be(true)
     end
+
+    it "is false when production is the active environment" do
+      allow(Rails.env).to receive(:development?).and_return(false)
+      allow(Rails.env).to receive(:test?).and_return(false)
+      allow(Rails.env).to receive(:production?).and_return(true)
+
+      expect(described_class.available?).to be(false)
+    end
   end
 
   describe ".call" do
