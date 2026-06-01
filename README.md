@@ -74,8 +74,10 @@ Run individual gates:
 
 ```bash
 mise exec -- bundle exec rspec spec/
-mise exec -- bundle exec rubocop
-mise exec -- bundle exec brakeman
+mise exec -- bin/rubocop
+mise exec -- bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error
+mise exec -- bin/bundler-audit
+mise exec -- bin/importmap audit
 ```
 
 Or run the full CI script (setup, RuboCop, bundler-audit, importmap audit, Brakeman, RSpec):

@@ -70,7 +70,7 @@ orchestrator updates Status as artifacts appear on disk.
 |---|------------|-----------------|---------------|------------|--------|---------------|
 | 1 | Security guardrail cookbook | Codify security spec patterns; close residual metadata/export/analyze gaps | #1, #2, #4 | request + service + model | complete | testing-security-guardrail-cookbook |
 | 2 | Critical HTTP path regression | Defend full request journeys: create → show → analyze → export → archive; demo path | #3, #6, #7 | request/integration | complete | testing-critical-http-path-regression |
-| 3 | Quality gates alignment | Document and verify local `bin/ci` ↔ GitHub Actions parity | cross-cutting | gates | change opened | testing-quality-gates-alignment |
+| 3 | Quality gates alignment | Document and verify local `bin/ci` ↔ GitHub Actions parity | cross-cutting | gates | complete | testing-quality-gates-alignment |
 
 ## 4. Stack
 
@@ -108,7 +108,7 @@ The full set of gates that must pass before a change reaches production.
 | Browser e2e on critical flows | — | not planned | — |
 | Post-edit agent hook | — | not planned | — |
 
-Phase 3 rollout documents gate parity (local vs GHA env vars, command wrappers).
+Phase 3 rollout gate parity is documented in §6.7.
 
 ## 6. Cookbook Patterns
 
@@ -268,6 +268,55 @@ do not collide.
 
 **Run:** `mise exec -- bundle exec rspec spec/services/intake/process_case_submission_spec.rb spec/requests/debugging_cases_security_spec.rb`
 
+### 6.7 Running and aligning quality gates
+
+Use **`mise exec -- bin/ci`** before push — it runs every gate in §5 sequentially
+via `config/ci.rb`. GitHub Actions runs the same gates in **four parallel jobs**
+(`.github/workflows/ci.yml`). See §5 for what each gate catches; this section
+documents **local vs GHA parity**.
+
+**When to run what:**
+
+| Need | Command |
+|------|---------|
+| Full pre-push check | `mise exec -- bin/ci` |
+| Style only | `mise exec -- bin/rubocop` |
+| Rails security scan | `mise exec -- bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error` |
+| Gem CVEs | `mise exec -- bin/bundler-audit` |
+| JS importmap CVEs | `mise exec -- bin/importmap audit` |
+| Tests only (after setup) | `mise exec -- bundle exec rspec spec/` |
+
+Prefer `bin/*` wrappers over bare `bundle exec` — they pin config (e.g.
+`.rubocop.yml`, `config/bundler-audit.yml`) and match `bin/ci`.
+
+**Gate parity matrix:**
+
+| Gate | Local (`config/ci.rb`) | GHA job / step | Parity notes |
+|------|------------------------|----------------|--------------|
+| Setup | `bin/setup --skip-server` (first step) | `test` job only | Scan/lint jobs skip DB; intentional |
+| RuboCop | `bin/rubocop` | `lint` → `bin/rubocop -f github` | Same config; `-f github` is annotation-only in GHA |
+| bundler-audit | `bin/bundler-audit` | `scan_ruby` | ✅ Same wrapper |
+| importmap audit | `bin/importmap audit` | `scan_js` | ✅ Same command |
+| Brakeman | `bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error` | `scan_ruby` → same flags | ✅ Aligned (Phase 3 rollout) |
+| RSpec | `bundle exec rspec` | `test` → same command | ✅ Same runner |
+
+**Encryption for tests:** GHA `test` job sets CI-only
+`RAILS_ACTIVE_RECORD_ENCRYPTION_*` env vars (see `.github/workflows/ci.yml`).
+Local test uses credentials via `config/master.key` by default
+(`config/environments/test.rb`). Without `master.key`, export the same CITest*
+vars locally before `bin/ci`:
+
+```bash
+export RAILS_ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY="CITestPrimaryKey00000000000001"
+export RAILS_ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY="CITestDeterministicKey00000001"
+export RAILS_ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT="CITestKeyDerivationSalt000001"
+```
+
+**Toolchain:** Local commands use `mise exec --` (see AGENTS.md); GHA uses
+`ruby/setup-ruby` with `bundler-cache` — never mise in Docker/Fly.
+
+**Run:** `mise exec -- bin/ci`
+
 ### 6.6 Per-rollout-phase notes
 
 **Phase 1 — Security guardrail cookbook** (`testing-security-guardrail-cookbook`,
@@ -292,6 +341,14 @@ production service example, §6.2 cookbook). Files touched:
 (client extraction). **Deferred:** dedup of cross-user examples in
 per-feature request specs; OpenAI invalid-JSON parse specs; correlation
 persisted-on-failure service assertion.
+
+**Phase 3 — Quality gates alignment** (`testing-quality-gates-alignment`,
+2026-06-01): Documented local `bin/ci` ↔ GHA parity; aligned Brakeman flags in
+`.github/workflows/ci.yml` with `config/ci.rb`; shipped §6.7 gate cookbook.
+Example count unchanged (122). Files touched: `.github/workflows/ci.yml`,
+`AGENTS.md`, `context/foundation/test-plan.md` §6.7/§6.6. **Deferred:** GHA job
+consolidation; automated parity diff script; RuboCop `-f github` in local CI.
+
 ## 7. What We Deliberately Don't Test
 
 Exclusions agreed during the rollout (Phase 2 interview, Q5). Future
