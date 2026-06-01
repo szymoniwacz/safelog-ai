@@ -324,8 +324,8 @@ None — test-only change.
 
 #### Automated
 
-- [ ] 5.1 `mise exec -- bin/ci` passes (full suite + lint + security scans)
+- [x] 5.1 `mise exec -- bin/ci` passes (full suite + lint + security scans) — 15a0a9d
 
 #### Manual
 
-- [ ] 5.2 §6.1, §6.3, §6.4, §6.5, §6.6 filled; §3 Phase 1 marked complete
+- [x] 5.2 §6.1, §6.3, §6.4, §6.5, §6.6 filled; §3 Phase 1 marked complete — 15a0a9d
