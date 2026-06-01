@@ -254,9 +254,9 @@ None.
 
 #### Automated
 
-- [ ] 1.1 `mise exec -- bundle exec rspec spec/services/analysis/analyze_case_spec.rb` passes after client extraction
-- [ ] 1.2 `mise exec -- bundle exec rspec spec/requests/debugging_cases_authorization_spec.rb` passes with strengthened matrix
-- [ ] 1.3 RuboCop clean on new/edited spec/support and request files
+- [x] 1.1 `mise exec -- bundle exec rspec spec/services/analysis/analyze_case_spec.rb` passes after client extraction
+- [x] 1.2 `mise exec -- bundle exec rspec spec/requests/debugging_cases_authorization_spec.rb` passes with strengthened matrix
+- [x] 1.3 RuboCop clean on new/edited spec/support and request files
 
 #### Manual
 
