@@ -270,15 +270,15 @@ None.
 
 #### Manual
 
-- [ ] 2.2 Failure example exercises controller → AnalyzeCase via resolver stub, not direct service call
+- [x] 2.2 Failure example exercises controller → AnalyzeCase via resolver stub, not direct service call
 
 ### Phase 3: Demo Gate Service Anchor + Cookbook (§6.2 / §6.6)
 
 #### Automated
 
-- [ ] 3.1 `mise exec -- bundle exec rspec spec/services/demo/load_case_spec.rb` passes with production `.available?` example
-- [ ] 3.2 `mise exec -- bin/ci` passes
+- [x] 3.1 `mise exec -- bundle exec rspec spec/services/demo/load_case_spec.rb` passes with production `.available?` example
+- [x] 3.2 `mise exec -- bin/ci` passes
 
 #### Manual
 
-- [ ] 3.3 §6.2 and §6.6 updated; §3 Phase 2 marked complete with final example count
+- [x] 3.3 §6.2 and §6.6 updated; §3 Phase 2 marked complete with final example count
