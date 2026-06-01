@@ -186,8 +186,8 @@ None.
 
 #### Automated
 
-- [ ] 2.1 `mise exec -- bin/ci` passes after documentation edits
+- [x] 2.1 `mise exec -- bin/ci` passes after documentation edits
 
 #### Manual
 
-- [ ] 2.2 §6.7 and §6.6 Phase 3 entry complete; §3 Phase 3 marked complete; AGENTS.md shows 122 examples
+- [x] 2.2 §6.7 and §6.6 Phase 3 entry complete; §3 Phase 3 marked complete; AGENTS.md shows 122 examples
