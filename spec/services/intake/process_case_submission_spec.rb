@@ -100,17 +100,7 @@ RSpec.describe Intake::ProcessCaseSubmission do
       result = described_class.call(user: user, submission: submission)
       expect(result).to be_success
 
-      DebuggingCase.find_each do |debugging_case|
-        expect(debugging_case.customer_reference.to_s).not_to include(secret_email)
-      end
-
-      LogSource.find_each do |log_source|
-        expect(log_source.sanitized_content).not_to include(secret_email)
-      end
-
-      RedactionFinding.find_each do |finding|
-        expect(finding.attributes.values.compact.join).not_to include(secret_email)
-      end
+      assert_no_raw_substring_in_persisted_data(secret_email)
     end
 
     it "returns errors when submission is invalid" do
