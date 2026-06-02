@@ -1,10 +1,10 @@
 ---
 change_id: testing-environment-metadata-redaction
 title: Testing environment metadata redaction
-status: impl_reviewed
+status: archived
 created: 2026-06-02
 updated: 2026-06-02
-archived_at: null
+archived_at: 2026-06-02T18:13:24Z
 ---
 
 ## Notes
