@@ -206,17 +206,17 @@ Add HTTP-level guardrails for environment metadata (persist, show, analyze promp
 
 #### Manual
 
-- [ ] 1.3 Confirm no new columns, migrations, or encryption changes
+- [x] 1.3 Confirm no new columns, migrations, or encryption changes
 
 ### Phase 2: Request Layer Proofs and Test-Plan Update
 
 #### Automated
 
-- [ ] 2.1 `mise exec -- bundle exec rspec spec/requests/debugging_cases_security_spec.rb spec/requests/debugging_cases_analyze_security_spec.rb` passes
-- [ ] 2.2 `mise exec -- bundle exec rspec spec/` — 126 examples, 0 failures
-- [ ] 2.3 `mise exec -- bin/ci` green
+- [x] 2.1 `mise exec -- bundle exec rspec spec/requests/debugging_cases_security_spec.rb spec/requests/debugging_cases_analyze_security_spec.rb` passes
+- [x] 2.2 `mise exec -- bundle exec rspec spec/` — 126 examples, 0 failures
+- [x] 2.3 `mise exec -- bin/ci` green
 
 #### Manual
 
-- [ ] 2.4 Revert intake fix locally — confirm new environment examples fail for persist or prompt reasons
-- [ ] 2.5 Skim test-plan §6.3 — environment appears alongside other metadata fields with file references
+- [x] 2.4 Revert intake fix locally — confirm new environment examples fail for persist or prompt reasons
+- [x] 2.5 Skim test-plan §6.3 — environment appears alongside other metadata fields with file references
