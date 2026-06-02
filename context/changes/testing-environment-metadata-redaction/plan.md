@@ -201,8 +201,8 @@ Add HTTP-level guardrails for environment metadata (persist, show, analyze promp
 
 #### Automated
 
-- [ ] 1.1 `mise exec -- bundle exec rspec spec/services/intake/process_case_submission_spec.rb spec/services/analysis/prompt_builder_spec.rb` passes
-- [ ] 1.2 New environment service examples fail if intake fix is reverted (spot-check locally)
+- [x] 1.1 `mise exec -- bundle exec rspec spec/services/intake/process_case_submission_spec.rb spec/services/analysis/prompt_builder_spec.rb` passes
+- [x] 1.2 New environment service examples fail if intake fix is reverted (spot-check locally)
 
 #### Manual
 

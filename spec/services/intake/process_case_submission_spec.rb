@@ -103,6 +103,30 @@ RSpec.describe Intake::ProcessCaseSubmission do
       assert_no_raw_substring_in_persisted_data(secret_email)
     end
 
+    it "redacts secrets in environment metadata on persist" do
+      environment_secret = "env-intake-#{SecureRandom.hex(4)}@secret.example"
+
+      submission = build_submission(
+        environment: "Contact #{environment_secret}",
+        customer_reference: "Ticket #12345",
+        sources: [
+          {
+            source_type: "rails_log",
+            pasted_content: "Started GET /health"
+          }
+        ]
+      )
+
+      result = described_class.call(user: user, submission: submission)
+      expect(result).to be_success
+
+      debugging_case = result.debugging_case
+      expect(debugging_case.environment).to include("[EMAIL_1]")
+      expect(debugging_case.environment).not_to include(environment_secret)
+
+      assert_no_raw_substring_in_persisted_data(environment_secret)
+    end
+
     it "redacts secrets in title and description metadata on persist" do
       title_secret = "title-intake-#{SecureRandom.hex(4)}@secret.example"
       description_secret = "desc-intake-#{SecureRandom.hex(4)}@secret.example"
