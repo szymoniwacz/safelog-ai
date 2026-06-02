@@ -43,6 +43,35 @@ RSpec.describe Analysis::PromptBuilder do
       expect(request.case_ref).to eq(debugging_case.id.to_s)
     end
 
+    it "excludes environment metadata-only secrets from the assembled prompt" do
+      secret_email = "env-prompt-#{SecureRandom.hex(4)}@secret.example"
+
+      debugging_case = create_case_from_submission(
+        title: "Checkout failure",
+        environment: "Contact #{secret_email}",
+        customer_reference: "Ticket #12345",
+        description: "Payment step hangs",
+        sources: [
+          {
+            source_type: "rails_log",
+            name: "Rails",
+            pasted_content: "Started GET /health"
+          }
+        ]
+      )
+
+      correlation_payload = Correlation::ExtractSignals.call(debugging_case: debugging_case)
+      request = described_class.call(
+        debugging_case: debugging_case,
+        correlation_payload: correlation_payload
+      )
+
+      content = request.messages.map { |message| message[:content] }.join("\n")
+
+      expect(content).to include("[EMAIL_1]")
+      expect(content).not_to include(secret_email)
+    end
+
     it "excludes metadata-only secrets from the assembled prompt" do
       secret_email = "meta-prompt-#{SecureRandom.hex(4)}@secret.example"
 
