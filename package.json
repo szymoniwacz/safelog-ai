@@ -1,0 +1,11 @@
+{
+  "name": "safelog-ai",
+  "private": true,
+  "description": "Node tooling for SafeLog AI (Playwright MCP for Cursor E2E).",
+  "scripts": {
+    "mcp:playwright": "playwright-mcp"
+  },
+  "devDependencies": {
+    "@playwright/mcp": "^0.0.75"
+  }
+}
