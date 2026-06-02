@@ -34,6 +34,9 @@
 
 /node_modules
 
+# Playwright MCP session snapshots (local browser automation).
+/.playwright-mcp/
+
 # Cursor hook runtime state (per-conversation QA failures).
 /.cursor/hooks/state/
 
