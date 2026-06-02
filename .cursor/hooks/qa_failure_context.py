@@ -10,6 +10,11 @@ from __future__ import annotations
 import json
 import re
 import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from qa_failure_state import clear_failure, conversation_key, record_failure
 
 MAX_LINES = 60
 MAX_LINE_LEN = 240
@@ -110,10 +115,26 @@ def build_context(command: str, output: str) -> str:
     return "\n".join(parts)
 
 
-def emit_context(context: str) -> bool:
+def emit_context(context: str, data: dict, command: str, output: str) -> bool:
+    key = conversation_key(data)
+    spec_paths = extract_spec_paths(output)
+    record_failure(
+        key,
+        command=command,
+        spec_paths=spec_paths,
+        context=context,
+    )
     payload = {"additional_context": context, "agent_message": context}
     sys.stdout.write(json.dumps(payload))
     return True
+
+
+def maybe_clear_success(data: dict, command: str, output: str, exit_code: int | None) -> None:
+    if not QA_COMMAND_RE.search(command):
+        return
+    if looks_like_failure(command, output, exit_code):
+        return
+    clear_failure(conversation_key(data))
 
 
 def handle_post_tool_use(data: dict) -> bool:
@@ -139,10 +160,13 @@ def handle_post_tool_use(data: dict) -> bool:
     stderr = tool_output.get("stderr") or ""
     combined = stdout + (f"\n{stderr}" if stderr else "")
 
+    maybe_clear_success(data, command, combined, exit_code)
+
     if not looks_like_failure(command, combined, exit_code):
         return False
 
-    return emit_context(build_context(command, combined))
+    context = build_context(command, combined)
+    return emit_context(context, data, command, combined)
 
 
 def handle_after_shell_execution(data: dict) -> bool:
@@ -151,10 +175,13 @@ def handle_after_shell_execution(data: dict) -> bool:
         return False
 
     output = data.get("output") or ""
+    maybe_clear_success(data, command, output, None)
+
     if not looks_like_failure(command, output):
         return False
 
-    return emit_context(build_context(command, output))
+    context = build_context(command, output)
+    return emit_context(context, data, command, output)
 
 
 def main() -> None:
