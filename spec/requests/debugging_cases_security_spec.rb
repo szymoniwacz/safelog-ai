@@ -162,6 +162,8 @@ RSpec.describe "Debugging cases security (AGENTS.md guardrails)", type: :request
       expect(debugging_case.environment).not_to include(environment_secret_email)
       expect(response.body).not_to include(environment_secret_email)
 
+      assert_no_raw_substring_in_persisted_data(environment_secret_email)
+
       post analyze_debugging_case_path(debugging_case)
       follow_redirect!
 

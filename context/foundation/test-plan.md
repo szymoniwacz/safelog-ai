@@ -79,7 +79,7 @@ The classic test base for this project. AI-native tools (if any) carry a
 
 | Layer | Tool | Version | Notes |
 |-------|------|---------|-------|
-| unit + integration | RSpec | 3.x (via rspec-rails) | Primary layer; 126 examples across services, requests, models |
+| unit + integration | RSpec | 3.x (via rspec-rails) | Primary layer; 127 examples across services, requests, models |
 | HTTP integration | RSpec request specs | — | Preferred over browser e2e for auth + case flows |
 | API mocking | WebMock | — | Blocks real OpenAI calls; used with FakeClient |
 | factories | FactoryBot | — | User and domain fixtures |
@@ -103,7 +103,7 @@ The full set of gates that must pass before a change reaches production.
 | bundler-audit | `bin/ci`, GHA `scan_ruby` | required | vulnerable gems |
 | importmap audit | `bin/ci`, GHA `scan_js` | required | JS dependency CVEs |
 | Brakeman | `bin/ci`, GHA `scan_ruby` | required | Rails security patterns |
-| RSpec (122) | `bin/ci`, GHA `test` | required | logic and security regressions |
+| RSpec (127) | `bin/ci`, GHA `test` | required | logic and security regressions |
 | Full `bin/ci` locally before push | developer workflow | required (AGENTS.md) | combined gate failures |
 | Browser e2e on critical flows | — | not planned | — |
 | Post-edit agent hook | — | not planned | — |
@@ -352,7 +352,7 @@ consolidation; automated parity diff script; RuboCop `-f github` in local CI.
 
 **Phase 4 — Environment metadata redaction** (`testing-environment-metadata-redaction`,
 2026-06-02): Closed Phase 1 deferral for risk #4 `environment` field. Baseline
-grew 122 → 126 examples (+ intake `redact_metadata` for environment, service
+grew 122 → 127 examples (+ intake `redact_metadata` for environment, service
 persist/prompt specs, HTTP security/analyze blocks, §6.3 cookbook update).
 Files touched: `app/services/intake/process_case_submission.rb`,
 `spec/services/intake/process_case_submission_spec.rb`,
