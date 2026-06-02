@@ -32,6 +32,8 @@
 
 /public/assets
 
+/node_modules
+
 # Cursor hook runtime state (per-conversation QA failures).
 /.cursor/hooks/state/
 
