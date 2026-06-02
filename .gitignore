@@ -32,6 +32,8 @@
 
 /public/assets
 
+# Cursor hook runtime state (per-conversation QA failures).
+/.cursor/hooks/state/
+
 # Ignore key files for decrypting credentials and more.
 /config/*.key
-

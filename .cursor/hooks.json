@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "hooks": {
+    "afterShellExecution": [
+      {
+        "command": ".cursor/hooks/qa_failure_context.py",
+        "matcher": "(mise exec -- )?(bin/ci|bundle exec rspec|bin/rubocop|bin/brakeman)",
+        "timeout": 15
+      }
+    ],
+    "postToolUse": [
+      {
+        "command": ".cursor/hooks/qa_failure_context.py",
+        "matcher": "Shell",
+        "timeout": 15
+      }
+    ]
+  }
+}
