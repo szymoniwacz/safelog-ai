@@ -43,7 +43,7 @@ research's job, see §1 principle #3).
 | 1 | Raw log substring persists in database after intake | High | High | PRD guardrails; AGENTS.md; interview Q1; hot-spot dir `spec/requests/` (21 commits/30d) |
 | 2 | Raw secret reaches AI prompt or correlation payload | High | High | PRD US-01; AGENTS.md; interview Q1; hot-spot dir `app/services/ai/` (11 commits/30d) |
 | 3 | User B accesses User A's debugging case (IDOR) | High | Medium | PRD Access Control; interview Q3; archive safe-multi-source-intake plan |
-| 4 | Secret in case metadata (title, description, customer_reference) stored or sent to AI unredacted | High | Medium | PRD FR-002; interview Q2; architecture-alignment change notes |
+| 4 | Secret in case metadata (title, description, customer_reference, environment) stored or sent to AI unredacted | High | Medium | PRD FR-002; interview Q2; architecture-alignment change notes |
 | 5 | Diagnostic text stored as readable plaintext in SQLite | High | Low | PRD NFR encryption; roadmap F-02; interview Q2 (GHA encryption boot) |
 | 6 | Demo case loader reachable in production | Medium | Low | PRD FR-011; interview Q5 negative space |
 | 7 | Invalid AI output presented without hypothesis framing or uncertainty | Medium | Medium | PRD guardrails; interview Q3; hot-spot dir `app/services/analysis/` (7 commits/30d) |
@@ -55,7 +55,7 @@ research's job, see §1 principle #3).
 | #1 | Known secret email/token in pasted content never appears in persisted diagnostic columns after POST intake | Placeholders on show page prove redaction ran, not that DB is clean | Intake transaction path; which columns hold diagnostic text; encrypted vs plain fields | Request spec scanning all persisted models + show response | Asserting response body only without DB scan |
 | #2 | Analyze flow never sends raw intake substrings to fake AI client or correlation JSON | FakeClient returning canned output means prompts were never inspected | Prompt assembly boundary; correlation extractor inputs; ClientResolver in test | Request/service spec with FakeClient capture + joined prompt text | Mocking redaction internals instead of exercising HTTP intake |
 | #3 | Cross-user show, analyze, archive, and export return 404 (not 403 leak) | Signed-in user implies only their own cases are reachable | Controller scoping pattern; all mutating routes on DebuggingCase | Request spec matrix per action with two users | Testing only GET show while leaving analyze/export unguarded |
-| #4 | Secrets in title, description, and customer_reference redact on persist and in analyze prompts | Title/description treated as safe because they are not log paste fields | Shared registry in intake; metadata fields included in PromptBuilder | Request security spec per metadata field | Testing description only while title stays plain |
+| #4 | Secrets in title, description, customer_reference, and environment redact on persist and in analyze prompts | Title/description treated as safe because they are not log paste fields | Shared registry in intake; metadata fields included in PromptBuilder | Request security spec per metadata field | Testing description only while title stays plain |
 | #5 | Encrypted diagnostic columns store ciphertext, not plaintext markers | Model `encrypts` declaration alone proves nothing at rest | Which models/columns use Active Record Encryption; test env key source | Model spec with raw SQL `select_value` | Reading decrypted attribute only without SQLite column check |
 | #6 | Load demo returns 404 outside development/test | Demo fixture content matters less than availability gate | Demo availability check; production env config | Request spec with `allow` on availability helper | Testing happy path only in development |
 | #7 | Generated reports require hypotheses and uncertainty_notes; invalid JSON retries then fails safely | First successful analyze proves validator exists, not retry/failure path | Analyze orchestration; ResponseValidator rules; report status enum | Service spec for invalid response + request spec for failed status | Asserting markdown contains keywords copied from FakeClient fixture |
@@ -79,7 +79,7 @@ The classic test base for this project. AI-native tools (if any) carry a
 
 | Layer | Tool | Version | Notes |
 |-------|------|---------|-------|
-| unit + integration | RSpec | 3.x (via rspec-rails) | Primary layer; 122 examples across services, requests, models |
+| unit + integration | RSpec | 3.x (via rspec-rails) | Primary layer; 126 examples across services, requests, models |
 | HTTP integration | RSpec request specs | — | Preferred over browser e2e for auth + case flows |
 | API mocking | WebMock | — | Blocks real OpenAI calls; used with FakeClient |
 | factories | FactoryBot | — | User and domain fixtures |
@@ -227,13 +227,15 @@ Pick the cheapest layer that catches the risk (see §2 Risk Response Guidance).
   `spec/services/analysis/analyze_case_spec.rb`
 - Boundary docs: `spec/services/ai/sanitized_prompt_guard_spec.rb`
 
-**Risk #4 — metadata (title, description, customer_reference)**
+**Risk #4 — metadata (title, description, customer_reference, environment)**
 - Per-field HTTP blocks: `spec/requests/debugging_cases_security_spec.rb`
-  (title, description)
+  (title, description, environment)
 - Metadata-only in analyze prompts (no overlapping log secret):
   `spec/requests/debugging_cases_analyze_security_spec.rb`
-  (`customer_reference metadata redaction`)
+  (`customer_reference metadata redaction`, `environment metadata redaction`)
 - Service metadata persist: `spec/services/intake/process_case_submission_spec.rb`
+- Service metadata prompt: `spec/services/analysis/prompt_builder_spec.rb`
+  (`environment metadata-only secrets`)
 
 **Run:** `mise exec -- bundle exec rspec spec/requests/debugging_cases_security_spec.rb spec/requests/debugging_cases_analyze_security_spec.rb`
 
@@ -324,10 +326,9 @@ export RAILS_ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT="CITestKeyDerivationSa
 116 → 119 examples (+ shared helper extraction, PromptBuilder metadata-only
 prompt, intake title/description persist, analyze customer_reference-only
 isolation). Request-layer guardrails were already strong; additions are
-service/request depth and cookbook documentation. **Deferred:** `environment`
-metadata redaction; risk #3 authorization matrix (Phase 2 rollout); new
-encryption model examples (risk #5 — documented in §6.4 only); export spec
-duplication.
+service/request depth and cookbook documentation. **Deferred:** risk #3
+authorization matrix (Phase 2 rollout); new encryption model examples
+(risk #5 — documented in §6.4 only); export spec duplication.
 
 **Phase 2 — Critical HTTP path regression** (`testing-critical-http-path-regression`,
 2026-06-01): Closed gap-fill coverage for risks #3, #6, #7. Baseline grew
@@ -348,6 +349,16 @@ persisted-on-failure service assertion.
 Example count unchanged (122). Files touched: `.github/workflows/ci.yml`,
 `AGENTS.md`, `context/foundation/test-plan.md` §6.7/§6.6. **Deferred:** GHA job
 consolidation; automated parity diff script; RuboCop `-f github` in local CI.
+
+**Phase 4 — Environment metadata redaction** (`testing-environment-metadata-redaction`,
+2026-06-02): Closed Phase 1 deferral for risk #4 `environment` field. Baseline
+grew 122 → 126 examples (+ intake `redact_metadata` for environment, service
+persist/prompt specs, HTTP security/analyze blocks, §6.3 cookbook update).
+Files touched: `app/services/intake/process_case_submission.rb`,
+`spec/services/intake/process_case_submission_spec.rb`,
+`spec/services/analysis/prompt_builder_spec.rb`,
+`spec/requests/debugging_cases_security_spec.rb`,
+`spec/requests/debugging_cases_analyze_security_spec.rb`.
 
 ## 7. What We Deliberately Don't Test
 

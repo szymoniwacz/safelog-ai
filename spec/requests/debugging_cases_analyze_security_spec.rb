@@ -120,4 +120,39 @@ RSpec.describe "Debugging case analyze security (AGENTS.md guardrails)", type: :
       expect(prompt).not_to include(customer_reference_secret_email)
     end
   end
+
+  describe "environment metadata redaction" do
+    let(:environment_secret_email) { "env-meta-#{SecureRandom.hex(4)}@secret.example" }
+
+    before do
+      sign_in user
+      post debugging_cases_path, params: {
+        debugging_case: {
+          title: "Analyze metadata case",
+          description: "Payment step hangs",
+          environment: "Contact #{environment_secret_email}",
+          sources: [
+            { source_type: "rails_log", pasted_content: "Started GET /health" }
+          ]
+        }
+      }
+      follow_redirect!
+    end
+
+    it "redacts secrets in environment on persist and in analyze prompts" do
+      debugging_case = DebuggingCase.last
+
+      expect(debugging_case.environment).to include("[EMAIL_1]")
+      expect(debugging_case.environment).not_to include(environment_secret_email)
+
+      assert_no_raw_substring_in_persisted_data(environment_secret_email)
+
+      post analyze_debugging_case_path(debugging_case)
+      follow_redirect!
+
+      prompt = fake_client.last_request.messages.map { |message| message[:content] }.join("\n")
+      expect(prompt).to include("[EMAIL_1]")
+      expect(prompt).not_to include(environment_secret_email)
+    end
+  end
 end
