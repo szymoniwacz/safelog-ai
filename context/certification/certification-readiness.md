@@ -14,10 +14,10 @@ scope: 10xDevs Builder + Architect + Champion
 | Badge | Modules | Verdict | Summary |
 |-------|---------|---------|---------|
 | **10xBuilder** | M1–M3 | **READY** | MVP shipped; 135 RSpec + system + Playwright; Fly.io live at https://safelog-ai.fly.dev/; submission screenshots captured; local `bin/ci` + remote GHA green on `main` (2026-06-09). |
-| **10xArchitect** | M4 | **IN PROGRESS** | M4L2-1–3 done — [`artifact-1-territory.md`](../map/artifact-1-territory.md), [`artifact-2-structure.md`](../map/artifact-2-structure.md), [`artifact-3-contributors.md`](../map/artifact-3-contributors.md); pending `repo-map.md`, Architect review. |
+| **10xArchitect** | M4 | **IN PROGRESS** | M4L2 map workflow done — [`repo-map.md`](../map/repo-map.md) + artifacts 1–3; pending Architect review, refactoring/modernization exercise. |
 | **10xChampion** | M5 | **NOT STARTED** | No M5 prompts, automation workflows, or Champion review artifacts in repository. |
 
-**Overall:** Builder ready to submit (including submission screenshots). Architect **in progress** (territory map done). Champion not started. Additional module work required before a **single combined submission** is ready.
+**Overall:** Builder ready to submit. Architect **in progress** — M4 repo map complete; review + exercises pending. Champion not started.
 
 ---
 
@@ -35,7 +35,7 @@ flowchart LR
 | Phase | Goal | Remaining before final submission |
 |-------|------|-----------------------------------|
 | **Builder** | Working MVP + context + tests + CI + deploy | None — ready to submit |
-| **Architect** | Large-repo architecture literacy + evidence | Map artifacts 1–3 done; remaining: `repo-map.md` synthesis, Architect review |
+| **Architect** | Large-repo architecture literacy + evidence | Repo map complete; remaining: Architect review, refactoring/modernization exercise |
 | **Champion** | AI-assisted team workflow + automation | M5 exercises; CI/CD AI integration; automation evidence — **none in repo yet** |
 | **Final package** | One submission, three badges | All sections below populated; demo script; screenshots |
 
@@ -97,7 +97,7 @@ mise exec -- bin/dev                             # local demo
 
 ## 10xArchitect
 
-**Verdict: IN PROGRESS** — territory, structure, and contributors maps complete; `repo-map.md` synthesis and review pending.
+**Verdict: IN PROGRESS** — repo map synthesis complete; Architect review and M4 exercises pending.
 
 Module 4 course prompts exist (repo map / large-context workflow):
 
@@ -105,17 +105,17 @@ Module 4 course prompts exist (repo map / large-context workflow):
 |--------|-------------------|--------|
 | `.cursor/prompts/m4l2-1-territory-git-history.md` | `context/map/artifact-1-territory.md` | **PASS** |
 | `.cursor/prompts/m4l2-2-structure-dependency-cruiser.md` | `context/map/artifact-2-structure.md` | **PASS** |
-| `.cursor/prompts/m4l2-repo-map-synthesis.md` | `context/map/repo-map.md` | **TODO** |
+| `.cursor/prompts/m4l2-repo-map-synthesis.md` | `context/map/repo-map.md` | **PASS** |
 
 ### Checklist (Module 4 outcomes — placeholders)
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Architecture work — repo map / territory analysis | **PARTIAL** | All three map artifacts done; pending `repo-map.md` synthesis |
-| Large-context workflows — map synthesis | **TODO** | No synthesis artifact yet |
+| Architecture work — repo map / territory analysis | **PASS** | [`repo-map.md`](../map/repo-map.md) + artifacts 1–3 |
+| Large-context workflows — map synthesis | **PASS** | [`repo-map.md`](../map/repo-map.md) synthesizes territory, structure, contributors |
 | Refactoring exercises — documented change | **TODO** | Post-MVP refactors not opened as M4 changes |
 | Modernization work — evidence | **TODO** | Roadmap parked items (Postgres, observability) not started |
-| Architecture evidence — diagrams / boundaries | **PARTIAL** | Pre-M4: `architecture-alignment` archive; `shape-notes.md`; not M4 certification packet |
+| Architecture evidence — diagrams / boundaries | **PASS** | Mermaid + E2E SVG in map artifacts; Ruby boundaries in artifact-2 / repo-map |
 | Review artifacts — Architect impl/plan review | **TODO** | No `context/reviews/*architect*` artifact |
 
 ### Evidence
@@ -125,7 +125,7 @@ Module 4 course prompts exist (repo map / large-context workflow):
 | Territory map (M4L2-1) | **PASS** | [`context/map/artifact-1-territory.md`](../map/artifact-1-territory.md) |
 | Structure map (M4L2-2) | **PASS** | [`context/map/artifact-2-structure.md`](../map/artifact-2-structure.md) |
 | Contributors map | **PASS** | [`context/map/artifact-3-contributors.md`](../map/artifact-3-contributors.md) |
-| Repo map synthesis | **TODO** | `context/map/repo-map.md` |
+| Repo map synthesis | **PASS** | [`context/map/repo-map.md`](../map/repo-map.md) |
 | Architect review | **TODO** | `context/reviews/*architect*` |
 
 ---
@@ -159,7 +159,7 @@ Single packet for **Builder + Architect + Champion** when all badges are ready.
 
 | Artifact | Builder | Architect | Champion |
 |----------|---------|-----------|----------|
-| Project summary | README + PRD | TODO — architecture narrative from repo map | TODO |
+| Project summary | README + PRD | [`repo-map.md`](../map/repo-map.md) TL;DR + links to foundation | TODO |
 | Demo script | See [Demo flow](#demo-flow) | TODO | TODO |
 | Screenshots | [`context/certification/screenshots/`](screenshots/) (7 PNGs, Fly 2026-06-09) | TODO | TODO |
 | Deployment URL | https://safelog-ai.fly.dev/ | Same URL + architecture notes | Same + automation proof |
@@ -242,7 +242,7 @@ PLAYWRIGHT_SKIP_WEBSERVER=1 PLAYWRIGHT_BASE_URL=https://safelog-ai.fly.dev \
 
 | Gap | Action |
 |-----|--------|
-| M4 map sequence incomplete | Complete `repo-map.md` synthesis |
+| M4 map workflow incomplete | Run Architect review; optional refactoring/modernization change |
 | No Architect review document | Run course Architect review workflow when M4 work ships |
 | No post-MVP modernization change | Pick from roadmap Parked or course exercise |
 
