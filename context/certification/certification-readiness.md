@@ -13,13 +13,13 @@ scope: 10xDevs Builder + Architect + Champion
 
 | Badge | Modules | Verdict | Summary |
 |-------|---------|---------|---------|
-| **10xBuilder** | M1–M3 | **READY** | MVP shipped; 135 RSpec + system + Playwright; Fly.io deployed; local `bin/ci` green (2026-06-09). |
+| **10xBuilder** | M1–M3 | **READY** | MVP shipped; 135 RSpec + system + Playwright; Fly.io deployed (verified 2026-06-09, suspended when idle); local `bin/ci` + remote GHA green on `main` (2026-06-09). |
 | **10xArchitect** | M4 | **NOT STARTED** | M4 prompts present in `.cursor/prompts/m4l2-*`; no `context/map/repo-map.md` or M4 review artifacts yet. |
 | **10xChampion** | M5 | **NOT STARTED** | No M5 prompts, automation workflows, or Champion review artifacts in repository. |
 
 **Overall:** Builder complete enough to submit. Architect and Champion require additional module work before a **single combined submission** is ready.
 
-**Distinction polish (optional, Builder):** remote GHA green for latest `main`; submission screenshots — see [Known Gaps](#known-gaps).
+**Distinction polish (optional, Builder):** submission screenshots — see [Known Gaps](#known-gaps).
 
 ---
 
@@ -36,7 +36,7 @@ flowchart LR
 
 | Phase | Goal | Remaining before final submission |
 |-------|------|-----------------------------------|
-| **Builder** | Working MVP + context + tests + CI + deploy | Optional: push `main` + confirm GHA at 135 examples; submission screenshots |
+| **Builder** | Working MVP + context + tests + CI + deploy | Optional: submission screenshots |
 | **Architect** | Large-repo architecture literacy + evidence | Repo map (`context/map/`); M4 exercises; architecture review artifacts |
 | **Champion** | AI-assisted team workflow + automation | M5 exercises; CI/CD AI integration; automation evidence — **none in repo yet** |
 | **Final package** | One submission, three badges | All sections below populated; demo script; screenshots |
@@ -59,11 +59,11 @@ flowchart LR
 | Tests — meaningful coverage | **PASS** | 135 RSpec + 7 system + 5 Playwright |
 | CI/CD — local gate | **PASS** | `mise exec -- bin/ci` green 2026-06-09 |
 | CI/CD — GitHub Actions config | **PASS** | `.github/workflows/ci.yml` parity with `config/ci.rb` |
-| CI/CD — remote GHA on latest `main` | **NOT VERIFIED** | Last success 2026-06-02; commits after not verified on remote |
-| Public URL | **PASS** | https://safelog-ai.fly.dev/ — deployed and verified 2026-06-09 |
-| Deployment evidence | **PASS** | `deploy-plan.md` § Deployment status + lessons learned; manual E2E verification |
+| CI/CD — remote GHA on latest `main` | **PASS** | [Run 27228714749](https://github.com/szymoniwacz/safelog-ai/actions/runs/27228714749) on `3c92dcb` (2026-06-09); all four jobs green; 135 RSpec examples |
+| Public URL | **PASS** | https://safelog-ai.fly.dev/ — deployed and verified 2026-06-09; **intentionally suspended** when not needed (URL unreachable until `fly deploy`) |
+| Deployment evidence | **PASS** | `deploy-plan.md` § Deployment status + lessons learned; manual E2E verification (2026-06-09) |
 | Demo flow — local | **PASS** | README demo section; system + Playwright specs |
-| Demo flow — public | **PASS** | Sign-in and case flow verified on Fly URL (2026-06-09) |
+| Demo flow — public | **PASS** | Sign-in and case flow verified on Fly URL (2026-06-09); re-deploy before public demo if suspended |
 | Security evidence | **PASS** | Security checklist in builder readiness review; log guard, encryption, AI boundary specs |
 
 ### Evidence
@@ -90,6 +90,7 @@ mise exec -- bin/dev                             # local demo
 
 - Local: `config/ci.rb` — setup, RuboCop, bundler-audit, importmap audit, Brakeman, RSpec.
 - GHA: four jobs (`scan_ruby`, `scan_js`, `lint`, `test`); same tools.
+- Remote: latest `main` verified 2026-06-09 — [run 27228714749](https://github.com/szymoniwacz/safelog-ai/actions/runs/27228714749) (`3c92dcb`; lint, scan_ruby, scan_js, test all success).
 - Playwright: optional (`bin/e2e`); not in `bin/ci` (see `test-plan.md` §6.9).
 
 ---
@@ -187,7 +188,7 @@ mise exec -- bin/e2e
 # Demo
 mise exec -- bin/dev
 
-# Production health check
+# Production health check (when app is running; suspended by default)
 curl -sf https://safelog-ai.fly.dev/up
 ```
 
@@ -199,7 +200,6 @@ curl -sf https://safelog-ai.fly.dev/up
 
 | Gap | Severity | Action |
 |-----|----------|--------|
-| Remote GHA not verified post–2026-06-02 | Low | Push `main`; confirm Actions green at 135 examples |
 | Screenshots for submission packet | Low | Capture UI flows before submit |
 | Fake AI default without `OPENAI_API_KEY` | Accepted | Document in demo; optional Fly secret |
 

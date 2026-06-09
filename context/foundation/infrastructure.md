@@ -126,7 +126,7 @@ RAILS_ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT
 | App | `safelog-ai` |
 | Region | `fra` |
 | Volume | `data` → `/rails/storage` |
-| Deploy | Manual `fly deploy --app safelog-ai` |
+| Deploy | Manual `fly deploy --app safelog-ai`; app may be suspended when not needed |
 
 Verified: app boot, SQLite persistence on volume, `/up` health checks passing, end-to-end browser access.
 

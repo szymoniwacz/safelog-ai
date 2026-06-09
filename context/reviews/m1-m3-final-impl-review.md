@@ -44,19 +44,19 @@
 
 ### O1 — Production Fly deploy not executed
 
-- **Severity**: OBSERVATION
+- **Severity**: OBSERVATION → **RESOLVED** (2026-06-09)
 - **Impact**: Demo logistics only — not a Builder code blocker
 - **Dimension**: Success Criteria
-- **Evidence**: `fly.toml` configured; `deploy-plan.md` complete; `curl https://safelog-ai.fly.dev/up` → unreachable (HTTP 000); `flyctl` not installed on audit host.
-- **Fix**: Human operator: install flyctl, create app/volume/secrets, `fly deploy`, smoke per deploy-plan §Verification.
+- **Evidence**: Prior audit: `fly.toml` configured; deploy-plan complete; URL unreachable during audit (app later confirmed deployed).
+- **Resolution (2026-06-09)**: First production deploy verified per `deploy-plan.md` — machine boot, volume mount, `/up` 200, browser E2E. App is **intentionally suspended** when not needed; URL may be down between demos — run `fly deploy` to restore.
 
 ### O2 — Remote GitHub Actions not verified for latest suite
 
-- **Severity**: OBSERVATION
+- **Severity**: OBSERVATION → **RESOLVED** (2026-06-09)
 - **Impact**: LOW — local `bin/ci` green; GHA config parity confirmed by inspection
 - **Dimension**: Safety & Quality
-- **Evidence**: Last `main` CI success: 2026-06-02 ([run 26847521245](https://github.com/szymoniwacz/safelog-ai/actions/runs/26847521245)). Local branch includes commits after that (system specs, Playwright, log guard) — **not verified** on remote until push.
-- **Fix**: Push `main` and confirm GHA `test` job green with 135 examples.
+- **Evidence**: Prior gap: last verified `main` success was 2026-06-02 ([run 26847521245](https://github.com/szymoniwacz/safelog-ai/actions/runs/26847521245)); local commits after that were not yet on remote at audit time.
+- **Resolution (2026-06-09)**: Remote `main` @ `3c92dcb` verified — [run 27228714749](https://github.com/szymoniwacz/safelog-ai/actions/runs/27228714749); all four jobs success; 135 RSpec examples in `test` job.
 
 ### O3 — Playwright optional gate (not in `bin/ci`)
 
@@ -73,8 +73,8 @@
 | `mise exec -- bin/ci` | PASS — 135 examples, 0 failures; RuboCop, Brakeman, audits green |
 | `mise exec -- bundle exec rspec spec/system` | PASS — 7 examples, 0 failures |
 | `mise exec -- bin/e2e` | PASS — 5 Playwright tests, 0 failures |
-| `curl https://safelog-ai.fly.dev/up` | **NOT VERIFIED** — unreachable from audit environment |
-| GHA `main` latest | **NOT VERIFIED** for post–2026-06-02 commits (last success 2026-06-02) |
+| `curl https://safelog-ai.fly.dev/up` | PASS (deploy verified 2026-06-09) — **suspended when idle**; expect HTTP errors until `fly deploy` |
+| GHA `main` latest | PASS — [run 27228714749](https://github.com/szymoniwacz/safelog-ai/actions/runs/27228714749) on `3c92dcb` (2026-06-09); four jobs green; 135 examples |
 
 ## Plan / Scope Checklist
 
@@ -93,4 +93,4 @@
 
 Full three-badge tracker: [`context/certification/certification-readiness.md`](../certification/certification-readiness.md). Architect and Champion sections remain **NOT STARTED**.
 
-Distinction polish (optional, not blocking): deploy to Fly for public demo URL; push latest commits and confirm GHA green at 135 examples; run `bin/e2e` in submission notes as optional browser proof.
+Distinction polish (optional, not blocking): run `bin/e2e` in submission notes as optional browser proof; `fly deploy` before submission if a live public URL is required.

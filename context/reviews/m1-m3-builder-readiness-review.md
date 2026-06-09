@@ -11,7 +11,7 @@
 
 **READY**
 
-SafeLog AI meets Builder MVP requirements for Modules 1–3: full user flow works, security guardrails are implemented and tested, local CI is green (135 RSpec examples), and documentation is aligned. Post-polish additions: Rails log guard spec (F5), Capybara system specs (7), Playwright E2E (5), fresh impl-review artifact. Remaining non-blockers: **public Fly URL not deployed/verified**, **remote GHA not verified** for commits after 2026-06-02.
+SafeLog AI meets Builder MVP requirements for Modules 1–3: full user flow works, security guardrails are implemented and tested, local CI is green (135 RSpec examples), remote GHA on `main` verified (2026-06-09), Fly.io deploy verified (2026-06-09; suspended when not needed), and documentation is aligned. Post-polish additions: Rails log guard spec (F5), Capybara system specs (7), Playwright E2E (5), fresh impl-review artifact.
 
 ---
 
@@ -37,10 +37,9 @@ SafeLog AI is a Rails 8.1 + SQLite app that redacts logs in memory, persists san
 
 **Why not unconditional READY:**
 
-- Production Fly deploy is **documented but not verified** as executed.
+- Production Fly deploy **verified 2026-06-09**; app **intentionally suspended** when not needed (URL unreachable until re-deploy).
 - Documentation polish (F2–F4) completed 2026-06-09; foundation docs now align on SQLite + server-rendered ERB.
 - Rails log guard spec covers **test env** request Parameters log only (F5 resolved); dev/prod log files not scanned.
-- Public URL and post–2026-06-02 remote CI not verified this audit.
 
 ---
 
@@ -124,9 +123,9 @@ SafeLog AI is a Rails 8.1 + SQLite app that redacts logs in memory, persists san
 | bundler-audit | `bin/bundler-audit` | No vulnerabilities | **PASS** |
 | importmap audit | `bin/importmap audit` | No vulnerable packages | **PASS** |
 | GitHub Actions | `.github/workflows/ci.yml` | 4 jobs: scan_ruby, scan_js, lint, test | **PASS** (config present) |
-| GHA last run | `gh run list --branch main` | Last **success** 2026-06-02 ([run 26847521245](https://github.com/szymoniwacz/safelog-ai/actions/runs/26847521245)); commits after that **NOT VERIFIED** on remote |
+| GHA last run | `gh run list --branch main` | **PASS** — [run 27228714749](https://github.com/szymoniwacz/safelog-ai/actions/runs/27228714749) on `3c92dcb` (2026-06-09); all four jobs success; 135 RSpec examples |
 | Deploy automation | — | Manual `fly deploy` only | **NOT VERIFIED** (not required for Builder) |
-| Production URL | `https://safelog-ai.fly.dev/` | **NOT VERIFIED** | `curl /up` → HTTP 000; `flyctl` not on audit host; `fly.toml` configured |
+| Production URL | `https://safelog-ai.fly.dev/` | **PASS** | Deploy verified 2026-06-09 (`deploy-plan.md`); **suspended when idle** — `curl /up` fails until `fly deploy` |
 
 Local vs GHA parity: `bin/ci` and GHA test job both run `bin/setup --skip-server` + `bundle exec rspec` + security scans (test-plan §6.7).
 
@@ -193,13 +192,13 @@ Real Chromium via `@playwright/test`. **Not in `bin/ci`** — optional pre-demo 
 
 ## Findings
 
-### F1 — Production deploy not verified
+### F1 — Production deploy not verified — **RESOLVED** (2026-06-09)
 
 - **Severity**: warning
 - **Category**: Production / demo readiness
 - **Evidence**: `deploy-plan.md` documents `fly deploy` and `https://safelog-ai.fly.dev/`; no deploy log, fly status artifact, or curl proof in repo.
 - **Impact**: Demo Day may require local demo or first-time deploy under pressure.
-- **Recommended Fix**: Execute deploy-plan preflight + `fly deploy`; record smoke checklist results.
+- **Resolution (2026-06-09)**: First deploy verified — machine boot, volume, `/up` 200, browser E2E. App **intentionally suspended** when not needed; run `fly deploy` before public demo.
 
 ### F2 — `tech-stack.md` contradicts implementation — **RESOLVED** (2026-06-09)
 
@@ -243,14 +242,13 @@ Real Chromium via `@playwright/test`. **Not in `bin/ci`** — optional pre-demo 
 
 - **Severity**: observation
 - **Category**: Course workflow
-- **Resolution (2026-06-09)**: `context/reviews/m1-m3-final-impl-review.md` — six-dimension sweep APPROVED; 0 critical/warning findings; 3 observations (deploy, remote GHA, Playwright optional gate).
+- **Resolution (2026-06-09)**: `context/reviews/m1-m3-final-impl-review.md` — six-dimension sweep APPROVED; 0 critical/warning findings; 3 observations (deploy, remote GHA, Playwright optional gate). Remote GHA and Fly deploy verified same day; Fly app suspended when not needed.
 
 ---
 
 ## Recommended Fix Order
 
-1. **F1** — Fly deploy + smoke if Demo Day needs public URL (optional for local Builder demo).
-**Resolved (2026-06-09):** F2, F3, F4, F5, F7, F8. Do **not** block certification on F6. **F1** optional for public URL.
+**Resolved (2026-06-09):** F1 (deploy verified; suspended when idle), F2, F3, F4, F5, F7, F8. Do **not** block certification on F6. Re-run `fly deploy` only when a live public URL is needed.
 
 ---
 
@@ -262,7 +260,7 @@ Real Chromium via `@playwright/test`. **Not in `bin/ci`** — optional pre-demo 
 | Regex redaction misses novel secret formats | Medium (acknowledged) | Documented in `Redaction::Patterns`; placeholders for known patterns |
 | `Ai::Request` does not re-scan message content | Low | `PromptBuilder` sole gate; tested via analyze security specs |
 | SQLite single-node production | Operational | Documented in README limitations; Fly volume in deploy-plan |
-| No production deploy yet | Demo logistics | Local + Playwright/demo loader paths proven |
+| No production deploy yet | Demo logistics | Deploy verified 2026-06-09; suspended when idle; local + Playwright/demo loader paths proven |
 | Heuristic incomplete redaction if operator bypasses intake | Low | PRD guardrails + tests for standard paths |
 | Rails logs outside test request Parameters line | Low | F5 spec covers test env only; no custom `Rails.logger` in `app/` |
 
@@ -287,11 +285,10 @@ Rationale:
 
 **Not applicable for BLOCKED status.** Optional before submission polish:
 
-1. Execute **F1** (Fly deploy) — only if certification/demo requires a public URL.
+1. Execute **F1** re-deploy — only if certification/demo requires a live public URL (app suspended when idle).
 ### Distinction polish (optional, not required for READY)
 
-- Push latest `main` and confirm GHA green at **135** examples.
-- Deploy Fly + public smoke (`deploy-plan.md`) for reviewer-accessible demo URL.
+- `fly deploy --app safelog-ai` before submission if reviewers need a live public URL.
 - Update [`context/certification/certification-readiness.md`](../certification/certification-readiness.md) before final combined submission.
 
 ### Demo Day readiness
@@ -301,7 +298,7 @@ Rationale:
 | Local demo (`bin/dev` + Load demo case) | **READY** |
 | Manual multi-source paste demo | **READY** (browser-verified) |
 | Security narrative | **READY** (strong test + schema evidence) |
-| Public Fly URL | **NOT VERIFIED** |
+| Public Fly URL | **PASS** (verified 2026-06-09; suspended when idle) |
 | Real OpenAI output | **Optional** (fake client default is safe and documented) |
 
 ### Review questions likely during certification
@@ -321,7 +318,7 @@ Rationale:
 | `mise exec -- bin/ci` | PASS — 135 examples, 0 failures (~38s) |
 | `mise exec -- bundle exec rspec spec/system` | PASS — 7 examples |
 | `mise exec -- bin/e2e` | PASS — 5 Playwright tests (~7s + server boot) |
-| `curl https://safelog-ai.fly.dev/up` | **NOT VERIFIED** — HTTP 000 (unreachable) |
-| GHA `main` latest success | 2026-06-02 — post-commit suite **NOT VERIFIED** on remote |
+| `curl https://safelog-ai.fly.dev/up` | PASS (deploy verified 2026-06-09) — suspended when idle; fails until `fly deploy` |
+| GHA `main` latest success | PASS — [run 27228714749](https://github.com/szymoniwacz/safelog-ai/actions/runs/27228714749) on `3c92dcb` (2026-06-09) |
 | Fresh impl-review | `m1-m3-final-impl-review.md` — APPROVED |
 | Certification tracker | `context/certification/certification-readiness.md` |

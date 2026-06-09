@@ -30,7 +30,7 @@ hints:
 | AI | Provider-agnostic adapter | `Ai::FakeClient` in test/CI; OpenAI optional via `OPENAI_API_KEY` |
 | Tests | RSpec | Request, service, and model specs (127 examples; `bin/ci`) |
 | CI | GitHub Actions + `bin/ci` | Lint, security audits, RSpec — **no auto-deploy** (manual `fly deploy`) |
-| Hosting | Fly.io + Docker | Deployed at https://safelog-ai.fly.dev/ (2026-06-09); SQLite on Fly volume |
+| Hosting | Fly.io + Docker | Deployed at https://safelog-ai.fly.dev/ (verified 2026-06-09; suspended when idle); SQLite on Fly volume |
 
 PostgreSQL is a **future scale option only** — not used in the shipped MVP.
 

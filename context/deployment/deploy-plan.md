@@ -2,15 +2,17 @@
 
 ## Deployment status
 
-**Completed and verified:** 2026-06-09
+**Completed and verified:** 2026-06-09  
+**Runtime policy:** App may be **intentionally suspended** when not needed for demo or review. The URL is not expected to respond while suspended; run `fly deploy --app safelog-ai` (or start machines) before a public demo.
 
 | Item | Status |
 |------|--------|
 | Public URL | https://safelog-ai.fly.dev/ |
 | App boot | Machine starts; Thruster + Puma serve on port 8080 |
 | SQLite volume | `data` mounted at `/rails/storage`; `db:prepare` on boot |
-| Health checks | `GET /up` returns 200 (Fly internal + public) |
-| End-to-end | Sign-in, case flow, and deploy process verified manually |
+| Health checks | `GET /up` returns 200 (Fly internal + public) when running |
+| End-to-end | Sign-in, case flow, and deploy process verified manually (2026-06-09) |
+| Current runtime | Suspended when idle — not a deploy failure |
 
 Deploy method: manual `fly deploy --app safelog-ai` (no GitHub Actions deploy workflow).
 
