@@ -36,8 +36,7 @@ SafeLog AI is a Rails 8.1 + SQLite app that redacts logs in memory, persists san
 **Why not unconditional READY:**
 
 - Production Fly deploy is **documented but not verified** as executed.
-- `context/foundation/tech-stack.md` still references a React UI that was not built (implementation is server-rendered ERB).
-- `context/reviews/mvp-impl-review.md` cites stale example count (116 vs current 127).
+- Documentation polish (F2–F4) completed 2026-06-09; foundation docs now align on SQLite + server-rendered ERB.
 - Rails **runtime log files** were not scanned for raw log leakage (param filtering configured; no direct log-assertion spec).
 
 ---
@@ -59,7 +58,7 @@ SafeLog AI is a Rails 8.1 + SQLite app that redacts logs in memory, persists san
 | **Business logic** — markdown export | **PASS** | `spec/requests/debugging_cases_report_export_spec.rb` |
 | **Documentation** — README + agent rules | **PASS** | `README.md`, `AGENTS.md` present and accurate on security/commands |
 | **Documentation** — foundation context | **PASS** | PRD, roadmap, test-plan, infrastructure, deploy-plan, shape-notes |
-| **Documentation** — no contradictions | **NEEDS ATTENTION** | `tech-stack.md` React vs server-rendered implementation (see F2) |
+| **Documentation** — no contradictions | **PASS** | Foundation docs aligned 2026-06-09 (F2–F4 resolved) |
 | **Tests** — meaningful coverage | **PASS** | 127 RSpec examples; security cookbook in `test-plan.md` §6 |
 | **Tests** — fake AI in CI | **PASS** | `Ai::ClientResolver` → `FakeClient` in test; WebMock blocks OpenAI |
 | **CI/CD** — local gate | **PASS** | `bin/ci` green (2026-06-09) |
@@ -97,17 +96,17 @@ SafeLog AI is a Rails 8.1 + SQLite app that redacts logs in memory, persists san
 | `README.md` | **PASS** | Setup, security principles, demo flow, AI client table, quality gates match implementation. |
 | `AGENTS.md` | **PASS** | Hard rules align with PRD; 127 examples matches current suite; points to test-plan. |
 | `CLAUDE.md` | **NOT PRESENT** | Course accepts `AGENTS.md` as agent onboarding artifact (M1L4). |
-| `context/foundation/prd.md` | **PASS** (content) / **observation** (metadata) | Requirements match built MVP; frontmatter `status: draft` may be stale. |
+| `context/foundation/prd.md` | **PASS** | Requirements match built MVP; `status: active` (updated 2026-06-09). |
 | `context/foundation/roadmap.md` | **PASS** | F-01–S-06 done; backlog handoff accurate. |
 | `context/foundation/test-plan.md` | **PASS** | 127 examples; risk map aligns with security specs. |
-| `context/foundation/tech-stack.md` | **FAIL** (stale) | Still describes React/Vite UI and PostgreSQL bootstrap path; app is server-rendered ERB + SQLite. |
+| `context/foundation/tech-stack.md` | **PASS** | Updated 2026-06-09 — Rails 8.1, SQLite, server-rendered ERB, no React. |
 | `context/foundation/shape-notes.md` | **PASS** | Server-rendered MVP; no React. |
 | `context/foundation/infrastructure.md` | **PASS** | Fly.io choice documented. |
 | `context/deployment/deploy-plan.md` | **PASS** | Accurate pre-deploy checklist; notes manual deploy. |
-| `context/reviews/mvp-impl-review.md` | **STALE** | Says 116 examples / 2026-05-27 CI; superseded by current 127-example gate. |
+| `context/reviews/mvp-impl-review.md` | **PASS** (historical) | Point-in-time metrics labeled; current gate in builder readiness review. |
 | `context/archive/2026-05-20-bootstrap-verification/verification.md` | **STALE** | References React UI and PostgreSQL scaffold — historical only. |
 
-**Implementation alignment:** README, AGENTS.md, PRD success criteria, and roadmap match the running app. Primary contradiction is **`tech-stack.md` vs actual server-rendered SQLite stack**.
+**Implementation alignment:** README, AGENTS.md, PRD, tech-stack, shape-notes, deploy-plan, and roadmap match the running app (aligned 2026-06-09).
 
 ---
 
@@ -174,29 +173,23 @@ Live server on `:3000`. Full flow on case `/debugging_cases/13`: create with 2 s
 - **Impact**: Demo Day may require local demo or first-time deploy under pressure.
 - **Recommended Fix**: Execute deploy-plan preflight + `fly deploy`; record smoke checklist results.
 
-### F2 — `tech-stack.md` contradicts implementation
+### F2 — `tech-stack.md` contradicts implementation — **RESOLVED** (2026-06-09)
 
 - **Severity**: warning
 - **Category**: Documentation
-- **Evidence**: `context/foundation/tech-stack.md` lines 24–25 describe React UI and PostgreSQL bootstrap; `README.md` and `shape-notes.md` say server-rendered ERB + SQLite.
-- **Impact**: Reviewers may question stack literacy during certification.
-- **Recommended Fix**: Update `tech-stack.md` to reflect shipped SQLite + server-rendered MVP (doc-only).
+- **Resolution**: `context/foundation/tech-stack.md` rewritten — Rails 8.1, SQLite MVP, server-rendered ERB, no React; PostgreSQL future-only; manual Fly deploy.
 
-### F3 — `mvp-impl-review.md` stale metrics
+### F3 — `mvp-impl-review.md` stale metrics — **RESOLVED** (2026-06-09)
 
 - **Severity**: observation
 - **Category**: Documentation
-- **Evidence**: Artifact cites `116 examples`; current `bin/ci` reports **127 examples** (2026-06-09).
-- **Impact**: Low — historical artifact; may confuse if cited as current.
-- **Recommended Fix**: Run fresh `/10x-impl-review` or add note that metrics are point-in-time.
+- **Resolution**: Historical banner added; CI line labeled point-in-time; points to builder readiness review for current metrics.
 
-### F4 — PRD frontmatter still `status: draft`
+### F4 — PRD frontmatter still `status: draft` — **RESOLVED** (2026-06-09)
 
 - **Severity**: observation
 - **Category**: Documentation
-- **Evidence**: `context/foundation/prd.md` YAML `status: draft` while MVP is complete.
-- **Impact**: Cosmetic for certification if content matches shipped product.
-- **Recommended Fix**: Update PRD metadata to `active` when course allows editing foundation docs.
+- **Resolution**: `context/foundation/prd.md` → `status: active`, `updated: 2026-06-09` (matches `roadmap.md` convention).
 
 ### F5 — Rails log leakage not runtime-proven
 
@@ -234,13 +227,11 @@ Live server on `:3000`. Full flow on case `/debugging_cases/13`: create with 2 s
 
 ## Recommended Fix Order
 
-1. **F2** — Update `tech-stack.md` (quick doc fix; highest reviewer confusion risk).
-2. **F1** — Fly deploy + smoke if Demo Day needs public URL (optional for local Builder demo).
-3. **F8** — Fresh impl-review artifact for course submission packet.
-4. **F3 / F4** — Doc metadata hygiene when editing foundation files is permitted.
-5. **F5** — Optional log-scan spec if pursuing hard security proof.
+1. **F1** — Fly deploy + smoke if Demo Day needs public URL (optional for local Builder demo).
+2. **F8** — Fresh impl-review artifact for course submission packet (optional).
+3. **F5** — Optional log-scan spec if pursuing hard security proof.
 
-Do **not** block certification on F5, F6, F7.
+**Resolved (2026-06-09):** F2, F3, F4. Do **not** block certification on F5, F6, F7.
 
 ---
 
@@ -270,15 +261,14 @@ Rationale:
 - Module 3 quality gates operational (test-plan, 127 tests, `bin/ci`, hooks configured, E2E flow proven).
 - Security story is the product differentiator and is **evidence-backed**, not asserted.
 
-\*Submit after acknowledging `tech-stack.md` staleness or updating it — see F2.
+\*Foundation doc contradictions (F2–F4) resolved 2026-06-09.
 
 ### If not, what must be completed first?
 
 **Not applicable for BLOCKED status.** Optional before submission polish:
 
-1. Fix **F2** (`tech-stack.md` alignment) — **recommended** before reviewer reads foundation docs.
-2. Execute **F1** (Fly deploy) — only if certification/demo requires a public URL.
-3. Run **F8** (fresh impl-review) — recommended for course artifact completeness.
+1. Execute **F1** (Fly deploy) — only if certification/demo requires a public URL.
+2. Run **F8** (fresh impl-review) — optional for updated six-dimension artifact.
 
 ### Demo Day readiness
 
