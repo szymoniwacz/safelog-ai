@@ -82,7 +82,7 @@ Rails.application.configure do
   config.hosts << "safelog-ai.fly.dev"
   #
   # Skip DNS rebinding protection for the default health check endpoint.
-  # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+  config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
 
   # Active Record Encryption — Fly secrets (context/deployment/deploy-plan.md):
   # RAILS_ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY,

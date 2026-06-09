@@ -12,6 +12,7 @@ console_command = "/rails/bin/rails console"
 
 [env]
   PORT = "8080"
+  HTTP_PORT = "8080"
   RAILS_ENV = "production"
 
 [http_service]
