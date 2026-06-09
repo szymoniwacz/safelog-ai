@@ -1,9 +1,9 @@
 # Builder Readiness Review
 
 - **Project**: SafeLog AI
-- **Scope**: 10xDevs Modules 1–3 Builder certification
-- **Audit date**: 2026-06-09
-- **Method**: Evidence-only — source inspection, automated tests, runtime DB checks, security tooling, documentation cross-review. No fixes applied.
+- **Scope**: 10xDevs Modules 1–3 Builder certification (one of three badges — see [`context/certification/certification-readiness.md`](../certification/certification-readiness.md))
+- **Audit date**: 2026-06-09 (final certification refresh)
+- **Method**: Evidence-only — source inspection, automated tests, GHA config review, deploy-plan check, documentation cross-review. No fixes applied.
 
 ---
 
@@ -11,7 +11,7 @@
 
 **READY**
 
-SafeLog AI meets Builder MVP requirements for Modules 1–3: full user flow works, security guardrails are implemented and tested, CI is green, and documentation is substantially aligned. Remaining gaps are **documentation hygiene**, **undeployed production URL**, and **non-blocking verification holes** (Rails log file scan, clipboard E2E) — not certification blockers for the course Builder path.
+SafeLog AI meets Builder MVP requirements for Modules 1–3: full user flow works, security guardrails are implemented and tested, local CI is green (135 RSpec examples), and documentation is aligned. Post-polish additions: Rails log guard spec (F5), Capybara system specs (7), Playwright E2E (5), fresh impl-review artifact. Remaining non-blockers: **public Fly URL not deployed/verified**, **remote GHA not verified** for commits after 2026-06-02.
 
 ---
 
@@ -21,7 +21,9 @@ SafeLog AI is a Rails 8.1 + SQLite app that redacts logs in memory, persists san
 
 **Automated evidence (this audit):**
 
-- `mise exec -- bin/ci` → **PASS** (127 examples, 0 failures; RuboCop, Brakeman, bundler-audit, importmap audit)
+- `mise exec -- bin/ci` → **PASS** (135 examples, 0 failures; RuboCop, Brakeman, bundler-audit, importmap audit) — 2026-06-09 final audit
+- `mise exec -- bundle exec rspec spec/system` → **PASS** (7 examples)
+- `mise exec -- bin/e2e` → **PASS** (5 Playwright tests)
 - Security spec bundle (29 examples) → **PASS**
 - Runtime SQLite binary scan after intake → raw secret **not present** in DB file
 - Schema inspection → **no** `raw_*`, `pasted_content`, or mapping persistence columns
@@ -37,7 +39,8 @@ SafeLog AI is a Rails 8.1 + SQLite app that redacts logs in memory, persists san
 
 - Production Fly deploy is **documented but not verified** as executed.
 - Documentation polish (F2–F4) completed 2026-06-09; foundation docs now align on SQLite + server-rendered ERB.
-- Rails **runtime log files** were not scanned for raw log leakage (param filtering configured; no direct log-assertion spec).
+- Rails log guard spec covers **test env** request Parameters log only (F5 resolved); dev/prod log files not scanned.
+- Public URL and post–2026-06-02 remote CI not verified this audit.
 
 ---
 
@@ -59,7 +62,7 @@ SafeLog AI is a Rails 8.1 + SQLite app that redacts logs in memory, persists san
 | **Documentation** — README + agent rules | **PASS** | `README.md`, `AGENTS.md` present and accurate on security/commands |
 | **Documentation** — foundation context | **PASS** | PRD, roadmap, test-plan, infrastructure, deploy-plan, shape-notes |
 | **Documentation** — no contradictions | **PASS** | Foundation docs aligned 2026-06-09 (F2–F4 resolved) |
-| **Tests** — meaningful coverage | **PASS** | 127 RSpec examples; security cookbook in `test-plan.md` §6 |
+| **Tests** — meaningful coverage | **PASS** | 135 RSpec + 7 system + 5 Playwright; security cookbook in `test-plan.md` §6 |
 | **Tests** — fake AI in CI | **PASS** | `Ai::ClientResolver` → `FakeClient` in test; WebMock blocks OpenAI |
 | **CI/CD** — local gate | **PASS** | `bin/ci` green (2026-06-09) |
 | **CI/CD** — GitHub Actions | **PASS** | `.github/workflows/ci.yml` — Brakeman, bundler-audit, importmap, RuboCop, RSpec |
@@ -94,11 +97,11 @@ SafeLog AI is a Rails 8.1 + SQLite app that redacts logs in memory, persists san
 | Document | Status | Notes |
 |----------|--------|-------|
 | `README.md` | **PASS** | Setup, security principles, demo flow, AI client table, quality gates match implementation. |
-| `AGENTS.md` | **PASS** | Hard rules align with PRD; 128 examples matches current suite; points to test-plan. |
+| `AGENTS.md` | **PASS** | Hard rules align with PRD; 135 examples + Playwright command; points to test-plan. |
 | `CLAUDE.md` | **NOT PRESENT** | Course accepts `AGENTS.md` as agent onboarding artifact (M1L4). |
 | `context/foundation/prd.md` | **PASS** | Requirements match built MVP; `status: active` (updated 2026-06-09). |
 | `context/foundation/roadmap.md` | **PASS** | F-01–S-06 done; backlog handoff accurate. |
-| `context/foundation/test-plan.md` | **PASS** | 127 examples; risk map aligns with security specs. |
+| `context/foundation/test-plan.md` | **PASS** | 135 examples + §6.8–6.9 system/Playwright; risk map aligns with security specs. |
 | `context/foundation/tech-stack.md` | **PASS** | Updated 2026-06-09 — Rails 8.1, SQLite, server-rendered ERB, no React. |
 | `context/foundation/shape-notes.md` | **PASS** | Server-rendered MVP; no React. |
 | `context/foundation/infrastructure.md` | **PASS** | Fly.io choice documented. |
@@ -114,16 +117,16 @@ SafeLog AI is a Rails 8.1 + SQLite app that redacts logs in memory, persists san
 
 | Check | Command / artifact | Result | Status |
 |-------|-------------------|--------|--------|
-| Full local CI | `mise exec -- bin/ci` | 127 examples, 0 failures; all steps green (~31s) | **PASS** |
-| RSpec | `bundle exec rspec` | 127 / 0 | **PASS** |
-| RuboCop | `bin/rubocop` | 104 files, 0 offenses | **PASS** |
+| Full local CI | `mise exec -- bin/ci` | 135 examples, 0 failures; all steps green (~38s) | **PASS** |
+| RSpec | `bundle exec rspec` | 135 / 0 | **PASS** |
+| RuboCop | `bin/rubocop` | 111 files, 0 offenses | **PASS** |
 | Brakeman | `bin/brakeman` | 0 warnings | **PASS** |
 | bundler-audit | `bin/bundler-audit` | No vulnerabilities | **PASS** |
 | importmap audit | `bin/importmap audit` | No vulnerable packages | **PASS** |
 | GitHub Actions | `.github/workflows/ci.yml` | 4 jobs: scan_ruby, scan_js, lint, test | **PASS** (config present) |
-| GHA last run | — | **NOT VERIFIED** | Remote CI status not fetched this audit |
+| GHA last run | `gh run list --branch main` | Last **success** 2026-06-02 ([run 26847521245](https://github.com/szymoniwacz/safelog-ai/actions/runs/26847521245)); commits after that **NOT VERIFIED** on remote |
 | Deploy automation | — | Manual `fly deploy` only | **NOT VERIFIED** (not required for Builder) |
-| Production URL | `https://safelog-ai.fly.dev/` | **NOT VERIFIED** | No evidence of successful deploy in repo |
+| Production URL | `https://safelog-ai.fly.dev/` | **NOT VERIFIED** | `curl /up` → HTTP 000; `flyctl` not on audit host; `fly.toml` configured |
 
 Local vs GHA parity: `bin/ci` and GHA test job both run `bin/setup --skip-server` + `bundle exec rspec` + security scans (test-plan §6.7).
 
@@ -240,17 +243,14 @@ Real Chromium via `@playwright/test`. **Not in `bin/ci`** — optional pre-demo 
 
 - **Severity**: observation
 - **Category**: Course workflow
-- **Evidence**: Last impl-review dated 2026-05-27; application verification pass 2026-06-09 without new six-dimension sweep.
-- **Impact**: Course artifact gap only; technical readiness evidenced elsewhere.
-- **Recommended Fix**: Run `/10x-impl-review` for updated certification artifact.
+- **Resolution (2026-06-09)**: `context/reviews/m1-m3-final-impl-review.md` — six-dimension sweep APPROVED; 0 critical/warning findings; 3 observations (deploy, remote GHA, Playwright optional gate).
 
 ---
 
 ## Recommended Fix Order
 
 1. **F1** — Fly deploy + smoke if Demo Day needs public URL (optional for local Builder demo).
-2. **F8** — Fresh impl-review artifact for course submission packet (optional).
-**Resolved (2026-06-09):** F2, F3, F4, F5, F7. Do **not** block certification on F6.
+**Resolved (2026-06-09):** F2, F3, F4, F5, F7, F8. Do **not** block certification on F6. **F1** optional for public URL.
 
 ---
 
@@ -278,7 +278,7 @@ Rationale:
 
 - Module 1 artifacts present (PRD, tech-stack*, infrastructure, deploy-plan, AGENTS.md, health-check).
 - Module 2 delivery complete (roadmap done, archived changes, impl-review APPROVED historically, working vertical slices).
-- Module 3 quality gates operational (test-plan, 128 tests, `bin/ci`, hooks configured, E2E flow proven).
+- Module 3 quality gates operational (test-plan, 135 RSpec + system + Playwright, `bin/ci`, hooks configured, E2E proven).
 - Security story is the product differentiator and is **evidence-backed**, not asserted.
 
 \*Foundation doc contradictions (F2–F4) resolved 2026-06-09.
@@ -288,7 +288,11 @@ Rationale:
 **Not applicable for BLOCKED status.** Optional before submission polish:
 
 1. Execute **F1** (Fly deploy) — only if certification/demo requires a public URL.
-2. Run **F8** (fresh impl-review) — optional for updated six-dimension artifact.
+### Distinction polish (optional, not required for READY)
+
+- Push latest `main` and confirm GHA green at **135** examples.
+- Deploy Fly + public smoke (`deploy-plan.md`) for reviewer-accessible demo URL.
+- Update [`context/certification/certification-readiness.md`](../certification/certification-readiness.md) before final combined submission.
 
 ### Demo Day readiness
 
@@ -310,16 +314,14 @@ Rationale:
 
 ---
 
-## Appendix: Verification commands (2026-06-09)
+## Appendix: Verification commands (final audit 2026-06-09)
 
 | Command | Result |
 |---------|--------|
-| `mise exec -- bin/ci` | PASS — 128 examples, 0 failures |
-| `mise exec -- bundle exec rspec spec/requests/debugging_cases_security_spec.rb:70` | PASS — Rails test log guard (F5) |
-| `mise exec -- bundle exec rspec spec/requests/debugging_cases_report_export_security_spec.rb` | PASS — download + show markdown export (F7) |
-| `mise exec -- bundle exec rspec` (security bundle, 29 ex.) | PASS |
-| `mise exec -- bundle exec rspec` (main-flow bundle, 46 ex.) | PASS |
-| Runtime DB column audit + SQLite binary scan | PASS — no forbidden columns; secret not in file |
-| `10x doctor` (prior session) | PASS — 5/5 checks |
-| `/10x-rule-review` AGENTS.md (prior session) | PASS — all 5 checks OK |
-| `/10x-health-check` (prior session) | healthy |
+| `mise exec -- bin/ci` | PASS — 135 examples, 0 failures (~38s) |
+| `mise exec -- bundle exec rspec spec/system` | PASS — 7 examples |
+| `mise exec -- bin/e2e` | PASS — 5 Playwright tests (~7s + server boot) |
+| `curl https://safelog-ai.fly.dev/up` | **NOT VERIFIED** — HTTP 000 (unreachable) |
+| GHA `main` latest success | 2026-06-02 — post-commit suite **NOT VERIFIED** on remote |
+| Fresh impl-review | `m1-m3-final-impl-review.md` — APPROVED |
+| Certification tracker | `context/certification/certification-readiness.md` |

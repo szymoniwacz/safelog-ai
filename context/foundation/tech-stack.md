@@ -42,7 +42,7 @@ SafeLog AI is a solo, after-hours web MVP with email/password auth, encrypted di
 
 **Database:** **SQLite** for MVP — simpler local and Fly.io deploy, sufficient for course/demo scale, compatible with Active Record Encryption. Bootstrap initially scaffolded with `--database postgresql`; app config was switched to SQLite before feature work (see `config/database.yml`, `storage/`).
 
-**Operations:** GitHub Actions runs CI gates on push/PR. Production deploy is **manual** `fly deploy` per `context/deployment/deploy-plan.md` and `context/foundation/infrastructure.md` — auto-deploy on merge is out of scope for Builder MVP.
+**Operations:** GitHub Actions runs CI gates on push/PR. Production deploy is **manual** `fly deploy` per `context/deployment/deploy-plan.md` and `context/foundation/infrastructure.md` — auto-deploy on merge not configured yet (Architect/Champion may extend).
 
 Auth, AI, and encryption flags are set; background jobs, payments, realtime, and external log integrations stay out of scope per the PRD.
 
