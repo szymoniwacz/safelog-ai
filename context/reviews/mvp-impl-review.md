@@ -1,7 +1,7 @@
 <!-- IMPL-REVIEW-REPORT -->
 # Implementation Review: SafeLog AI MVP (F-01 → S-06)
 
-> **Historical artifact** (2026-05-27). Verdict and findings remain valid; **CI metrics below are point-in-time**. Current gate: `mise exec -- bin/ci` — see `AGENTS.md` (127 examples as of 2026-06-09). Superseded for certification readiness by `context/reviews/m1-m3-builder-readiness-review.md`.
+> **Historical artifact** (2026-05-27). Verdict and findings remain valid; **CI metrics below are point-in-time**. Current certification tracker: `context/certification/certification-readiness.md`. Builder audit: `context/reviews/m1-m3-builder-readiness-review.md`.
 
 - **Plan**: Cross-cutting review — `context/changes/{minimal-auth-scaffold,encrypted-diagnostic-schema,ai-adapter-foundation,account-access,safe-multi-source-intake,analyze-hypothesis-report,report-markdown-export,archive-debugging-case,load-demo-case}/plan.md`
 - **Scope**: Full MVP — foundations F-01, F-02, F-03 and slices S-01 through S-06
