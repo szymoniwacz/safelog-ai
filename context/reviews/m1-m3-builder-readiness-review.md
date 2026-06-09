@@ -146,7 +146,7 @@ Local vs GHA parity: `bin/ci` and GHA test job both run `bin/setup --skip-server
 | Raw discarded | `debugging_cases_security_spec.rb` | **PASS** |
 | Sanitized displayed | show examples `[REQUEST_1]` | **PASS** |
 | Redaction findings (persistence) | intake spec `redaction_findings.count > 0` | **PASS** |
-| Redaction summary (UI heading) | — | **NOT VERIFIED** in request specs; **PASS** in browser |
+| Redaction summary (UI heading) | `spec/system/debugging_case_flow_spec.rb` | **PASS** |
 | Correlation signals (post-analyze) | analyze spec `correlation_signals.count == 1` | **PASS** |
 | Analyze + AI report | `debugging_cases_analyze_spec.rb` | **PASS** |
 | Download Markdown | `debugging_cases_report_export_spec.rb` | **PASS** |
@@ -157,9 +157,21 @@ Local vs GHA parity: `bin/ci` and GHA test job both run `bin/setup --skip-server
 
 Live server on `:3000`. Full flow on case `/debugging_cases/13`: create with 2 sources → redaction summary → analyze → correlation table → hypothesis report → markdown download (HTTP 200) → archive → archived filter. Raw secret absent from page and download body. 0 console errors.
 
-### System specs
+### System specs (Capybara, 2026-06-09)
 
-`spec/system/` — **not present** (intentional per test-plan §7).
+**Command:** `mise exec -- bundle exec rspec spec/system` — **7 examples, 0 failures**
+
+| Path | Spec | Status |
+|------|------|--------|
+| Guest redirect | `authentication_spec.rb` | **PASS** |
+| Sign up / sign in / sign out | `authentication_spec.rb` | **PASS** |
+| Multi-source create → sanitize → analyze → report → download → archive | `debugging_case_flow_spec.rb` | **PASS** |
+| Archived filter | `debugging_case_flow_spec.rb` | **PASS** |
+| Validation errors | `debugging_case_validation_spec.rb` | **PASS** |
+| Load demo case | `demo_case_spec.rb` | **PASS** |
+| User isolation (404) | `user_isolation_spec.rb` | **PASS** |
+
+Driver: Capybara `rack_test` (in `bin/ci`). Playwright MCP smoke remains optional manual proof.
 
 ---
 

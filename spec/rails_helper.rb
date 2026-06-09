@@ -73,6 +73,7 @@ RSpec.configure do |config|
 
   config.include FactoryBot::Syntax::Methods
   config.include Devise::Test::IntegrationHelpers, type: :request
+  config.include SystemTestHelpers, type: :system
   config.include SecurityPersistenceHelpers
   config.include RequestStatusHelpers, type: :request
 end

@@ -6,7 +6,7 @@
 >
 > Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
 >
-> Last updated: 2026-06-01
+> Last updated: 2026-06-09
 
 ## 1. Strategy
 
@@ -79,12 +79,13 @@ The classic test base for this project. AI-native tools (if any) carry a
 
 | Layer | Tool | Version | Notes |
 |-------|------|---------|-------|
-| unit + integration | RSpec | 3.x (via rspec-rails) | Primary layer; 127 examples across services, requests, models |
-| HTTP integration | RSpec request specs | — | Preferred over browser e2e for auth + case flows |
+| unit + integration | RSpec | 3.x (via rspec-rails) | Primary layer; 135 examples across services, requests, models, system |
+| HTTP integration | RSpec request specs | — | Security, authorization matrix, persistence oracles |
+| user flows | Capybara system specs (`spec/system`) | 3.40 (rack_test) | Browser-visible happy paths; same-thread driver for speed + transactional fixtures |
 | API mocking | WebMock | — | Blocks real OpenAI calls; used with FakeClient |
 | factories | FactoryBot | — | User and domain fixtures |
 | static security | Brakeman + bundler-audit + importmap audit | — | Wired in `bin/ci` and GitHub Actions |
-| e2e / browser | none | — | Request specs sufficient for MVP; see §7 |
+| manual browser smoke | Playwright MCP (`.cursor/prompts/m3l4-e2e-smoke.md`) | — | Optional local sign-in smoke; not in `bin/ci` |
 | accessibility | none | — | Manual smoke for UI changes; no axe wired |
 
 **Stack grounding tools (current session):**
@@ -103,9 +104,10 @@ The full set of gates that must pass before a change reaches production.
 | bundler-audit | `bin/ci`, GHA `scan_ruby` | required | vulnerable gems |
 | importmap audit | `bin/ci`, GHA `scan_js` | required | JS dependency CVEs |
 | Brakeman | `bin/ci`, GHA `scan_ruby` | required | Rails security patterns |
-| RSpec (127) | `bin/ci`, GHA `test` | required | logic and security regressions |
+| RSpec (135) | `bin/ci`, GHA `test` | required | logic, security, and system-flow regressions |
 | Full `bin/ci` locally before push | developer workflow | required (AGENTS.md) | combined gate failures |
-| Browser e2e on critical flows | — | not planned | — |
+| Capybara system specs (`spec/system`) | `bin/ci` (via full RSpec) | required | user-visible flows (auth, intake, analyze, archive) |
+| Playwright MCP smoke | manual / Cursor | optional | local dev server smoke only |
 | Post-edit agent hook | — | not planned | — |
 
 Phase 3 rollout gate parity is documented in §6.7.
@@ -287,6 +289,7 @@ documents **local vs GHA parity**.
 | Gem CVEs | `mise exec -- bin/bundler-audit` |
 | JS importmap CVEs | `mise exec -- bin/importmap audit` |
 | Tests only (after setup) | `mise exec -- bundle exec rspec spec/` |
+| System flows only | `mise exec -- bundle exec rspec spec/system` |
 
 Prefer `bin/*` wrappers over bare `bundle exec` — they pin config (e.g.
 `.rubocop.yml`, `config/bundler-audit.yml`) and match `bin/ci`.
@@ -318,6 +321,32 @@ export RAILS_ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT="CITestKeyDerivationSa
 `ruby/setup-ruby` with `bundler-cache` — never mise in Docker/Fly.
 
 **Run:** `mise exec -- bin/ci`
+
+### 6.8 Adding a Capybara system spec
+
+Use system specs for **browser-visible user journeys** that request specs cannot
+express (navigation, form fill, flash copy, filter tabs). Keep security oracles
+in request specs (`assert_no_raw_substring_in_persisted_data`, log guard,
+authorization matrix).
+
+**Location:** `spec/system/` — `type: :system`, Capybara `rack_test` driver
+(`spec/support/capybara.rb`). Selectors: headings, labels, buttons, link text;
+scope with `within(find("fieldset", text: "Log source 1"))` for repeated fields.
+
+**Coverage map (2026-06-09):**
+
+| File | User paths |
+|------|------------|
+| `authentication_spec.rb` | guest redirect, sign up, sign in, sign out |
+| `debugging_case_flow_spec.rb` | multi-source create → sanitized UI → analyze → report → download → archive → archived filter |
+| `debugging_case_validation_spec.rb` | failed create (no sources) |
+| `demo_case_spec.rb` | Load demo case (test/dev) |
+| `user_isolation_spec.rb` | other user's case → public 404 |
+
+**Helpers:** `spec/support/system_test_helpers.rb` (`sign_up_via_browser`,
+`sign_in_via_browser`, `fill_log_source_slot`).
+
+**Run:** `mise exec -- bundle exec rspec spec/system`
 
 ### 6.6 Per-rollout-phase notes
 
@@ -360,12 +389,19 @@ Files touched: `app/services/intake/process_case_submission.rb`,
 `spec/requests/debugging_cases_security_spec.rb`,
 `spec/requests/debugging_cases_analyze_security_spec.rb`.
 
+**Phase 5 — Capybara user-flow coverage** (2026-06-09): Added `spec/system/`
+(7 examples) for browser-visible MVP paths; baseline 128 → 135. Security oracles
+remain in request specs. Driver: Capybara `rack_test` (no Selenium in CI).
+Files touched: `Gemfile`, `spec/support/capybara.rb`,
+`spec/support/system_test_helpers.rb`, `spec/system/*`, `AGENTS.md`, `README.md`.
+
 ## 7. What We Deliberately Don't Test
 
 Exclusions agreed during the rollout (Phase 2 interview, Q5). Future
 contributors should respect these unless the underlying assumption changes.
 
-- **Browser e2e / Capybara / Playwright flows** — request specs cover auth and case HTTP paths with higher signal per cost. Re-evaluate if UI becomes a rich client or critical flows need JavaScript-only behavior. (Source: Phase 2 interview Q5; user /10x-test-plan input.)
+- **Selenium / headless Chrome system specs** — MVP forms are server-rendered (`local: true`); Capybara `rack_test` covers user flows in CI without browser install cost. Re-evaluate if Turbo/JS-only interactions become critical. (Source: 2026-06-09 system-spec rollout.)
+- **Playwright in `bin/ci`** — automated gate uses Capybara; Playwright MCP remains optional manual smoke (M3L4). Re-evaluate if cross-browser or clipboard automation becomes a certification requirement.
 - **UI snapshot tests** — brittle for server-rendered Rails views; low regression signal for PRD guardrails. Re-evaluate if a rich client ships. (Source: user /10x-test-plan input.)
 - **View cosmetic / CSS-only changes** — no automated test budget; prioritize raw-log, AI-boundary, encryption, and authorization specs. (Source: user /10x-test-plan input.)
 - **AI-native vision or multimodal review** — security regressions are deterministic; FakeClient + prompt inspection suffices. Re-evaluate if UI-only leaks become a top risk. (Source: Phase 2 interview Q5.)
@@ -375,8 +411,8 @@ contributors should respect these unless the underlying assumption changes.
 
 ## 8. Freshness Ledger
 
-- Strategy (§1–§5) last reviewed: 2026-06-01
-- Stack versions last verified: 2026-06-01
+- Strategy (§1–§5) last reviewed: 2026-06-09
+- Stack versions last verified: 2026-06-09
 - AI-native tool references last verified: 2026-05-29
 
 Refresh (`/10x-test-plan --refresh`) when:
