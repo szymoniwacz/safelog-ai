@@ -74,6 +74,7 @@ Run individual gates:
 
 ```bash
 mise exec -- bundle exec rspec spec/
+mise exec -- bundle exec rspec spec/system   # Capybara user-flow specs
 mise exec -- bin/rubocop
 mise exec -- bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error
 mise exec -- bin/bundler-audit
