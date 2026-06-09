@@ -70,11 +70,22 @@ When the fake client is active outside test, the case page shows a **Demo AI cli
 
 ## Quality gates
 
+### Test layers
+
+| Layer | Command | Covers |
+|-------|---------|--------|
+| **RSpec (full)** | `mise exec -- bundle exec rspec spec/` | Services, request specs, models — including security oracles (DB persistence, AI prompts, log guard, authorization matrix) |
+| **Capybara system** | `mise exec -- bundle exec rspec spec/system` | Server-rendered user flows via rack_test (in `bin/ci`) |
+| **Playwright E2E** | `mise exec -- bin/e2e` | Real Chromium browser flows (`e2e/`); optional before release — not in `bin/ci` |
+
+Playwright boots a **test** Rails server (`bin/e2e-server`) with the same CI encryption env vars as GitHub Actions.
+
 Run individual gates:
 
 ```bash
 mise exec -- bundle exec rspec spec/
 mise exec -- bundle exec rspec spec/system   # Capybara user-flow specs
+mise exec -- bin/e2e                        # Playwright browser E2E (installs Chromium on first run)
 mise exec -- bin/rubocop
 mise exec -- bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error
 mise exec -- bin/bundler-audit

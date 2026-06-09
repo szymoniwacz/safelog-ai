@@ -171,7 +171,20 @@ Live server on `:3000`. Full flow on case `/debugging_cases/13`: create with 2 s
 | Load demo case | `demo_case_spec.rb` | **PASS** |
 | User isolation (404) | `user_isolation_spec.rb` | **PASS** |
 
-Driver: Capybara `rack_test` (in `bin/ci`). Playwright MCP smoke remains optional manual proof.
+Driver: Capybara `rack_test` (in `bin/ci`).
+
+### Playwright E2E (2026-06-09)
+
+**Command:** `mise exec -- bin/e2e` — **5 tests, 0 failures** (~5s + server boot)
+
+| Path | Spec | Status |
+|------|------|--------|
+| Guest redirect | `e2e/authentication.spec.ts` | **PASS** |
+| Sign up / sign in / sign out | `e2e/authentication.spec.ts` | **PASS** |
+| Full case journey + download + archive | `e2e/debugging-case-flow.spec.ts` | **PASS** |
+| Load demo case | `e2e/demo-case.spec.ts` | **PASS** |
+
+Real Chromium via `@playwright/test`. **Not in `bin/ci`** — optional pre-demo gate; RSpec remains primary safety net.
 
 ---
 

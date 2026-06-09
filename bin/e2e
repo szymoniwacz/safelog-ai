@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+if [[ ! -d node_modules/@playwright/test ]]; then
+  echo "== Installing Node dependencies =="
+  npm install
+fi
+
+echo "== Ensuring Playwright Chromium is installed =="
+npx playwright install chromium
+
+echo "== Running Playwright E2E (test Rails server via playwright.config.ts) =="
+exec npx playwright test "$@"
