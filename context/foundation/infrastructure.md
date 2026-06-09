@@ -67,9 +67,10 @@ Fly.io is the best fit because:
 | Layer | Decision |
 |---|---|
 | Hosting | Fly.io |
-| Runtime | Docker + Puma |
+| Runtime | Docker + Thruster + Puma |
 | Database | SQLite |
-| Persistence | Fly volume |
+| Persistence | Fly volume (`data` at `/rails/storage`) |
+| Public URL | https://safelog-ai.fly.dev/ (deployed 2026-06-09) |
 | Scaling | single machine |
 | Region | `fra` |
 | Secrets | Fly secrets |
@@ -117,33 +118,31 @@ RAILS_ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT
 
 # Deployment Strategy
 
-Initial deployment flow:
+**Status:** First production deploy **completed** 2026-06-09.
+
+| Item | Value |
+|------|-------|
+| Public URL | https://safelog-ai.fly.dev/ |
+| App | `safelog-ai` |
+| Region | `fra` |
+| Volume | `data` → `/rails/storage` |
+| Deploy | Manual `fly deploy --app safelog-ai` |
+
+Verified: app boot, SQLite persistence on volume, `/up` health checks passing, end-to-end browser access.
+
+Deployment flow:
 
 ```text
 Local development
 → manual fly deploy
-→ public demo URL
+→ https://safelog-ai.fly.dev/
 ```
 
-CI/CD auto-deployments can be added later.
+CI/CD auto-deployments can be added later. Lessons from first deploy: `context/deployment/deploy-plan.md` § Deployment lessons learned.
 
 ---
 
-# Required Fly.io Change
-
-Before first deploy:
-
-```toml
-primary_region = "fra"
-```
-
-instead of deprecated:
-
-```toml
-primary_region = "waw"
-```
-
----
+# Fly.io configuration (reference)
 
 # Main Commands
 

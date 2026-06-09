@@ -68,6 +68,14 @@ The demo loader is unavailable in production (`POST /debugging_cases/load_demo` 
 
 When the fake client is active outside test, the case page shows a **Demo AI client active** notice. Set `OPENAI_API_KEY` locally or in Fly secrets for real AI output.
 
+## Production (Fly.io)
+
+**URL:** https://safelog-ai.fly.dev/
+
+Manual deploy via `fly deploy --app safelog-ai` (see `context/deployment/deploy-plan.md`). SQLite persists on a Fly volume at `/rails/storage`. Health check: `GET /up` (200).
+
+Register or sign in on the public URL to use the demo (load-demo is development/test only).
+
 ## Quality gates
 
 ### Test layers

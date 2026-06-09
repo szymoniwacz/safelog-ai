@@ -105,4 +105,6 @@ Health status: **healthy**
 
 SafeLog AI has a reproducible Ruby lockfile, clean gem audit, a working RSpec suite (127 examples passing), and a GitHub Actions workflow aligned with local `bin/ci`. No Category A gaps block agent-assisted development on this codebase.
 
+**Production:** Fly.io deploy at https://safelog-ai.fly.dev/ verified 2026-06-09 (`/up` health check passing). See `context/deployment/deploy-plan.md`.
+
 Next step: Builder badge **READY** — track all three badges in `context/certification/certification-readiness.md`. Proceed with Module 4 (Architect) repo-map workflow per `.cursor/prompts/m4l2-*`.

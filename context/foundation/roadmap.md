@@ -3,7 +3,7 @@ project: SafeLog AI
 version: 1
 status: active
 created: 2026-05-25
-updated: 2026-05-28
+updated: 2026-06-09
 prd_version: 1
 main_goal: speed
 top_blocker: time
@@ -52,14 +52,14 @@ Navigation aid — groups items that share a Prerequisites chain. Canonical orde
 
 ## Baseline
 
-What's in place as of **2026-05-28** (MVP feature slices F-01–S-06 implemented).
+What's in place as of **2026-06-09** (MVP feature slices F-01–S-06 implemented; Fly.io production deploy verified).
 
 - **Frontend:** server-rendered Rails views (Hotwire, Propshaft, importmap); dashboard, case CRUD, analyze, export, archive UI
 - **Backend:** Rails 8.1 services under `app/services/{redaction,intake,correlation,analysis,ai,demo}/`; authenticated case flows
-- **Data:** SQLite domain schema with Active Record Encryption on diagnostic text; 105 RSpec examples
+- **Data:** SQLite domain schema with Active Record Encryption on diagnostic text; 135 RSpec examples
 - **Auth:** Devise email/password; `AuthenticatedController` gates app routes
-- **Deploy / infra:** Fly.io `Dockerfile`, `fly.toml` (fra, always-on), production host/SSL config; manual deploy; CI in `.github/workflows/ci.yml`
-- **Observability:** Rails default logging; `/up` health check
+- **Deploy / infra:** Fly.io production at https://safelog-ai.fly.dev/; `Dockerfile`, `fly.toml` (fra, always-on, `HTTP_PORT=8080`); SQLite on volume `data`; manual deploy; CI in `.github/workflows/ci.yml`
+- **Observability:** Rails default logging; `/up` health check (passing on Fly)
 
 ## Foundations
 
@@ -178,7 +178,7 @@ What's in place as of **2026-05-28** (MVP feature slices F-01–S-06 implemented
 
 ## Backlog Handoff
 
-MVP slices complete. Next work is post-MVP (deploy, observability, Postgres scale) — pick from Parked or open a new change via `/10x-new`.
+MVP slices and first Fly.io deploy complete (2026-06-09). Next work is post-MVP (observability, Postgres scale, CI auto-deploy) — pick from Parked or open a new change via `/10x-new`.
 
 ## Open Roadmap Questions
 
@@ -192,7 +192,7 @@ _Resolved: MVP uses server-rendered Rails views per PRD Non-Goals (2026-05-28)._
 - **Adding log sources after initial submission** — Why parked: PRD §Non-Goals; all sources in one request for MVP.
 - **Background jobs for analysis** — Why parked: PRD §Non-Goals; synchronous Analyze only.
 - **Multi-tenancy and role models** — Why parked: PRD §Non-Goals.
-- **Container packaging as MVP gate** — Why parked: PRD §Non-Goals; Fly Dockerfile exists but not blocking core flow.
+- **Container packaging as MVP gate** — Why parked: PRD §Non-Goals; Fly deploy completed 2026-06-09 without blocking feature work.
 - **Separate rich client UI framework** — Why parked: PRD §Non-Goals for MVP (pending Open Roadmap Question above).
 - **Production observability stack (Sentry, metrics, OTel)** — Why parked: speed bias + baseline partial logging sufficient for MVP; invest lightly in infra.
 

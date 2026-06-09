@@ -13,13 +13,13 @@ scope: 10xDevs Builder + Architect + Champion
 
 | Badge | Modules | Verdict | Summary |
 |-------|---------|---------|---------|
-| **10xBuilder** | M1–M3 | **READY** | MVP shipped; 135 RSpec + system + Playwright; security evidence-backed; local `bin/ci` green (2026-06-09). |
+| **10xBuilder** | M1–M3 | **READY** | MVP shipped; 135 RSpec + system + Playwright; Fly.io deployed; local `bin/ci` green (2026-06-09). |
 | **10xArchitect** | M4 | **NOT STARTED** | M4 prompts present in `.cursor/prompts/m4l2-*`; no `context/map/repo-map.md` or M4 review artifacts yet. |
 | **10xChampion** | M5 | **NOT STARTED** | No M5 prompts, automation workflows, or Champion review artifacts in repository. |
 
 **Overall:** Builder complete enough to submit. Architect and Champion require additional module work before a **single combined submission** is ready.
 
-**Distinction polish (optional, Builder):** public Fly URL, remote GHA green for latest `main` — see [Known Gaps](#known-gaps).
+**Distinction polish (optional, Builder):** remote GHA green for latest `main`; submission screenshots — see [Known Gaps](#known-gaps).
 
 ---
 
@@ -36,10 +36,10 @@ flowchart LR
 
 | Phase | Goal | Remaining before final submission |
 |-------|------|-----------------------------------|
-| **Builder** | Working MVP + context + tests + CI | Optional: Fly deploy smoke; push `main` + confirm GHA at 135 examples |
+| **Builder** | Working MVP + context + tests + CI + deploy | Optional: push `main` + confirm GHA at 135 examples; submission screenshots |
 | **Architect** | Large-repo architecture literacy + evidence | Repo map (`context/map/`); M4 exercises; architecture review artifacts |
 | **Champion** | AI-assisted team workflow + automation | M5 exercises; CI/CD AI integration; automation evidence — **none in repo yet** |
-| **Final package** | One submission, three badges | All sections below populated; demo script; screenshots; deployment URL when available |
+| **Final package** | One submission, three badges | All sections below populated; demo script; screenshots |
 
 ---
 
@@ -60,10 +60,10 @@ flowchart LR
 | CI/CD — local gate | **PASS** | `mise exec -- bin/ci` green 2026-06-09 |
 | CI/CD — GitHub Actions config | **PASS** | `.github/workflows/ci.yml` parity with `config/ci.rb` |
 | CI/CD — remote GHA on latest `main` | **NOT VERIFIED** | Last success 2026-06-02; commits after not verified on remote |
-| Public URL | **NOT VERIFIED** | `https://safelog-ai.fly.dev/up` unreachable; `fly.toml` configured |
-| Deployment evidence | **NOT VERIFIED** | `deploy-plan.md` complete; no deploy log in repo |
+| Public URL | **PASS** | https://safelog-ai.fly.dev/ — deployed and verified 2026-06-09 |
+| Deployment evidence | **PASS** | `deploy-plan.md` § Deployment status + lessons learned; manual E2E verification |
 | Demo flow — local | **PASS** | README demo section; system + Playwright specs |
-| Demo flow — public | **NOT VERIFIED** | Requires Fly deploy |
+| Demo flow — public | **PASS** | Sign-in and case flow verified on Fly URL (2026-06-09) |
 | Security evidence | **PASS** | Security checklist in builder readiness review; log guard, encryption, AI boundary specs |
 
 ### Evidence
@@ -157,14 +157,14 @@ Single packet for **Builder + Architect + Champion** when all badges are ready.
 | Project summary | README + PRD | TODO — architecture narrative from repo map | TODO |
 | Demo script | See [Demo flow](#demo-flow) | TODO | TODO |
 | Screenshots | TODO — capture before submit | TODO | TODO |
-| Deployment URL | **NOT VERIFIED** | Same URL + architecture notes | Same + automation proof |
+| Deployment URL | https://safelog-ai.fly.dev/ | Same URL + architecture notes | Same + automation proof |
 | Review documents | `m1-m3-*` reviews | TODO | TODO |
 | CI evidence | `bin/ci` + GHA config | TODO — include map/structure gates if added | TODO — AI/automation CI |
 | Certification notes | This file | Update Architect section | Update Champion section |
 
-### Demo flow (Builder — verified locally)
+### Demo flow (Builder — verified locally and on Fly)
 
-1. Register or sign in at `/`.
+1. Register or sign in at `/` (local or https://safelog-ai.fly.dev/).
 2. **Load demo case** or **New case** with multiple pasted sources (fake secrets).
 3. Confirm placeholders on show — raw paste not visible; **Redaction summary** visible.
 4. **Analyze case** → hypothesis report + correlation signals.
@@ -186,6 +186,9 @@ mise exec -- bin/e2e
 
 # Demo
 mise exec -- bin/dev
+
+# Production health check
+curl -sf https://safelog-ai.fly.dev/up
 ```
 
 ---
@@ -196,7 +199,6 @@ mise exec -- bin/dev
 
 | Gap | Severity | Action |
 |-----|----------|--------|
-| Public Fly URL not deployed/verified | Optional for Builder; useful for distinction | `deploy-plan.md` + flyctl setup |
 | Remote GHA not verified post–2026-06-02 | Low | Push `main`; confirm Actions green at 135 examples |
 | Screenshots for submission packet | Low | Capture UI flows before submit |
 | Fake AI default without `OPENAI_API_KEY` | Accepted | Document in demo; optional Fly secret |

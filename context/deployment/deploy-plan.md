@@ -1,6 +1,22 @@
-# SafeLog AI — First Fly.io Deployment Plan
+# SafeLog AI — Fly.io Deployment
 
-## Scope
+## Deployment status
+
+**Completed and verified:** 2026-06-09
+
+| Item | Status |
+|------|--------|
+| Public URL | https://safelog-ai.fly.dev/ |
+| App boot | Machine starts; Thruster + Puma serve on port 8080 |
+| SQLite volume | `data` mounted at `/rails/storage`; `db:prepare` on boot |
+| Health checks | `GET /up` returns 200 (Fly internal + public) |
+| End-to-end | Sign-in, case flow, and deploy process verified manually |
+
+Deploy method: manual `fly deploy --app safelog-ai` (no GitHub Actions deploy workflow).
+
+---
+
+## Scope (original plan)
 
 Deploy the **full MVP** (F-01–S-06) to Fly.io as a **public course demo** using:
 
@@ -41,15 +57,16 @@ flowchart LR
 
 | File | Current state | Required change |
 |------|---------------|-----------------|
-| [`fly.toml`](../../fly.toml) | `primary_region = "fra"`, `min_machines_running = 1` | ✅ Applied — verify before deploy |
-| [`config/environments/production.rb`](../../config/environments/production.rb) | `config.hosts`, SSL, AR encryption env | ✅ Applied — verify |
+| [`fly.toml`](../../fly.toml) | `primary_region = "fra"`, `min_machines_running = 1`, `HTTP_PORT = "8080"` | ✅ Applied |
+| [`config/environments/production.rb`](../../config/environments/production.rb) | `config.hosts`, SSL, AR encryption env, `/up` host-auth exclusion | ✅ Applied |
+| [`Dockerfile`](../../Dockerfile) | `ENV HTTP_PORT="8080"`, `EXPOSE 8080` | ✅ Applied |
 
 ### Verify (likely OK; fix only if deploy fails)
 
 | File | What to verify |
 |------|----------------|
 | [`fly.toml`](../../fly.toml) | `[mounts] source = "data"` → `destination = "/rails/storage"` matches [`config/database.yml`](../../config/database.yml) paths (`storage/*.sqlite3` → `/rails/storage/*.sqlite3`) |
-| [`fly.toml`](../../fly.toml) | `internal_port = 8080` + `[env] PORT = "8080"` align with Puma (`config/puma.rb` reads `ENV["PORT"]`) and Thruster CMD |
+| [`fly.toml`](../../fly.toml) | `internal_port = 8080` + `[env] PORT` and `HTTP_PORT` = `"8080"` — Thruster listens on `HTTP_PORT`; Puma on `TARGET_PORT` (default 3000) behind Thruster |
 | [`bin/docker-entrypoint`](../../bin/docker-entrypoint) | Runs `db:prepare` before server — args `./bin/thrust ./bin/rails server` still match `${@: -2:1}` / `${@: -1:1}` check |
 | [`Dockerfile`](../../Dockerfile) | Ruby `3.4.9`, `sqlite3`/`libsqlite3-dev`, no mise; production bundle path is image-local (`/usr/local/bundle`) — separate from dev `vendor/bundle` |
 | [`.dockerignore`](../../.dockerignore) | Excludes `config/master.key`, local `storage/*.sqlite3` (correct — DB created on volume at boot) |
@@ -61,8 +78,7 @@ flowchart LR
 | File | Note |
 |------|------|
 | [`.dockerignore`](../../.dockerignore) | `/vendor/bundle` excluded | ✅ Applied |
-| [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) | Add deploy workflow later; not part of first manual deploy |
-| [`context/foundation/tech-stack.md`](../foundation/tech-stack.md) | Still says SQLite migration is “planned” — doc sync only |
+| [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) | Add deploy workflow later; not part of manual deploy |
 
 ### Do not change for this deploy
 
@@ -71,7 +87,7 @@ flowchart LR
 
 ---
 
-## Required Fly.io setup (first-time — app not created)
+## Required Fly.io setup (first-time)
 
 **Use `fly apps create` + `fly deploy`, not `fly launch`** — `fly launch` can overwrite existing [`fly.toml`](../../fly.toml).
 
@@ -245,8 +261,9 @@ fly ssh console --app safelog-ai -C "bin/rails runner 'puts ActiveRecord::Base.c
 |---------|------------|
 | Region error / cannot deploy to `waw` | Change `primary_region` to `fra` |
 | Volume mount failed | Create `data` volume in same region as app |
-| Health check failing | Check `fly logs`; verify PORT 8080; check Thruster/Puma binding |
-| 403 / blocked host | Add `safelog-ai.fly.dev` to `config.hosts` in production.rb |
+| Health check failing | Verify `HTTP_PORT=8080` in fly.toml and Dockerfile; Thruster defaults to :80 (permission denied as non-root) |
+| 403 / blocked host on `/up` | Enable `config.host_authorization = { exclude: ->(request) { request.path == "/up" } }` — Fly probes with machine IP as Host |
+| 403 / blocked host (browser) | Add `safelog-ai.fly.dev` to `config.hosts` in production.rb |
 | DB missing after deploy | Confirm entrypoint runs `db:prepare`; SSH and inspect `/rails/storage` |
 | Missing credentials | Set `RAILS_MASTER_KEY` secret; redeploy |
 
@@ -265,6 +282,22 @@ fly ssh console --app safelog-ai -C "bin/rails runner 'puts ActiveRecord::Base.c
 | AR Encryption keys required | App boot may fail or diagnostic writes error without Fly encryption secrets | Set all three `RAILS_ACTIVE_RECORD_ENCRYPTION_*` before demo |
 | Manual deploy only | Drift between local and prod until CI deploy added | Document deploy commands; add GH Action later |
 | Estimated cost ~$6–8/mo | Not zero-cost | Budget for course demo window |
+
+---
+
+## Deployment lessons learned (2026-06-09)
+
+Issues encountered and resolved during first production deploy:
+
+1. **`fly launch` is unsafe for this repo** — The scanner attempted to add `dockerfile-rails`, overwrite `config/database.yml` with `DATABASE_URL`, regenerate binstubs, and replace `fly.toml` with a generated app name. Existing `Dockerfile`, `fly.toml`, and binstubs were largely correct; use `fly apps create` + `fly deploy` instead.
+
+2. **Volume required before deploy** — `[mounts] source = "data"` requires `fly volumes create data --region fra` in the same region as `primary_region` before the first deploy that references the mount.
+
+3. **Thruster port binding (`HTTP_PORT`, not `PORT`)** — Thruster listens on `HTTP_PORT` (default **80**). The container runs as non-root (`USER 1000`), so binding :80 fails with `listen tcp :80: bind: permission denied`. Fix: set `HTTP_PORT=8080` in `fly.toml` `[env]` and `Dockerfile` `ENV`. `PORT=8080` alone only affects Puma when Rails runs without Thruster.
+
+4. **Fly health check host authorization** — Internal Consul health checks hit `/up` with `Host: <machine-ip>:8080`, not `safelog-ai.fly.dev`. Rails blocked these with 403 until `config.host_authorization` excluded `/up`.
+
+5. **Manual verification** — Post-deploy checks confirmed machine start, volume mount, `/up` 200, and browser access at https://safelog-ai.fly.dev/.
 
 ---
 
