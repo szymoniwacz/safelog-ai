@@ -14,7 +14,7 @@ scope: 10xDevs Builder + Architect + Champion
 | Badge | Modules | Verdict | Summary |
 |-------|---------|---------|---------|
 | **10xBuilder** | M1–M3 | **READY** | MVP shipped; 135 RSpec + system + Playwright; Fly.io live at https://safelog-ai.fly.dev/; submission screenshots captured; local `bin/ci` + remote GHA green on `main` (2026-06-09). |
-| **10xArchitect** | M4 | **IN PROGRESS** | M4L2-1 + M4L2-2 done — [`artifact-1-territory.md`](../map/artifact-1-territory.md), [`artifact-2-structure.md`](../map/artifact-2-structure.md); pending contributors, `repo-map.md`, Architect review. |
+| **10xArchitect** | M4 | **IN PROGRESS** | M4L2-1–3 done — [`artifact-1-territory.md`](../map/artifact-1-territory.md), [`artifact-2-structure.md`](../map/artifact-2-structure.md), [`artifact-3-contributors.md`](../map/artifact-3-contributors.md); pending `repo-map.md`, Architect review. |
 | **10xChampion** | M5 | **NOT STARTED** | No M5 prompts, automation workflows, or Champion review artifacts in repository. |
 
 **Overall:** Builder ready to submit (including submission screenshots). Architect **in progress** (territory map done). Champion not started. Additional module work required before a **single combined submission** is ready.
@@ -35,7 +35,7 @@ flowchart LR
 | Phase | Goal | Remaining before final submission |
 |-------|------|-----------------------------------|
 | **Builder** | Working MVP + context + tests + CI + deploy | None — ready to submit |
-| **Architect** | Large-repo architecture literacy + evidence | Structure map done; remaining: contributors, `repo-map.md` synthesis, Architect review |
+| **Architect** | Large-repo architecture literacy + evidence | Map artifacts 1–3 done; remaining: `repo-map.md` synthesis, Architect review |
 | **Champion** | AI-assisted team workflow + automation | M5 exercises; CI/CD AI integration; automation evidence — **none in repo yet** |
 | **Final package** | One submission, three badges | All sections below populated; demo script; screenshots |
 
@@ -97,7 +97,7 @@ mise exec -- bin/dev                             # local demo
 
 ## 10xArchitect
 
-**Verdict: IN PROGRESS** — territory + structure maps complete; contributors, synthesis, and review pending.
+**Verdict: IN PROGRESS** — territory, structure, and contributors maps complete; `repo-map.md` synthesis and review pending.
 
 Module 4 course prompts exist (repo map / large-context workflow):
 
@@ -111,7 +111,7 @@ Module 4 course prompts exist (repo map / large-context workflow):
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Architecture work — repo map / territory analysis | **PARTIAL** | Territory + structure done; pending contributors + `repo-map.md` |
+| Architecture work — repo map / territory analysis | **PARTIAL** | All three map artifacts done; pending `repo-map.md` synthesis |
 | Large-context workflows — map synthesis | **TODO** | No synthesis artifact yet |
 | Refactoring exercises — documented change | **TODO** | Post-MVP refactors not opened as M4 changes |
 | Modernization work — evidence | **TODO** | Roadmap parked items (Postgres, observability) not started |
@@ -124,7 +124,7 @@ Module 4 course prompts exist (repo map / large-context workflow):
 |----------|--------|----------|
 | Territory map (M4L2-1) | **PASS** | [`context/map/artifact-1-territory.md`](../map/artifact-1-territory.md) |
 | Structure map (M4L2-2) | **PASS** | [`context/map/artifact-2-structure.md`](../map/artifact-2-structure.md) |
-| Contributors map | **TODO** | `context/map/artifact-3-contributors.md` |
+| Contributors map | **PASS** | [`context/map/artifact-3-contributors.md`](../map/artifact-3-contributors.md) |
 | Repo map synthesis | **TODO** | `context/map/repo-map.md` |
 | Architect review | **TODO** | `context/reviews/*architect*` |
 
@@ -242,7 +242,7 @@ PLAYWRIGHT_SKIP_WEBSERVER=1 PLAYWRIGHT_BASE_URL=https://safelog-ai.fly.dev \
 
 | Gap | Action |
 |-----|--------|
-| M4 map sequence incomplete | Complete contributors map + `repo-map.md` synthesis |
+| M4 map sequence incomplete | Complete `repo-map.md` synthesis |
 | No Architect review document | Run course Architect review workflow when M4 work ships |
 | No post-MVP modernization change | Pick from roadmap Parked or course exercise |
 
