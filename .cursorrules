@@ -1,0 +1,17 @@
+When Cursor auto-generates a Git commit message:
+
+- Subject must be 50 characters or less.
+- Never exceed 72 characters.
+- Use imperative mood.
+- Use a single-line commit message whenever possible.
+- Do not generate commit bodies unless explicitly required.
+- Do not mention every changed file.
+- Prefer concise summaries.
+
+Examples:
+
+Add Zendesk preparation roadmap
+
+Update career direction document
+
+Organize LinkedIn post ideas
