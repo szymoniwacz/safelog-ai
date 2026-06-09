@@ -76,7 +76,7 @@ SafeLog AI is a Rails 8.1 + SQLite app that redacts logs in memory, persists san
 |---------|--------|----------|
 | Raw logs never persisted | **PASS** | `db/schema.rb`: only `sanitized_content` on `log_sources`; no `raw_*` columns. `assert_no_raw_substring_in_persisted_data` in security specs. Runtime: `sqlite_contains_raw_secret: false` after intake with synthetic secret. |
 | Raw logs never sent to AI | **PASS** | `Analysis::PromptBuilder` uses `sanitized_content` only. `spec/requests/debugging_cases_analyze_security_spec.rb` asserts fake client prompt has placeholders, not raw secrets. |
-| Raw logs never written to Rails logs | **PARTIAL** | `config/initializers/filter_parameter_logging.rb` filters `:pasted_content`, `:raw`, `:log`, `:body`. No `Rails.logger` calls in `app/`. **NOT VERIFIED**: post-request scan of `log/development.log` for raw substrings. |
+| Raw logs never written to Rails logs | **PASS** (test env) | `filter_parameter_logging.rb` filters `:pasted_content`, case metadata (`:customer_reference`, `:title`, `:description`, `:environment`), `:raw`, `:log`, `:body`. No `Rails.logger` in `app/`. `spec/requests/debugging_cases_security_spec.rb` — "Rails test log guard" scans appended `log/test.log` after intake POST. **Limitation**: dev/prod log files not runtime-scanned. |
 | Raw-to-placeholder mappings not persisted | **PASS** | `Redaction::PlaceholderRegistry` — in-memory `@placeholders` only; comment + no DB/model for mappings. |
 | Hashes/fingerprints of raw values not persisted | **PASS** | Grep `app/`: no `Digest`, `SHA`, `fingerprint` on intake path. DB stores `placeholder` strings (`[EMAIL_1]`), not hashes of raw values. |
 | Encrypted diagnostic fields configured | **PASS** | `encrypts` on `customer_reference`, `sanitized_content`, `payload`, `structured_json`, `markdown_body`. `spec/models/encryption_at_rest_spec.rb` — raw SQL does not contain plaintext markers. |
@@ -94,7 +94,7 @@ SafeLog AI is a Rails 8.1 + SQLite app that redacts logs in memory, persists san
 | Document | Status | Notes |
 |----------|--------|-------|
 | `README.md` | **PASS** | Setup, security principles, demo flow, AI client table, quality gates match implementation. |
-| `AGENTS.md` | **PASS** | Hard rules align with PRD; 127 examples matches current suite; points to test-plan. |
+| `AGENTS.md` | **PASS** | Hard rules align with PRD; 128 examples matches current suite; points to test-plan. |
 | `CLAUDE.md` | **NOT PRESENT** | Course accepts `AGENTS.md` as agent onboarding artifact (M1L4). |
 | `context/foundation/prd.md` | **PASS** | Requirements match built MVP; `status: active` (updated 2026-06-09). |
 | `context/foundation/roadmap.md` | **PASS** | F-01–S-06 done; backlog handoff accurate. |
@@ -195,9 +195,7 @@ Live server on `:3000`. Full flow on case `/debugging_cases/13`: create with 2 s
 
 - **Severity**: observation
 - **Category**: Security verification
-- **Evidence**: `filter_parameter_logging.rb` filters `:pasted_content`; no spec scans `log/test.log` or `log/development.log` after intake POST.
-- **Impact**: Low — standard Rails filtering + no custom logging in `app/`; residual risk if middleware logs unfiltered bodies.
-- **Recommended Fix**: Optional request spec with `log/test.log` tail assertion after case create (test env).
+- **Resolution (2026-06-09)**: Request spec "Rails test log guard" in `debugging_cases_security_spec.rb` asserts appended `log/test.log` lacks raw intake substrings after `POST /debugging_cases`. Root cause found: `customer_reference` (and other case metadata) leaked in Parameters log before redaction; fixed by extending `filter_parameter_logging.rb`. **Limitation**: proof is test-env request log only; SQL bind logs and dev/prod files not scanned.
 
 ### F6 — Demo AI without `OPENAI_API_KEY`
 
@@ -211,9 +209,7 @@ Live server on `:3000`. Full flow on case `/debugging_cases/13`: create with 2 s
 
 - **Severity**: observation
 - **Category**: E2E
-- **Evidence**: `_ai_report.html.erb` — "Select all and copy"; no copy button or system spec.
-- **Impact**: FR satisfied manually; automated proof limited to textarea content + download.
-- **Recommended Fix**: None for MVP; document as intentional in demo script.
+- **Resolution (2026-06-09)**: `debugging_cases_report_export_security_spec.rb` asserts show page exposes sanitized markdown copy surface (`## Hypothesis report`, `aria-label="Report Markdown"`) without raw secrets. Clipboard automation intentionally omitted for MVP.
 
 ### F8 — Fresh `/10x-impl-review` not run post-verification
 
@@ -229,9 +225,7 @@ Live server on `:3000`. Full flow on case `/debugging_cases/13`: create with 2 s
 
 1. **F1** — Fly deploy + smoke if Demo Day needs public URL (optional for local Builder demo).
 2. **F8** — Fresh impl-review artifact for course submission packet (optional).
-3. **F5** — Optional log-scan spec if pursuing hard security proof.
-
-**Resolved (2026-06-09):** F2, F3, F4. Do **not** block certification on F5, F6, F7.
+**Resolved (2026-06-09):** F2, F3, F4, F5, F7. Do **not** block certification on F6.
 
 ---
 
@@ -245,6 +239,7 @@ Live server on `:3000`. Full flow on case `/debugging_cases/13`: create with 2 s
 | SQLite single-node production | Operational | Documented in README limitations; Fly volume in deploy-plan |
 | No production deploy yet | Demo logistics | Local + Playwright/demo loader paths proven |
 | Heuristic incomplete redaction if operator bypasses intake | Low | PRD guardrails + tests for standard paths |
+| Rails logs outside test request Parameters line | Low | F5 spec covers test env only; no custom `Rails.logger` in `app/` |
 
 ---
 
@@ -258,7 +253,7 @@ Rationale:
 
 - Module 1 artifacts present (PRD, tech-stack*, infrastructure, deploy-plan, AGENTS.md, health-check).
 - Module 2 delivery complete (roadmap done, archived changes, impl-review APPROVED historically, working vertical slices).
-- Module 3 quality gates operational (test-plan, 127 tests, `bin/ci`, hooks configured, E2E flow proven).
+- Module 3 quality gates operational (test-plan, 128 tests, `bin/ci`, hooks configured, E2E flow proven).
 - Security story is the product differentiator and is **evidence-backed**, not asserted.
 
 \*Foundation doc contradictions (F2–F4) resolved 2026-06-09.
@@ -294,7 +289,9 @@ Rationale:
 
 | Command | Result |
 |---------|--------|
-| `mise exec -- bin/ci` | PASS — 127 examples, 0 failures |
+| `mise exec -- bin/ci` | PASS — 128 examples, 0 failures |
+| `mise exec -- bundle exec rspec spec/requests/debugging_cases_security_spec.rb:70` | PASS — Rails test log guard (F5) |
+| `mise exec -- bundle exec rspec spec/requests/debugging_cases_report_export_security_spec.rb` | PASS — download + show markdown export (F7) |
 | `mise exec -- bundle exec rspec` (security bundle, 29 ex.) | PASS |
 | `mise exec -- bundle exec rspec` (main-flow bundle, 46 ex.) | PASS |
 | Runtime DB column audit + SQLite binary scan | PASS — no forbidden columns; secret not in file |

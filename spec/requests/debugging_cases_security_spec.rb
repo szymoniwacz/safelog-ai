@@ -66,6 +66,19 @@ RSpec.describe "Debugging cases security (AGENTS.md guardrails)", type: :request
     end
   end
 
+  describe "Rails test log guard" do
+    it "does not write raw intake secrets to log/test.log after POST /debugging_cases (AGENTS.md)" do
+      log_offset = SecurityPersistenceHelpers::TEST_LOG_PATH.exist? ? SecurityPersistenceHelpers::TEST_LOG_PATH.size : 0
+
+      sign_in user
+      post debugging_cases_path, params: submission_params
+
+      assert_no_raw_substring_in_appended_test_log(secret_email, from_offset: log_offset)
+      assert_no_raw_substring_in_appended_test_log(secret_token, from_offset: log_offset)
+      assert_no_raw_substring_in_appended_test_log(shared_request_id, from_offset: log_offset)
+    end
+  end
+
   describe "description metadata redaction" do
     let(:description_secret_email) { "desc-meta-#{SecureRandom.hex(4)}@secret.example" }
     let(:fake_client) { Ai::FakeClient.new }

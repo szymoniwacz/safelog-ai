@@ -4,6 +4,22 @@
 # diagnostic columns after POST intake. Prefer this over show-response-only checks
 # (anti-pattern: spec/requests/debugging_cases_spec.rb POST example).
 module SecurityPersistenceHelpers
+  TEST_LOG_PATH = Rails.root.join("log/test.log")
+
+  # Bytes appended to log/test.log since +from_offset+ (test env request/SQL logging).
+  # Proves filter_parameter_logging for intake params (:pasted_content, case metadata).
+  # Not a dev/prod log audit; SQL bind logs are not scanned here.
+  def appended_test_log_content(from_offset:)
+    return "" unless TEST_LOG_PATH.exist?
+
+    TEST_LOG_PATH.read.byteslice(from_offset..) || ""
+  end
+
+  def assert_no_raw_substring_in_appended_test_log(raw_substring, from_offset:)
+    appended = appended_test_log_content(from_offset: from_offset)
+    expect(appended).not_to include(raw_substring)
+  end
+
   def assert_no_raw_substring_in_persisted_data(raw_substring)
     DebuggingCase.find_each do |debugging_case|
       [
