@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+export RAILS_ENV=test
+export PORT="${PORT:-3000}"
+
+# Match CI test encryption keys (see .github/workflows/ci.yml).
+export RAILS_ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY="${RAILS_ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY:-CITestPrimaryKey00000000000001}"
+export RAILS_ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY="${RAILS_ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY:-CITestDeterministicKey00000001}"
+export RAILS_ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT="${RAILS_ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT:-CITestKeyDerivationSalt000001}"
+
+bundle exec rails db:prepare >/dev/null
+exec bundle exec rails server -p "$PORT" -e test

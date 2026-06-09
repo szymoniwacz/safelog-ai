@@ -82,10 +82,11 @@ The classic test base for this project. AI-native tools (if any) carry a
 | unit + integration | RSpec | 3.x (via rspec-rails) | Primary layer; 135 examples across services, requests, models, system |
 | HTTP integration | RSpec request specs | — | Security, authorization matrix, persistence oracles |
 | user flows | Capybara system specs (`spec/system`) | 3.40 (rack_test) | Browser-visible happy paths; same-thread driver for speed + transactional fixtures |
+| browser E2E | Playwright (`e2e/`, `@playwright/test`) | 1.50+ | Real Chromium journeys; optional gate via `bin/e2e` |
 | API mocking | WebMock | — | Blocks real OpenAI calls; used with FakeClient |
 | factories | FactoryBot | — | User and domain fixtures |
 | static security | Brakeman + bundler-audit + importmap audit | — | Wired in `bin/ci` and GitHub Actions |
-| manual browser smoke | Playwright MCP (`.cursor/prompts/m3l4-e2e-smoke.md`) | — | Optional local sign-in smoke; not in `bin/ci` |
+| manual browser smoke | Playwright MCP (`.cursor/prompts/m3l4-e2e-smoke.md`) | — | Cursor ad-hoc smoke; superseded for regression by `e2e/` specs |
 | accessibility | none | — | Manual smoke for UI changes; no axe wired |
 
 **Stack grounding tools (current session):**
@@ -107,7 +108,8 @@ The full set of gates that must pass before a change reaches production.
 | RSpec (135) | `bin/ci`, GHA `test` | required | logic, security, and system-flow regressions |
 | Full `bin/ci` locally before push | developer workflow | required (AGENTS.md) | combined gate failures |
 | Capybara system specs (`spec/system`) | `bin/ci` (via full RSpec) | required | user-visible flows (auth, intake, analyze, archive) |
-| Playwright MCP smoke | manual / Cursor | optional | local dev server smoke only |
+| Playwright E2E (`e2e/`) | `mise exec -- bin/e2e` | optional | real Chromium regression; not in `bin/ci` (see §6.9) |
+| Playwright MCP smoke | manual / Cursor | optional | ad-hoc debugging only |
 | Post-edit agent hook | — | not planned | — |
 
 Phase 3 rollout gate parity is documented in §6.7.
@@ -348,6 +350,38 @@ scope with `within(find("fieldset", text: "Log source 1"))` for repeated fields.
 
 **Run:** `mise exec -- bundle exec rspec spec/system`
 
+### 6.9 Playwright browser E2E
+
+**Location:** `e2e/` (TypeScript specs) + root `playwright.config.ts`.
+
+**When to use:** Cross-browser confidence for certification/demo paths that
+Capybara `rack_test` cannot exercise (real layout, download events, flash UX).
+Keep **security oracles** in RSpec request specs — Playwright asserts UI only.
+
+**Coverage map (2026-06-09):**
+
+| File | Browser paths |
+|------|---------------|
+| `authentication.spec.ts` | guest redirect, sign up, sign in, sign out |
+| `debugging-case-flow.spec.ts` | multi-source create → sanitized UI → redaction summary → analyze → report → markdown download → archive → archived filter |
+| `demo-case.spec.ts` | Load demo case (test server) |
+
+**Commands:**
+
+```bash
+mise exec -- bin/e2e                  # prepare DB + test Rails server + 5 Playwright tests
+mise exec -- npm run test:e2e:install # Chromium only (first run)
+PLAYWRIGHT_SKIP_WEBSERVER=1 mise exec -- bin/e2e   # reuse running server on :3000
+```
+
+**CI policy:** Playwright is **not** wired into `bin/ci` or GHA `test` job —
+adds Node + Chromium install, separate Rails boot, and ~30–60s latency on top
+of 135 RSpec examples. Capybara system specs already guard user flows in CI.
+Run `bin/e2e` locally before Demo Day or after UI changes.
+
+**Selectors:** `getByRole`, `getByLabel`, scoped `section.card` + `legend` for
+repeated log-source slots. No `data-testid` required yet.
+
 ### 6.6 Per-rollout-phase notes
 
 **Phase 1 — Security guardrail cookbook** (`testing-security-guardrail-cookbook`,
@@ -395,13 +429,17 @@ remain in request specs. Driver: Capybara `rack_test` (no Selenium in CI).
 Files touched: `Gemfile`, `spec/support/capybara.rb`,
 `spec/support/system_test_helpers.rb`, `spec/system/*`, `AGENTS.md`, `README.md`.
 
+**Phase 6 — Playwright browser E2E** (2026-06-09): Added `e2e/` (5 tests),
+`playwright.config.ts`, `bin/e2e`, `bin/e2e-server`. Optional gate — not in
+`bin/ci`. RSpec count unchanged (135).
+
 ## 7. What We Deliberately Don't Test
 
 Exclusions agreed during the rollout (Phase 2 interview, Q5). Future
 contributors should respect these unless the underlying assumption changes.
 
 - **Selenium / headless Chrome system specs** — MVP forms are server-rendered (`local: true`); Capybara `rack_test` covers user flows in CI without browser install cost. Re-evaluate if Turbo/JS-only interactions become critical. (Source: 2026-06-09 system-spec rollout.)
-- **Playwright in `bin/ci`** — automated gate uses Capybara; Playwright MCP remains optional manual smoke (M3L4). Re-evaluate if cross-browser or clipboard automation becomes a certification requirement.
+- **Playwright in `bin/ci` / GHA** — `e2e/` specs run via optional `bin/e2e`; CI keeps Capybara + request security oracles. Re-evaluate if GHA Chromium install becomes acceptable latency.
 - **UI snapshot tests** — brittle for server-rendered Rails views; low regression signal for PRD guardrails. Re-evaluate if a rich client ships. (Source: user /10x-test-plan input.)
 - **View cosmetic / CSS-only changes** — no automated test budget; prioritize raw-log, AI-boundary, encryption, and authorization specs. (Source: user /10x-test-plan input.)
 - **AI-native vision or multimodal review** — security regressions are deterministic; FakeClient + prompt inspection suffices. Re-evaluate if UI-only leaks become a top risk. (Source: Phase 2 interview Q5.)
