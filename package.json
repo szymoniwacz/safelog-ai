@@ -5,10 +5,15 @@
   "scripts": {
     "mcp:playwright": "playwright-mcp",
     "test:e2e": "playwright test",
-    "test:e2e:install": "playwright install chromium"
+    "test:e2e:install": "playwright install chromium",
+    "depcruise": "depcruise e2e/helpers.ts e2e/*.spec.ts playwright.config.ts --config .dependency-cruiser.cjs",
+    "depcruise:validate": "depcruise e2e/helpers.ts e2e/*.spec.ts playwright.config.ts --config .dependency-cruiser.cjs --output-type err",
+    "depcruise:graph": "node scripts/render-e2e-dep-graph.mjs"
   },
   "devDependencies": {
     "@playwright/mcp": "^0.0.75",
-    "@playwright/test": "^1.50.0"
+    "@playwright/test": "^1.50.0",
+    "@viz-js/viz": "^3.28.0",
+    "dependency-cruiser": "^16.10.4"
   }
 }

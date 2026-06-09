@@ -1,0 +1,24 @@
+strict digraph "dependency-cruiser output"{
+    rankdir="LR" splines="true" overlap="false" nodesep="0.16" ranksep="0.18" fontname="Helvetica-bold" fontsize="9" style="rounded,bold,filled" fillcolor="#ffffff" compound="true"
+    node [shape="box" style="rounded, filled" height="0.2" color="black" fillcolor="#ffffcc" fontcolor="black" fontname="Helvetica" fontsize="9"]
+    edge [arrowhead="normal" arrowsize="0.6" penwidth="2.0" color="#00000033" fontname="Helvetica" fontsize="9"]
+
+    "./helpers" [label=<helpers> tooltip="helpers" ]
+    subgraph "cluster_e2e" {label="e2e" "e2e/authentication.spec.ts" [label=<authentication.spec.ts> tooltip="authentication.spec.ts" URL="e2e/authentication.spec.ts" fillcolor="#ddfeff"] }
+    "e2e/authentication.spec.ts" -> "./helpers"
+    "e2e/authentication.spec.ts" -> "node_modules/@playwright/test/index.mjs" [penwidth="1.0"]
+    subgraph "cluster_e2e" {label="e2e" "e2e/capture-submission-screenshots.spec.ts" [label=<capture-submission-screenshots.spec.ts> tooltip="capture-submission-screenshots.spec.ts" URL="e2e/capture-submission-screenshots.spec.ts" fillcolor="#ddfeff"] }
+    "e2e/capture-submission-screenshots.spec.ts" -> "./helpers"
+    "e2e/capture-submission-screenshots.spec.ts" -> "node_modules/@playwright/test/index.mjs" [penwidth="1.0"]
+    "e2e/capture-submission-screenshots.spec.ts" -> "path" [style="dashed" penwidth="1.0"]
+    subgraph "cluster_e2e" {label="e2e" "e2e/debugging-case-flow.spec.ts" [label=<debugging-case-flow.spec.ts> tooltip="debugging-case-flow.spec.ts" URL="e2e/debugging-case-flow.spec.ts" fillcolor="#ddfeff"] }
+    "e2e/debugging-case-flow.spec.ts" -> "./helpers"
+    "e2e/debugging-case-flow.spec.ts" -> "node_modules/@playwright/test/index.mjs" [penwidth="1.0"]
+    subgraph "cluster_e2e" {label="e2e" "e2e/demo-case.spec.ts" [label=<demo-case.spec.ts> tooltip="demo-case.spec.ts" URL="e2e/demo-case.spec.ts" fillcolor="#ddfeff"] }
+    "e2e/demo-case.spec.ts" -> "./helpers"
+    "e2e/demo-case.spec.ts" -> "node_modules/@playwright/test/index.mjs" [penwidth="1.0"]
+    subgraph "cluster_e2e" {label="e2e" "e2e/helpers.ts" [label=<helpers.ts> tooltip="helpers.ts" URL="e2e/helpers.ts" fillcolor="#ddfeff"] }
+    "e2e/helpers.ts" -> "node_modules/@playwright/test/index.mjs" [penwidth="1.0"]
+    subgraph "cluster_node_modules" {label="node_modules" subgraph "cluster_node_modules/@playwright" {label="@playwright" subgraph "cluster_node_modules/@playwright/test" {label="test" "node_modules/@playwright/test/index.mjs" [label=<index.mjs> tooltip="index.mjs" URL="https://www.npmjs.com/package/@playwright/test" shape="folder" fillcolor="#c40b0a1a" fontcolor="#c40b0a"] } } }
+    "path" [label=<path> tooltip="path" URL="https://nodejs.org/api/path.html" color="grey" fontcolor="grey"]
+}
