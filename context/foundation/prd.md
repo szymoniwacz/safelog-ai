@@ -1,8 +1,9 @@
 ---
 project: SafeLog AI
 version: 1
-status: draft
+status: active
 created: 2026-05-19
+updated: 2026-06-09
 context_type: greenfield
 product_type: web-app
 target_scale:
