@@ -14,10 +14,10 @@ scope: 10xDevs Builder + Architect + Champion
 | Badge | Modules | Verdict | Summary |
 |-------|---------|---------|---------|
 | **10xBuilder** | M1–M3 | **READY** | MVP shipped; 135 RSpec + system + Playwright; Fly.io live at https://safelog-ai.fly.dev/; submission screenshots captured; local `bin/ci` + remote GHA green on `main` (2026-06-09). |
-| **10xArchitect** | M4 | **NOT STARTED** | M4 prompts present in `.cursor/prompts/m4l2-*`; no `context/map/repo-map.md` or M4 review artifacts yet. |
+| **10xArchitect** | M4 | **IN PROGRESS** | M4L2-1 done — [`artifact-1-territory.md`](../map/artifact-1-territory.md); pending `artifact-2-structure.md`, `artifact-3-contributors.md`, `repo-map.md`, Architect review. |
 | **10xChampion** | M5 | **NOT STARTED** | No M5 prompts, automation workflows, or Champion review artifacts in repository. |
 
-**Overall:** Builder ready to submit (including submission screenshots). Architect and Champion require additional module work before a **single combined submission** is ready.
+**Overall:** Builder ready to submit (including submission screenshots). Architect **in progress** (territory map done). Champion not started. Additional module work required before a **single combined submission** is ready.
 
 ---
 
@@ -25,7 +25,7 @@ scope: 10xDevs Builder + Architect + Champion
 
 ```mermaid
 flowchart LR
-  B[10xBuilder READY] --> A[10xArchitect TODO]
+  B[10xBuilder READY] --> A[10xArchitect IN PROGRESS]
   A --> C[10xChampion TODO]
   B --> S[Final combined submission]
   A --> S
@@ -35,7 +35,7 @@ flowchart LR
 | Phase | Goal | Remaining before final submission |
 |-------|------|-----------------------------------|
 | **Builder** | Working MVP + context + tests + CI + deploy | None — ready to submit |
-| **Architect** | Large-repo architecture literacy + evidence | Repo map (`context/map/`); M4 exercises; architecture review artifacts |
+| **Architect** | Large-repo architecture literacy + evidence | Territory map done; remaining: structure map, contributors, `repo-map.md` synthesis, Architect review |
 | **Champion** | AI-assisted team workflow + automation | M5 exercises; CI/CD AI integration; automation evidence — **none in repo yet** |
 | **Final package** | One submission, three badges | All sections below populated; demo script; screenshots |
 
@@ -97,13 +97,13 @@ mise exec -- bin/dev                             # local demo
 
 ## 10xArchitect
 
-**Verdict: NOT STARTED** — no Module 4 certification artifacts in repository.
+**Verdict: IN PROGRESS** — territory analysis complete; structure map, synthesis, and review pending.
 
 Module 4 course prompts exist (repo map / large-context workflow):
 
 | Prompt | Expected artifact | Status |
 |--------|-------------------|--------|
-| `.cursor/prompts/m4l2-1-territory-git-history.md` | `context/map/artifact-1-territory.md` | **TODO** — `context/map/` not present |
+| `.cursor/prompts/m4l2-1-territory-git-history.md` | `context/map/artifact-1-territory.md` | **PASS** |
 | `.cursor/prompts/m4l2-2-structure-dependency-cruiser.md` | `context/map/artifact-2-structure.md` | **TODO** |
 | `.cursor/prompts/m4l2-repo-map-synthesis.md` | `context/map/repo-map.md` | **TODO** |
 
@@ -111,18 +111,22 @@ Module 4 course prompts exist (repo map / large-context workflow):
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Architecture work — repo map / territory analysis | **TODO** | Run M4L2 prompts; publish `context/map/repo-map.md` |
+| Architecture work — repo map / territory analysis | **PARTIAL** | Territory done — [`artifact-1-territory.md`](../map/artifact-1-territory.md); pending structure, contributors, `repo-map.md` |
 | Large-context workflows — map synthesis | **TODO** | No synthesis artifact yet |
 | Refactoring exercises — documented change | **TODO** | Post-MVP refactors not opened as M4 changes |
 | Modernization work — evidence | **TODO** | Roadmap parked items (Postgres, observability) not started |
 | Architecture evidence — diagrams / boundaries | **PARTIAL** | Pre-M4: `architecture-alignment` archive; `shape-notes.md`; not M4 certification packet |
 | Review artifacts — Architect impl/plan review | **TODO** | No `context/reviews/*architect*` artifact |
 
-### Evidence (when complete)
+### Evidence
 
-- `context/map/repo-map.md` and supporting map artifacts
-- M4 change folders under `context/changes/` or `context/archive/`
-- Architect review markdown under `context/reviews/`
+| Artifact | Status | Location |
+|----------|--------|----------|
+| Territory map (M4L2-1) | **PASS** | [`context/map/artifact-1-territory.md`](../map/artifact-1-territory.md) |
+| Structure map (M4L2-2) | **TODO** | `context/map/artifact-2-structure.md` |
+| Contributors map | **TODO** | `context/map/artifact-3-contributors.md` |
+| Repo map synthesis | **TODO** | `context/map/repo-map.md` |
+| Architect review | **TODO** | `context/reviews/*architect*` |
 
 ---
 
@@ -238,7 +242,7 @@ PLAYWRIGHT_SKIP_WEBSERVER=1 PLAYWRIGHT_BASE_URL=https://safelog-ai.fly.dev \
 
 | Gap | Action |
 |-----|--------|
-| No `context/map/` artifacts | Complete M4L2 prompt sequence |
+| M4 map sequence incomplete | Complete M4L2-2, contributors, `repo-map.md` synthesis |
 | No Architect review document | Run course Architect review workflow when M4 work ships |
 | No post-MVP modernization change | Pick from roadmap Parked or course exercise |
 
