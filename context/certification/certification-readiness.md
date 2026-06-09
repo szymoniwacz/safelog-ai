@@ -60,8 +60,8 @@ flowchart LR
 | CI/CD — remote GHA on latest `main` | **PASS** | [Run 27228714749](https://github.com/szymoniwacz/safelog-ai/actions/runs/27228714749) on `3c92dcb` (2026-06-09); all four jobs green; 135 RSpec examples |
 | Public URL | **PASS** | https://safelog-ai.fly.dev/ — live; deploy verified 2026-06-09 |
 | Deployment evidence | **PASS** | `deploy-plan.md` § Deployment status + lessons learned; manual E2E verification (2026-06-09) |
-| Demo flow — local | **PASS** | README demo section; system + Playwright specs |
-| Demo flow — public | **PASS** | Full intake → analyze → archive flow on https://safelog-ai.fly.dev/ (2026-06-09); manual paste only (no load_demo in production) |
+| Demo flow — local | **PASS** | README demo section; **Load demo case** + manual intake; system + Playwright specs |
+| Demo flow — public | **PASS** | Manual intake → analyze → archive on Fly (2026-06-09); **no load_demo** — see [Public demo vs local](#public-demo-vs-local-load_demo) |
 | Submission screenshots | **PASS** | [`context/certification/screenshots/`](screenshots/) — 7 PNGs from live Fly (2026-06-09) |
 | Security evidence | **PASS** | Security checklist in builder readiness review; log guard, encryption, AI boundary specs |
 
@@ -165,6 +165,8 @@ Single packet for **Builder + Architect + Champion** when all badges are ready.
 
 ### Demo flow (Builder — verified locally and on Fly)
 
+**For reviewers opening https://safelog-ai.fly.dev/:** see [Public demo vs local `load_demo`](#public-demo-vs-local-load_demo) below — the Fly URL does **not** offer **Load demo case**.
+
 1. Register or sign in at `/` (local or https://safelog-ai.fly.dev/).
 2. **New case** with multiple pasted sources (fake secrets). On Fly, use manual intake — **Load demo case** is dev/test only.
 3. Confirm placeholders on show — raw paste not visible; **Redaction summary** visible.
@@ -173,6 +175,32 @@ Single packet for **Builder + Architect + Champion** when all badges are ready.
 6. **Archive** → **Archived** filter on case index.
 
 Security narrative: transient raw intake; encrypted `sanitized_content`; scoped `find` → 404; FakeClient in CI.
+
+### Public demo vs local `load_demo`
+
+Reviewers and course staff often compare the README demo (which mentions **Load demo case**) with the public Fly URL. They are **not the same entry path**; everything after case creation is the same pipeline.
+
+| | **Local** (`mise exec -- bin/dev`) | **Public Fly** (`https://safelog-ai.fly.dev/`) |
+|---|-----------------------------------|------------------------------------------------|
+| **Environment** | `development` | `production` |
+| **Load demo case** | **Yes** — dashboard button; one-click checkout-timeout fixture (`Demo::LoadCase`) | **No** — button hidden; `POST /debugging_cases/load_demo` returns **404** (by design) |
+| **How to start a case** | **Load demo case** *or* **New case** + manual paste | **New case** only — paste ≥2 log sources (Rails, CloudWatch, browser console, etc.) |
+| **Redaction / analyze / export / archive** | Same services and UI | Same services and UI |
+| **AI output** | Fake client if `OPENAI_API_KEY` unset (notice on case page) | Same |
+| **Submission screenshots** | N/A | Captured via manual intake on Fly — see [`screenshots/04-new-case-intake.png`](screenshots/04-new-case-intake.png) |
+
+**Why production has no load_demo:** `Demo::LoadCase.available?` is true only in development and test (`app/services/demo/load_case.rb`). Production keeps the demo surface minimal and avoids a dev-only shortcut on a public URL.
+
+**Reviewer checklist (Fly, after `fly deploy`):**
+
+1. Confirm app is up: `curl -sf https://safelog-ai.fly.dev/up`
+2. Register a new account (or sign in) — screenshots [`01-sign-in.png`](screenshots/01-sign-in.png), [`02-sign-up.png`](screenshots/02-sign-up.png)
+3. **New case** → paste multiple sources with fake secrets (e.g. email, token, shared `request_id`)
+4. Verify show page: placeholders only, **Redaction summary** present — [`05-case-redaction-summary.png`](screenshots/05-case-redaction-summary.png)
+5. **Analyze case** → hypothesis report — [`06-hypothesis-report.png`](screenshots/06-hypothesis-report.png)
+6. Optional: download report, archive, **Archived** tab — [`07-archived-cases.png`](screenshots/07-archived-cases.png)
+
+Do **not** expect a **Load demo case** button on Fly; that is not a deploy bug.
 
 ### Commands reference
 

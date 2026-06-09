@@ -2,6 +2,8 @@
 
 Captured from **https://safelog-ai.fly.dev/** on 2026-06-09 via Playwright (`e2e/capture-submission-screenshots.spec.ts`).
 
+**Note for reviewers:** these screenshots use **manual intake** (New case + paste). The public Fly app does not show **Load demo case** — that button appears only in local development/test. See `../certification-readiness.md` § Public demo vs local `load_demo`.
+
 | File | Step |
 |------|------|
 | `01-sign-in.png` | Public sign-in page |
@@ -21,4 +23,4 @@ PLAYWRIGHT_CAPTURE_SCREENSHOTS=1 \
 npx playwright test e2e/capture-submission-screenshots.spec.ts
 ```
 
-Requires the Fly app to be running. Production uses manual intake (no **Load demo case** button).
+Requires the Fly app to be running. Production demo path: **New case** + manual paste (no **Load demo case**).
