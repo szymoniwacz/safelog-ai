@@ -6,5 +6,7 @@
 Rails.application.config.filter_parameters += [
   :passw, :email, :secret, :token, :_key, :crypt, :salt, :certificate, :otp, :ssn, :cvv, :cvc,
   :openai_api_key,
-  :pasted_content, :content, :raw, :log, :body
+  :pasted_content, :content, :raw, :log, :body,
+  # Case metadata may contain pasted secrets before redaction (intake POST Parameters log).
+  :customer_reference, :title, :description, :environment
 ]

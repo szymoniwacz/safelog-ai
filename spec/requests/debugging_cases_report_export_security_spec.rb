@@ -67,6 +67,8 @@ RSpec.describe "Debugging case report export security (AGENTS.md guardrails)", t
       get debugging_case_path(debugging_case)
 
       expect(response).to have_http_status(:ok)
+      expect(response.body).to include("## Hypothesis report")
+      expect(response.body).to include('aria-label="Report Markdown"')
       expect(response.body).to include("[REQUEST_1]")
       expect(response.body).not_to include(secret_email)
       expect(response.body).not_to include(secret_token)
