@@ -5,10 +5,12 @@ git_commit: 9fe8adf8761d8fe524fd68a1daeebef6831a6678
 branch: main
 repository: safelog-ai
 topic: "Refactor opportunities — which structural problems to fix, in what order"
-tags: [research, refactor, technical-debt, intake, redaction, structural-debt]
+tags: [research, refactor, technical-debt, intake, redaction, structural-debt, verified]
 status: complete
 last_updated: 2026-06-10
-last_updated_by: Composer (m4l4-2 /10x-research)
+last_updated_by: Composer (m4l4-3 ast-grep verification)
+verification_commit: 2ce9993a7bef94b013d977263619b272f29a4e07
+ast_grep_version: 0.43.0
 source_analysis: context/changes/case-submission-flow-analysis/research.md
 ---
 
@@ -16,7 +18,7 @@ source_analysis: context/changes/case-submission-flow-analysis/research.md
 
 **Date**: 2026-06-10
 **Researcher**: Composer (3 sub-agents per structural candidate)
-**Git Commit**: `9fe8adf8761d8fe524fd68a1daeebef6831a6678`
+**Git Commit**: `9fe8adf8761d8fe524fd68a1daeebef6831a6678` (research) · verified `2ce9993a7bef94b013d977263619b272f29a4e07`
 **Branch**: main
 **Repository**: safelog-ai
 **Source analysis**: [`context/changes/case-submission-flow-analysis/research.md`](../case-submission-flow-analysis/research.md)
@@ -105,7 +107,7 @@ E2E (`bin/e2e`) is **not** in `bin/ci` — TD-5/IMPL-1 changes unlikely to need 
 |-----------|-----|
 | `Engine#redact_line` appends `{ finding_type, line_number, placeholder, risk_level }` per match | **evidence** — `engine.rb:36–41` |
 | `Redaction::Result` holds untyped `findings` array | **evidence** — `result.rb:4–10` |
-| Sole runtime persist call-site: `log_source.redaction_findings.create!(finding)` | **evidence** — `process_case_submission.rb:45–47` |
+| Sole runtime persist call-site: `log_source.redaction_findings.create!(finding)` | **evidence** — `process_case_submission.rb:46` (raport: 45–47) |
 | Hash keys match DB columns 1:1; `log_source_id` set by association | **evidence** — `schema.rb:55–63`, `redaction_finding.rb:1–5` |
 | No mapper, DTO, or `Data.define` for findings | **evidence** |
 | Downstream consumers read AR records, not engine hashes | **evidence** — `summary_counts.rb:14`, `extract_signals.rb:40–41`, `debugging_cases_controller.rb:17–19` |
@@ -155,7 +157,7 @@ E2E (`bin/e2e`) is **not** in `bin/ci` — TD-5/IMPL-1 changes unlikely to need 
 
 | Extraction target | Feasibility | Notes |
 |-------------------|-------------|-------|
-| `redact_metadata` → `Intake::RedactMetadata` or module | **High** | 4 call sites in one class; registry injection unchanged |
+| `redact_metadata` → `Intake::RedactMetadata` or module | **High** | 5 call sites in one class (raport: 4); registry injection unchanged |
 | Persist object (`Intake::PersistRedactedCase`) | **Medium** | Must preserve atomicity; enables easier inner-loop rollback specs (TD-1) |
 | Thin coordinator `ProcessCaseSubmission` | **Medium** | Public `.call`/`Result` unchanged → 2 runtime callers unaffected |
 | Full repository layer | **Low value** | No existing pattern in `app/services/`; YAGNI |
@@ -385,6 +387,38 @@ These items from the source analysis are **not structural refactors** but should
 - `context/archive/2026-05-27-encrypted-diagnostic-schema/plan-brief.md` — F-02 encryption scope (TD-7)
 - `context/archive/2026-05-27-load-demo-case/plan-brief.md` — S-06 demo reuse decision (TD-10)
 - `context/foundation/prd.md` — guardrails and encryption NFR
+
+## Weryfikacja twierdzeń (ast-grep)
+
+Weryfikacja twierdzeń strukturalnych wspierających ranking (ast-grep 0.43.0, `-l ruby`, zakres `app/` / `spec/` o ile nie zaznaczono). Commit: `2ce9993a7bef94b013d977263619b272f29a4e07`.
+
+| # | Twierdzenie | Werdykt | Dowód | Metoda |
+|---|-------------|---------|-------|--------|
+| V-01 | Jedyny runtime call-site `redaction_findings.create!` w `app/` | **Potwierdzone** | `process_case_submission.rb:46` | `ast-grep -p 'log_source.redaction_findings.create!($ARG)' app/` → 1 match |
+| V-02 | Brak mappera/DTO/`Data.define` dla findings w domenie redaction | **Potwierdzone** | Brak matchy w `app/services/redaction/`; grep `RedactionFinding.(new\|build\|from)` → 0 | `ast-grep -p 'Data.define($$$)' app/services/redaction/` → 0; `rg RedactionFinding\.(new\|build\|from) app/` → 0 |
+| V-03 | Hash findings ma 4 klucze: `finding_type`, `line_number`, `placeholder`, `risk_level` | **Potwierdzone** | `engine.rb:36–41` | `ast-grep -p 'findings << { finding_type: $A, line_number: $B, placeholder: $C, risk_level: $D }' app/` |
+| V-04 | 2 runtime callery `ProcessCaseSubmission.call` | **Potwierdzone** | `debugging_cases_controller.rb:30`, `load_case.rb:23` | `ast-grep -p 'Intake::ProcessCaseSubmission.call($$$)' app/` → 2 |
+| V-05 | 2 runtime call-site'y `Redaction::Engine.redact` w `app/` | **Potwierdzone** | `process_case_submission.rb:36`, `:61` | `ast-grep -p 'Redaction::Engine.redact($$$)' app/` → 2 |
+| V-06 | Jedyny `DebuggingCase.transaction` w `app/` | **Potwierdzone** | `process_case_submission.rb:27` | `ast-grep -p 'DebuggingCase.transaction' app/` → 1; `rg '\.transaction' app/` → 1 |
+| V-07 | 3× `create!` na 3 modelach w `ProcessCaseSubmission` | **Potwierdzone** | `:28` (`DebuggingCase`), `:38` (`LogSource`), `:46` (`RedactionFinding`) | `rg '\.create!' process_case_submission.rb` → 3 |
+| V-08 | `redact_metadata` — N call-site'ów w jednej klasie | **Doprecyzowane → 5** | `:29`, `:30`, `:31`, `:32`, `:40` (raport: 4) | `ast-grep -p 'redact_metadata($$$)' app/` → 5 |
+| V-09 | `ProcessCaseSubmission` ~72 linie | **Potwierdzone** | 72 linie pliku | `wc -l process_case_submission.rb` |
+| V-10 | 5 commitów dotykających `process_case_submission.rb` | **Potwierdzone** | 5 commitów w historii | `git log --oneline -- process_case_submission.rb \| wc -l` → 5 |
+| V-11 | Zero same-commit co-change proc ↔ demo | **Potwierdzone** | Brak wspólnych commitów | `git log` + `git show --name-only` per commit proc → brak `load_case.rb` |
+| V-12 | `load_case.rb` — 1 commit w historii | **Potwierdzone** | `77b0291` | `git log --oneline -- load_case.rb \| wc -l` → 1 |
+| V-13 | `encrypts` tylko `customer_reference` / `sanitized_content`; metadata plain | **Potwierdzone** | `debugging_case.rb:5`, `log_source.rb:6`; brak `encrypts` na title/description/environment/name | `ast-grep -p 'encrypts $_' app/models/` → 4 wiersze (2 submission-path) |
+| V-14 | Gałąź `source.is_a?(Source)` w `normalize_sources` | **Potwierdzone** | `case_submission.rb:29` | `ast-grep -p 'source.is_a?(Source)' app/` → 1 |
+| V-15 | Zero `Source.new` / `CaseSubmission::Source` w `spec/` | **Potwierdzone** | Brak matchy | `rg 'Source\.new\|CaseSubmission::Source' spec/` → 0 |
+| V-16 | Zero przykładów `\r`/CRLF w `spec/` | **Potwierdzone** | Brak matchy | `rg '\\r\|/\\\\r' spec/` → 0 |
+| V-17 | Brak `spec/models/redaction_finding_spec.rb` | **Potwierdzone** | Plik nie istnieje | `glob redaction_finding_spec.rb` → 0 |
+| V-18 | `split(/\n/, -1)` w `Engine#redact` | **Potwierdzone** | `engine.rb:15` | `ast-grep -p 'split($$$)' engine.rb` → 0 (regex literal); `rg 'split\(/\\\\n/, -1\)' engine.rb` → 1 |
+| V-19 | `process_case_submission_spec.rb` — 12 examples | **Potwierdzone** | 12 bloków `it` | `rg '^\s+it ' process_case_submission_spec.rb` → 12 |
+| V-20 | `debugging_cases_security_spec.rb` — 10 examples | **Potwierdzone** | 10 bloków `it` | `rg '^\s+it ' debugging_cases_security_spec.rb` → 10 |
+| V-21 | 2 runtime callery `CaseSubmission.new` | **Potwierdzone** | `debugging_cases_controller.rb:29`, `load_case.rb:22` | `ast-grep -p 'Intake::CaseSubmission.new($$$)' app/` → 2 |
+
+**Wpływ na ranking:** Żaden werdykt nie podważa pozycji kandydatów #1–#3. V-08 (5 vs 4 call-site'y `redact_metadata`) wzmacnia argument za IMPL-1 (#2), nie osłabia — do decyzji na etapie planowania: czy ekstrakcja obejmuje wszystkie 5 wywołań jednym helperem.
+
+---
 
 ## Open Questions (for planning, not exploration)
 
