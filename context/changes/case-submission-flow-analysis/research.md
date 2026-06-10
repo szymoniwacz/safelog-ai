@@ -8,7 +8,8 @@ topic: "Case submission flow — POST create → Intake → Redaction → persis
 tags: [research, codebase, intake, redaction, debugging-cases, security-oracles, repo-map]
 status: complete
 last_updated: 2026-06-10
-last_updated_by: Composer
+last_updated_by: Composer (ast-grep verification, m4l3-2)
+ast_grep_version: 0.43.0
 ---
 
 # Research: Case submission flow analysis
@@ -32,7 +33,37 @@ Przepływ jest cienkim HTTP slice (`DebuggingCasesController#create`) delegując
 
 Security oracles (`spec/requests/debugging_cases_security_spec.rb`) są silne dla głównej ścieżki. Największe luki: brak testów rollbacku transakcji przy awarii `log_sources.create!` / `redaction_findings.create!` w pętli, brak weryfikacji `sources: nil`, brak testu strong params (mass assignment).
 
-Blast radius: ~27 plików runtime + testów; co-change z historii gita pokazuje, że każda zmiana intake/redaction ciągnie security spec i service spec w tym samym commicie.
+Blast radius: **31 plików** runtime + testów (bez 3 migracji); w historii gita `process_case_submission.rb` ma 5 commitów — **3** z nich dotyka też `debugging_cases_security_spec.rb` w tym samym commicie.
+
+---
+
+## AST-grep verification (m4l3-2)
+
+Weryfikacja twierdzeń strukturalnych z raportu (ast-grep 0.43.0, `-l ruby`, zakres `app/` / `spec/` o ile nie zaznaczono).
+
+| # | Twierdzenie | Werdykt | Dowód |
+|---|-------------|---------|-------|
+| V-01 | `Redaction::Engine.redact` — jedyny runtime caller to `ProcessCaseSubmission` | **Potwierdzone** (`app/`) | `process_case_submission.rb:36`, `:61` — jedyne 2 call-site'y w `app/` |
+| V-02 | `ProcessCaseSubmission.call` — 2 runtime callery | **Potwierdzone** | `debugging_cases_controller.rb:30`, `demo/load_case.rb:23` |
+| V-03 | `CaseSubmission.new` — 2 runtime callery | **Potwierdzone** | `debugging_cases_controller.rb:29`, `demo/load_case.rb:22` |
+| V-04 | `PlaceholderRegistry.new` — prod path tylko `process_case_submission.rb:23` | **Doprecyzowane** | Explicit prod: `:23`. Dodatkowo `engine.rb:5` — default arg `registry: PlaceholderRegistry.new` (używany gdy `redact` bez registry; w submission zawsze przekazywany registry). Spec: `engine_spec.rb:61`, `:71` |
+| V-05 | `DebuggingCase.transaction` — jeden blok w aplikacji | **Potwierdzone** | `process_case_submission.rb:27–49` |
+| V-06 | `redaction_findings.create!(finding)` — jeden call-site | **Potwierdzone** | `process_case_submission.rb:46` |
+| V-07 | `redact_metadata` — 4× metadata case + 1× per source w pętli | **Potwierdzone** | `:29–32` (4×), `:40` (1× w pętli; N× per source) |
+| V-08 | `Patterns::ALL` — 9 wzorców MVP | **Potwierdzone** | `patterns.rb:11–66` — 9 hashy w tablicy `ALL` |
+| V-09 | `Patterns::ALL` używany tylko w `Engine` | **Potwierdzone** | `engine.rb:28` — jedyne odniesienie w `app/` |
+| V-10 | Brak kolumn `raw_content` / `pasted_content` / `original_content` w schemacie | **Potwierdzone** | `db/schema.rb` — brak dopasowań |
+| V-11 | `encrypts` na submission path — `customer_reference`, `sanitized_content` | **Potwierdzone** | `debugging_case.rb:5`, `log_source.rb:6` |
+| V-12 | `process_case_submission_spec.rb` — 12 examples | **Potwierdzone** | 12 bloków `it` |
+| V-13 | `debugging_cases_security_spec.rb` — 9 kontekstów POST→show | **Obalone → 10** | 10 bloków `it`; wszystkie używają POST create, część testuje też analyze prompts |
+| V-14 | `assert_no_raw_substring_in_persisted_data` — 10+ użyć na submission path | **Doprecyzowane → 15** | 6× `debugging_cases_security_spec.rb` + 9× `process_case_submission_spec.rb` (poza zakresem submission: 2× `analyze_security_spec.rb`) |
+| V-15 | `SOURCE_SLOT_COUNT = 3` | **Potwierdzone** | `debugging_cases_helper.rb:4`; użycie w `new.html.erb:42` |
+| V-16 | Blast radius ~27 plików | **Doprecyzowane → 31** | Lista w § Blast radius (bez 3 migracji) |
+| V-17 | Git co-change proc ↔ security spec: 8 commitów | **Obalone → 3** | `process_case_submission.rb` ma 5 commitów w historii; 3 commity dotykają oba pliki w jednym diffie |
+| V-18 | Git co-change proc ↔ service spec: 7 commitów | **Obalone → 3** | Jak V-17 |
+| V-19 | `e2e/helpers.ts` fan-in 4 | **Potwierdzone** (import) | 4 specy importują `./helpers`: `authentication`, `debugging-case-flow`, `capture-submission-screenshots`, `demo-case` |
+| V-20 | `fillLogSourceSlot` fan-in 4 | **Obalone → 2** | Używany tylko w `debugging-case-flow.spec.ts`, `capture-submission-screenshots.spec.ts` (+ definicja w `helpers.ts`) |
+| V-21 | `Engine.redact` w specach przez `described_class.redact` | **Doprecyzowane** | 6 wywołań w `engine_spec.rb:13,49,62,63,73,77` — nie matchują wzorca `Redaction::Engine.redact` |
 
 ---
 
@@ -173,9 +204,9 @@ sequenceDiagram
 | Strefa repo-map §4 | Zastosowanie |
 |--------------------|--------------|
 | **#4 Intake + Redaction** | Core tego flow — „jedyny moment kontaktu z surowym paste" |
-| **#1 Security oracles** | `debugging_cases_security_spec.rb` — 9 kontekstów na POST→show |
+| **#1 Security oracles** | `debugging_cases_security_spec.rb` — 10 examples na POST create (część obejmuje też analyze) |
 | **#3 HTTP slice** | Controller + `new.html.erb` + routes — najciasniejszy co-change |
-| **#5 e2e/helpers.ts** | `fillLogSourceSlot` — fan-in 4, locator contract z view |
+| **#5 e2e/helpers.ts** | Import fan-in 4; `fillLogSourceSlot` fan-in 2 — locator contract z view |
 | **#2 AnalyzeCase** | Pośrednio — `PromptBuilder` czyta persisted `sanitized_content` i metadata |
 
 ---
@@ -231,7 +262,7 @@ sequenceDiagram
 | Encryption | `encryption_at_rest_spec.rb` | Raw SQL: `customer_reference`, `sanitized_content` = ciphertext |
 | System | `debugging_case_flow_spec.rb`, `debugging_case_validation_spec.rb` | Capybara happy + validation path |
 | E2E | `debugging-case-flow.spec.ts`, `capture-submission-screenshots.spec.ts` | Playwright happy path only |
-| Security oracle | `security_persistence_helpers.rb` | `assert_no_raw_substring_in_persisted_data` — 10+ użyć |
+| Security oracle | `security_persistence_helpers.rb` | `assert_no_raw_substring_in_persisted_data` — 15 wywołań na submission path (6 request + 9 service) |
 
 ### Security oracles — werdykt
 
@@ -266,7 +297,7 @@ sequenceDiagram
 
 ## Blast radius
 
-### Pliki MUST-change-together (~27)
+### Pliki MUST-change-together (31, bez migracji)
 
 **HTTP:** `routes.rb`, `debugging_cases_controller.rb`, `debugging_cases_helper.rb`, `new.html.erb`, `show.html.erb`, `_redaction_summary.html.erb`
 
@@ -286,18 +317,21 @@ sequenceDiagram
 
 | Symbol | Runtime callers |
 |--------|-----------------|
-| `ProcessCaseSubmission.call` | `debugging_cases_controller.rb:30`, `demo/load_case.rb:23` |
-| `Redaction::Engine.redact` | **Tylko** `process_case_submission.rb:36, 61` |
-| `PlaceholderRegistry.new` | `process_case_submission.rb:23` (prod path) |
+| `ProcessCaseSubmission.call` | `debugging_cases_controller.rb:30`, `demo/load_case.rb:23` (2× `app/`; +15 plików `spec/` jako setup factory) |
+| `Redaction::Engine.redact` | **Tylko** `process_case_submission.rb:36, 61` w `app/` (spec: `described_class.redact` w `engine_spec.rb`) |
+| `PlaceholderRegistry.new` | Explicit prod: `process_case_submission.rb:23`; implicit default: `engine.rb:5` (nieużywany gdy registry przekazany) |
 
 ### Git co-change (wzorce z historii)
 
 | Para plików | Commits razem | Wzorzec |
 |-------------|---------------|---------|
-| `process_case_submission.rb` ↔ `debugging_cases_security_spec.rb` | 8 | Każda zmiana intake → security oracle |
-| `process_case_submission.rb` ↔ `process_case_submission_spec.rb` | 7 | TDD slice |
-| `controller` ↔ `routes` + `new.html.erb` | 6–7 | HTTP vertical slice |
+| `process_case_submission.rb` ↔ `debugging_cases_security_spec.rb` | **3** same-commit (z 5 commitów pliku) | Zmiana intake często ciągnie security oracle |
+| `process_case_submission.rb` ↔ `process_case_submission_spec.rb` | **3** same-commit | TDD slice |
+| `controller` ↔ `routes` | **6** shared w historii | HTTP vertical slice |
+| `controller` ↔ `new.html.erb` | **2** shared w historii | Form + controller |
 | `process_case_submission.rb` ↔ `prompt_builder.rb` | 1 (`8b5af8d`) | Downstream analyze |
+
+> **Uwaga:** Wcześniejsze szacunki (8/7) były zawyżone — `process_case_submission.rb` istnieje w repo od ~5 commitów. Wspólna historia plików (niekoniecznie ten sam commit): proc ∩ security = 3, proc ∩ service_spec = 3.
 
 Oryginalny slice S-02 (3 fazy): engine → intake service → controller+views+routes+filter+request spec.
 
