@@ -144,6 +144,29 @@ RSpec.describe Intake::ProcessCaseSubmission do
       expect(result.debugging_case.environment).to be_blank
     end
 
+    it "redacts secrets in source name on persist" do
+      name_secret = "name-intake-#{SecureRandom.hex(4)}@secret.example"
+
+      submission = build_submission(
+        sources: [
+          {
+            source_type: "rails_log",
+            name: "Reporter #{name_secret}",
+            pasted_content: "Started GET /health"
+          }
+        ]
+      )
+
+      result = described_class.call(user: user, submission: submission)
+      expect(result).to be_success
+
+      log_source = result.debugging_case.log_sources.first
+      expect(log_source.name).to include("[EMAIL_1]")
+      expect(log_source.name).not_to include(name_secret)
+
+      assert_no_raw_substring_in_persisted_data(name_secret)
+    end
+
     it "redacts secrets in title and description metadata on persist" do
       title_secret = "title-intake-#{SecureRandom.hex(4)}@secret.example"
       description_secret = "desc-intake-#{SecureRandom.hex(4)}@secret.example"

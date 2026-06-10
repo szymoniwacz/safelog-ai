@@ -177,6 +177,48 @@ RSpec.describe "Debugging cases security (AGENTS.md guardrails)", type: :request
     end
   end
 
+  describe "source name redaction" do
+    let(:source_name_secret_email) { "src-name-#{SecureRandom.hex(4)}@secret.example" }
+    let(:fake_client) { Ai::FakeClient.new }
+
+    before do
+      allow(Ai::ClientResolver).to receive(:current).and_return(fake_client)
+      sign_in user
+      post debugging_cases_path, params: {
+        debugging_case: {
+          title: "Source name redaction case",
+          description: "Payment step hangs",
+          sources: [
+            {
+              source_type: "rails_log",
+              name: "Reporter #{source_name_secret_email}",
+              pasted_content: "Started GET /health"
+            }
+          ]
+        }
+      }
+      follow_redirect!
+    end
+
+    it "redacts secrets in source name on persist, show, and analyze prompts" do
+      debugging_case = DebuggingCase.last
+      log_source = debugging_case.log_sources.first
+
+      expect(log_source.name).to include("[EMAIL_1]")
+      expect(log_source.name).not_to include(source_name_secret_email)
+      expect(response.body).not_to include(source_name_secret_email)
+
+      assert_no_raw_substring_in_persisted_data(source_name_secret_email)
+
+      post analyze_debugging_case_path(debugging_case)
+      follow_redirect!
+
+      prompt = fake_client.last_request.messages.map { |message| message[:content] }.join("\n")
+      expect(prompt).to include("[EMAIL_1]")
+      expect(prompt).not_to include(source_name_secret_email)
+    end
+  end
+
   describe "validation failure safety" do
     it "does not re-render raw pasted content after a validation error (AGENTS.md)" do
       pasted_secret = "val-fail-#{SecureRandom.hex(4)}@secret.example"

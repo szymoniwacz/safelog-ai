@@ -37,7 +37,7 @@ module Intake
 
           log_source = debugging_case.log_sources.create!(
             source_type: source.source_type,
-            name: source.name,
+            name: redact_metadata(source.name, registry),
             position: index,
             sanitized_content: result.sanitized_text
           )

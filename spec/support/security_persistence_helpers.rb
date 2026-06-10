@@ -33,6 +33,7 @@ module SecurityPersistenceHelpers
     end
 
     LogSource.find_each do |log_source|
+      expect(log_source.name.to_s).not_to include(raw_substring)
       expect(log_source.sanitized_content.to_s).not_to include(raw_substring)
     end
 
