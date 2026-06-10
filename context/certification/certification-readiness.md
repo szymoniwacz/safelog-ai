@@ -14,10 +14,10 @@ scope: 10xDevs Builder + Architect + Champion
 | Badge | Modules | Verdict | Summary |
 |-------|---------|---------|---------|
 | **10xBuilder** | M1–M3 | **READY** | MVP shipped; 135 RSpec + system + Playwright; Fly.io live at https://safelog-ai.fly.dev/; submission screenshots captured; local `bin/ci` + remote GHA green on `main` (2026-06-09). |
-| **10xArchitect** | M4 | **IN PROGRESS** | M4L2–L4 complete (map, flow research, refactor ranking); pending Architect review, refactor implementation, modernization. |
+| **10xArchitect** | M4 | **IN PROGRESS** | M4L2–L5 complete (map, flow research, refactor ranking, domain distillation, invariant + ACL plans); pending Architect review, refactor **implementation**, modernization. |
 | **10xChampion** | M5 | **NOT STARTED** | No M5 prompts, automation workflows, or Champion review artifacts in repository. |
 
-**Overall:** Builder ready to submit. Architect **in progress** — M4L2–L4 exploration complete; review + refactor implementation pending. Champion not started.
+**Overall:** Builder ready to submit. Architect **in progress** — M4L2–L5 exploration and DDD planning complete; ranked refactor plans in `context/domain/`; review + code implementation pending. Champion not started.
 
 ---
 
@@ -35,7 +35,7 @@ flowchart LR
 | Phase | Goal | Remaining before final submission |
 |-------|------|-----------------------------------|
 | **Builder** | Working MVP + context + tests + CI + deploy | None — ready to submit |
-| **Architect** | Large-repo architecture literacy + evidence | M4L2–L4 exploration complete; remaining: Architect review, ranked refactor implementation, modernization |
+| **Architect** | Large-repo architecture literacy + evidence | M4L2–L5 complete (incl. domain distillation + refactor plans); remaining: Architect review, implement ranked refactors, modernization |
 | **Champion** | AI-assisted team workflow + automation | M5 exercises; CI/CD AI integration; automation evidence — **none in repo yet** |
 | **Final package** | One submission, three badges | All sections below populated; demo script; screenshots |
 
@@ -97,7 +97,7 @@ mise exec -- bin/dev                             # local demo
 
 ## 10xArchitect
 
-**Verdict: IN PROGRESS** — M4L2–L4 exploration complete; Architect review and refactor implementation pending.
+**Verdict: IN PROGRESS** — M4L2–L5 exploration and DDD planning complete; Architect review and refactor **implementation** pending.
 
 Module 4 course prompts:
 
@@ -111,6 +111,9 @@ Module 4 course prompts:
 | `.cursor/prompts/m4l4-1-new-change-intention.md` | `context/changes/refactor-opportunities/change.md` | **PASS** |
 | `.cursor/prompts/m4l4-2-refactor-opportunities-research.md` | `context/changes/refactor-opportunities/research.md` | **PASS** |
 | `.cursor/prompts/m4l4-3-ranking-ast-grep-verification.md` | § Weryfikacja twierdzeń in same research doc | **PASS** |
+| `.cursor/prompts/m4l5-1-domain-distillation.md` | `context/domain/01-domain-distillation.md` | **PASS** |
+| `.cursor/prompts/m4l5-2-invariant-aggregate-refactor.md` | `context/domain/02-invariant-aggregate-refactor.md` | **PASS** |
+| `.cursor/prompts/m4l5-3-anti-corruption-layer.md` | `context/domain/03-anti-corruption-layer.md` | **PASS** |
 
 ### Checklist (Module 4 outcomes — placeholders)
 
@@ -121,9 +124,12 @@ Module 4 course prompts:
 | Large-context workflows — targeted research with map | **PASS** | [`case-submission-flow-analysis/research.md`](../changes/case-submission-flow-analysis/research.md) (M4L3-1) |
 | Structural verification — ast-grep (flow analysis) | **PASS** | AST-grep section in case-submission research (M4L3-2) |
 | Refactoring exploration — ranked opportunities | **PASS** | [`refactor-opportunities/research.md`](../changes/refactor-opportunities/research.md) (M4L4-2); ast-grep verified (M4L4-3) |
-| Refactoring exercises — documented change | **TODO** | Exploration done (M4L4); ranked #1 TD-2 — plan + implement + impl-review not started |
+| Domain distillation — ubiquitous language, subdomains, aggregates | **PASS** | [`01-domain-distillation.md`](../domain/01-domain-distillation.md) (M4L5-1) |
+| Invariant analysis — aggregate guardian plan | **PASS** | [`02-invariant-aggregate-refactor.md`](../domain/02-invariant-aggregate-refactor.md) (M4L5-2) — INV-G1 / `SanitizedCaseDraft` |
+| Anti-corruption layer — AI adapter boundary plan | **PASS** | [`03-anti-corruption-layer.md`](../domain/03-anti-corruption-layer.md) (M4L5-3) — `HypothesisGenerator` port |
+| Refactoring exercises — documented change | **PARTIAL** | Structural ranking (M4L4: TD-2 #1) + DDD plans (M4L5); **code implementation + impl-review not started** |
 | Modernization work — evidence | **TODO** | Roadmap parked items (Postgres, observability) not started |
-| Architecture evidence — diagrams / boundaries | **PASS** | Mermaid + E2E SVG in map artifacts; Ruby boundaries in artifact-2 / repo-map |
+| Architecture evidence — diagrams / boundaries | **PASS** | Map artifacts + domain context diagram; redaction ⊥ AI boundary in artifact-2 / repo-map / domain distillation |
 | Review artifacts — Architect impl/plan review | **TODO** | No `context/reviews/*architect*` artifact |
 
 ### Evidence
@@ -138,6 +144,9 @@ Module 4 course prompts:
 | AST-grep verification (M4L3-2) | **PASS** | Same research doc — § AST-grep verification |
 | Refactor opportunities (M4L4-2) | **PASS** | [`context/changes/refactor-opportunities/research.md`](../changes/refactor-opportunities/research.md) — ranked TD-2, IMPL-1, TD-5 |
 | Ranking ast-grep verification (M4L4-3) | **PASS** | Same research doc — § Weryfikacja twierdzeń (ast-grep) |
+| Domain distillation (M4L5-1) | **PASS** | [`context/domain/01-domain-distillation.md`](../domain/01-domain-distillation.md) |
+| Invariant aggregate refactor plan (M4L5-2) | **PASS** | [`context/domain/02-invariant-aggregate-refactor.md`](../domain/02-invariant-aggregate-refactor.md) |
+| Anti-corruption layer plan (M4L5-3) | **PASS** | [`context/domain/03-anti-corruption-layer.md`](../domain/03-anti-corruption-layer.md) |
 | Architect review | **TODO** | `context/reviews/*architect*` |
 
 ---
@@ -171,7 +180,7 @@ Single packet for **Builder + Architect + Champion** when all badges are ready.
 
 | Artifact | Builder | Architect | Champion |
 |----------|---------|-----------|----------|
-| Project summary | README + PRD | [`repo-map.md`](../map/repo-map.md) TL;DR + links to foundation | TODO |
+| Project summary | README + PRD | [`repo-map.md`](../map/repo-map.md) TL;DR + [`context/domain/`](../domain/) DDD artifacts | TODO |
 | Demo script | See [Demo flow](#demo-flow) | TODO | TODO |
 | Screenshots | [`context/certification/screenshots/`](screenshots/) (7 PNGs, Fly 2026-06-09) | TODO | TODO |
 | Deployment URL | https://safelog-ai.fly.dev/ | Same URL + architecture notes | Same + automation proof |
@@ -254,8 +263,8 @@ PLAYWRIGHT_SKIP_WEBSERVER=1 PLAYWRIGHT_BASE_URL=https://safelog-ai.fly.dev \
 
 | Gap | Action |
 |-----|--------|
-| M4L4 exploration complete; implementation pending | Pick ranked opportunity (TD-2 #1); plan + implement + impl-review; Architect review when course prompts it |
-| No Architect review document | Run course Architect review workflow when M4 work ships |
+| M4L5 DDD plans complete; **code not changed** | Implement ranked refactors per plans: (1) intake aggregate [`02-invariant-aggregate-refactor.md`](../domain/02-invariant-aggregate-refactor.md) F1–F5; (2) AI ACL [`03-anti-corruption-layer.md`](../domain/03-anti-corruption-layer.md) F1–F6; structural TD-2/IMPL-1 from M4L4 aligns with intake plan |
+| No Architect review document | Run course Architect review workflow when refactor implementation ships |
 | No post-MVP modernization change | Pick from roadmap Parked or course exercise |
 
 ### Champion
@@ -275,5 +284,8 @@ PLAYWRIGHT_SKIP_WEBSERVER=1 PLAYWRIGHT_BASE_URL=https://safelog-ai.fly.dev \
 | `context/reviews/m1-m3-builder-readiness-review.md` | Point-in-time Builder audit (2026-06-09) |
 | `context/reviews/m1-m3-final-impl-review.md` | Six-dimension Builder impl-review |
 | `context/reviews/builder-certification-submission-checklist.md` | **Superseded** — merged here; kept for link stability |
+| `context/domain/01-domain-distillation.md` | M4L5-1 — ubiquitous language, subdomains, MODEL vs CODE gaps |
+| `context/domain/02-invariant-aggregate-refactor.md` | M4L5-2 — INV-G1 aggregate guardian plan (plans only) |
+| `context/domain/03-anti-corruption-layer.md` | M4L5-3 — AI adapter ACL plan (plans only) |
 
 **Maintenance:** After each module milestone, update the badge section and [Current Status](#current-status). Archive point-in-time reviews under `context/reviews/`; do not fork multiple living checklists.
