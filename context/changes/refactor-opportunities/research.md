@@ -8,7 +8,7 @@ topic: "Refactor opportunities — which structural problems to fix, in what ord
 tags: [research, refactor, technical-debt, intake, redaction, structural-debt]
 status: complete
 last_updated: 2026-06-10
-last_updated_by: Composer (m4l4-2 exploration)
+last_updated_by: Composer (m4l4-2 /10x-research)
 source_analysis: context/changes/case-submission-flow-analysis/research.md
 ---
 
@@ -26,6 +26,18 @@ source_analysis: context/changes/case-submission-flow-analysis/research.md
 Which problems documented in the case-submission-flow analysis are **structural refactor candidates** (fix changes code shape, not just tests or docs)? For each candidate: current shape, intentionality verdict, migration feasibility — then rank the 2–3 strongest opportunities with trade-offs for a separate planning session.
 
 **Hard boundary:** exploration only — no code changes, no implementation decisions.
+
+## Summary
+
+Source analysis [`case-submission-flow-analysis/research.md`](../case-submission-flow-analysis/research.md) documents 10 technical-debt items (TD-1–TD-10), 15 test gaps (G-01–G-15), and 3 open questions on the intake→redaction→persist path. Of **27 distinct problems**, **6 are structural refactor candidates** (TD-2, TD-5, TD-7, TD-10, IMPL-1, G-05); the rest are test, documentation, or product-scope gaps.
+
+**Ranked refactor opportunities (proposal for planning):**
+
+1. **TD-2** — explicit finding persist boundary (lowest change cost, highest leverage before extending findings)
+2. **IMPL-1** — extract `redact_metadata` + persist object from `ProcessCaseSubmission` (composes with TD-2; enables rollback specs)
+3. **TD-5** — CRLF normalization in `Engine` (low blast radius; real-world paste correctness)
+
+Rejected for refactor ranking: TD-7 (product decision), TD-10 facade (doc-only suffices), G-05 (trivial dead code), OQ-3 (validation feature).
 
 ---
 
@@ -51,12 +63,35 @@ Every problem from the source analysis, classified as **CANDIDATE** (structural 
 | G-02 | Rollback when `redaction_findings.create!` fails | NON-CANDIDATE | Test gap (feeds TD-1) |
 | G-03 | `sources: nil` path unverified | NON-CANDIDATE | Test gap |
 | G-04 | Mass assignment test | NON-CANDIDATE | Test gap (feeds TD-4) |
-| G-06–G-15 | Remaining test gaps | NON-CANDIDATE | Test/documentation gaps |
+| G-06 | Multiple invalid source types in one submission | NON-CANDIDATE | Test gap |
+| G-07 | Windows `\r\n` line endings in `Engine` | NON-CANDIDATE | Test gap (same underlying issue as TD-5 candidate) |
+| G-08 | No regression spec for standalone `sk-xxx` pattern gap | NON-CANDIDATE | Test gap (feeds TD-6) |
+| G-09 | `position` values (0, 1, …) not asserted explicitly | NON-CANDIDATE | Test gap |
+| G-10 | Plaintext columns — no baseline encryption audit | NON-CANDIDATE | Test gap (feeds TD-7 product question) |
+| G-11 | Multiple patterns on one line — not tested in `Engine` | NON-CANDIDATE | Test gap |
+| G-12 | No `spec/models/redaction_finding_spec.rb` | NON-CANDIDATE | Test gap (feeds TD-2 contract spec) |
+| G-13 | Empty/nil input to `Engine.redact` | NON-CANDIDATE | Test gap |
+| G-14 | E2E: no validation-failure path | NON-CANDIDATE | Test gap (feeds TD-8) |
+| G-15 | E2E: always 3 slots, no single-source | NON-CANDIDATE | Test gap (feeds TD-8) |
 | OQ-1 | Normalize `\r\n` vs document? | NON-CANDIDATE | Decision input for TD-5 |
 | OQ-2 | Encrypt plaintext metadata post-MVP? | NON-CANDIDATE | Product/threat-model input for TD-7 |
 | OQ-3 | Limit `pasted_content` size | NON-CANDIDATE | Validation feature, not structural refactor |
 
-**Structural candidates (7):** TD-2, TD-5, TD-7, TD-10, IMPL-1, G-05 — plus TD-10 facade variant counted under TD-10.
+**Structural candidates (6):** TD-2, TD-5, TD-7, TD-10, IMPL-1, G-05.
+
+### CI safeguards (refactor regression gates)
+
+All ranked opportunities must stay green through `bin/ci` (`config/ci.rb`, mirrored in `.github/workflows/ci.yml`):
+
+| Gate | Command | Relevance to candidates |
+|------|---------|---------------------------|
+| Style | `bin/rubocop` | New service files (IMPL-1, TD-2 mapper) |
+| Gem audit | `bin/bundler-audit` | No new deps expected |
+| Importmap audit | `bin/importmap audit` | N/A — backend-only refactors |
+| Brakeman | `bin/brakeman --exit-on-warn` | Mass-assignment / strong-params unchanged unless TD-4 addressed separately |
+| RSpec full suite | `bundle exec rspec` | Primary safety net — `process_case_submission_spec.rb` (12 ex.), `debugging_cases_security_spec.rb` (10 ex.), `engine_spec.rb`, `encryption_at_rest_spec.rb`, `load_case_spec.rb` |
+
+E2E (`bin/e2e`) is **not** in `bin/ci` — TD-5/IMPL-1 changes unlikely to need Playwright unless form locators change. Security oracles in request/service specs are the mandatory pre-merge gate for intake refactors.
 
 ---
 
