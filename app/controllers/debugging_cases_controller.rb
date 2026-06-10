@@ -98,6 +98,8 @@ class DebuggingCasesController < AuthenticatedController
     )
   end
 
+  # Re-populates case metadata only. Pasted log content is intentionally omitted on
+  # validation failure — raw logs must not be re-rendered in HTML (AGENTS.md).
   def assign_safe_metadata_for_form
     permitted = case_submission_params
     @title = permitted[:title]

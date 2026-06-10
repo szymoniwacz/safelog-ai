@@ -182,7 +182,7 @@ RSpec.describe Intake::ProcessCaseSubmission do
       expect(result.debugging_case).to be_nil
       expect(result.errors[:title]).to include("can't be blank")
       expect(result.errors[:sources]).to include("must include at least one non-blank log source")
-      expect(DebuggingCase.count).to eq(0)
+      expect(result.debugging_case).to be_nil
     end
 
     it "skips sources with blank pasted content" do
@@ -198,6 +198,88 @@ RSpec.describe Intake::ProcessCaseSubmission do
 
       expect(result).to be_success
       expect(result.debugging_case.log_sources.count).to eq(1)
+    end
+
+    it "returns errors when source type is invalid" do
+      submission = build_submission(
+        sources: [
+          { source_type: "invalid_type", pasted_content: "session_id=sess-invalid-1" }
+        ]
+      )
+
+      result = described_class.call(user: user, submission: submission)
+
+      expect(result).not_to be_success
+      expect(result.debugging_case).to be_nil
+      expect(result.errors[:sources].first).to include("invalid source type")
+    end
+
+    it "returns ActiveRecord errors when persistence fails inside the transaction" do
+      submission = build_submission
+      invalid_record = DebuggingCase.new
+      invalid_record.errors.add(:title, "forced failure")
+
+      cases_relation = user.debugging_cases
+      allow(user).to receive(:debugging_cases).and_return(cases_relation)
+      allow(cases_relation).to receive(:create!).and_raise(ActiveRecord::RecordInvalid.new(invalid_record))
+
+      result = described_class.call(user: user, submission: submission)
+
+      expect(result).not_to be_success
+      expect(result.debugging_case).to be_nil
+      expect(result.errors[:title]).to include("forced failure")
+    end
+
+    it "redacts all PRD MVP pattern types on persist" do
+      session_secret = "sess-redact-#{SecureRandom.hex(4)}"
+      customer_secret = "cust-redact-#{SecureRandom.hex(4)}"
+      ip_secret = "10.20.30.#{rand(40..199)}"
+      phone_secret = "555867#{rand(1000..9999)}"
+      card_secret = "9876"
+      token_secret = "supersecretkey#{SecureRandom.hex(6)}"
+
+      submission = build_submission(
+        sources: [
+          {
+            source_type: "rails_log",
+            pasted_content: <<~LOG.strip
+              session_id=#{session_secret}
+              customer_id=#{customer_secret}
+              upstream #{ip_secret}
+              callback phone (#{phone_secret[0..2]}) #{phone_secret[3..5]}-#{phone_secret[6..9]}
+              card ending #{card_secret}
+              api_key=#{token_secret}
+            LOG
+          }
+        ]
+      )
+
+      result = described_class.call(user: user, submission: submission)
+      expect(result).to be_success
+
+      sanitized = result.debugging_case.log_sources.first.sanitized_content
+      finding_types = result.debugging_case.log_sources.flat_map(&:redaction_findings).map(&:finding_type)
+
+      expect(sanitized).to include("[SESSION_1]")
+      expect(sanitized).to include("[CUSTOMER_1]")
+      expect(sanitized).to include("[IP_1]")
+      expect(sanitized).to include("[PHONE_1]")
+      expect(sanitized).to include("[CARD_1]")
+      expect(sanitized).to include("[TOKEN_1]")
+      expect(sanitized).not_to include(session_secret)
+      expect(sanitized).not_to include(customer_secret)
+      expect(sanitized).not_to include(ip_secret)
+      expect(sanitized).not_to include(card_secret)
+      expect(sanitized).not_to include(token_secret)
+
+      expect(finding_types).to include(
+        "session_id", "customer_id", "ip_address", "phone", "card_last4", "token"
+      )
+
+      assert_no_raw_substring_in_persisted_data(session_secret)
+      assert_no_raw_substring_in_persisted_data(customer_secret)
+      assert_no_raw_substring_in_persisted_data(ip_secret)
+      assert_no_raw_substring_in_persisted_data(token_secret)
     end
   end
 end

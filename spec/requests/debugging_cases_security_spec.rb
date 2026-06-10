@@ -148,6 +148,54 @@ RSpec.describe "Debugging cases security (AGENTS.md guardrails)", type: :request
     end
   end
 
+  describe "customer_reference metadata redaction" do
+    let(:customer_reference_secret_email) { "cust-ref-#{SecureRandom.hex(4)}@secret.example" }
+
+    before do
+      sign_in user
+      post debugging_cases_path, params: {
+        debugging_case: {
+          title: "Customer reference redaction case",
+          description: "Payment step hangs",
+          customer_reference: "Contact #{customer_reference_secret_email}",
+          sources: [
+            { source_type: "rails_log", pasted_content: "Started GET /health" }
+          ]
+        }
+      }
+      follow_redirect!
+    end
+
+    it "redacts secrets in customer_reference on persist and show" do
+      debugging_case = DebuggingCase.last
+
+      expect(debugging_case.customer_reference).to include("[EMAIL_1]")
+      expect(debugging_case.customer_reference).not_to include(customer_reference_secret_email)
+      expect(response.body).not_to include(customer_reference_secret_email)
+
+      assert_no_raw_substring_in_persisted_data(customer_reference_secret_email)
+    end
+  end
+
+  describe "validation failure safety" do
+    it "does not re-render raw pasted content after a validation error (AGENTS.md)" do
+      pasted_secret = "val-fail-#{SecureRandom.hex(4)}@secret.example"
+
+      sign_in user
+      post debugging_cases_path, params: {
+        debugging_case: {
+          title: "",
+          sources: [
+            { source_type: "rails_log", pasted_content: pasted_secret }
+          ]
+        }
+      }
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).not_to include(pasted_secret)
+    end
+  end
+
   describe "environment metadata redaction" do
     let(:environment_secret_email) { "env-meta-#{SecureRandom.hex(4)}@secret.example" }
     let(:fake_client) { Ai::FakeClient.new }

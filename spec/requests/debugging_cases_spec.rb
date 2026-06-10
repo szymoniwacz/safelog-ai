@@ -62,6 +62,72 @@ RSpec.describe "Debugging cases", type: :request do
       expect(response.body).to include("[EMAIL_1]")
       expect(response.body).not_to include(secret_email)
     end
+
+    it "re-renders new with 422 when title is blank" do
+      sign_in user
+
+      post debugging_cases_path, params: submission_params.deep_merge(
+        debugging_case: { title: "" }
+      )
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include("New debugging case")
+      expect(response.body).to include("Title can&#39;t be blank")
+    end
+
+    it "re-renders new with 422 when source type is invalid" do
+      sign_in user
+
+      post debugging_cases_path, params: submission_params.deep_merge(
+        debugging_case: {
+          sources: [
+            { source_type: "invalid_type", pasted_content: "session_id=sess-http-1" }
+          ]
+        }
+      )
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include("invalid source type")
+    end
+
+    it "preserves metadata fields on validation failure" do
+      sign_in user
+
+      post debugging_cases_path, params: {
+        debugging_case: {
+          title: "Metadata preserve case",
+          description: "Reporter notes",
+          customer_reference: "Ticket #999",
+          environment: "staging",
+          sources: [
+            { source_type: "rails_log", pasted_content: "" }
+          ]
+        }
+      }
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include('value="Metadata preserve case"')
+      expect(response.body).to include("Reporter notes")
+      expect(response.body).to include('value="Ticket #999"')
+      expect(response.body).to include('value="staging"')
+    end
+
+    it "does not re-render pasted content on validation failure" do
+      sign_in user
+      pasted_secret = "paste-#{SecureRandom.hex(4)}@secret.example"
+
+      post debugging_cases_path, params: {
+        debugging_case: {
+          title: "Pasted content safety case",
+          sources: [
+            { source_type: "invalid_type", pasted_content: pasted_secret }
+          ]
+        }
+      }
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).not_to include(pasted_secret)
+    end
   end
 
   describe "GET /debugging_cases/:id" do

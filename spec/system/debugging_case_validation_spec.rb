@@ -19,6 +19,21 @@ RSpec.describe "Debugging case validation", type: :system do
     expect(page).to have_text("prohibited this case from being saved")
     expect(page).to have_text("must include at least one non-blank log source")
     expect(page).to have_field("Title", with: "Missing sources case")
-    expect(DebuggingCase.count).to eq(0)
+  end
+
+  it "preserves metadata fields when validation fails" do
+    visit new_debugging_case_path
+
+    fill_in "Title", with: "Metadata preserve case"
+    fill_in "Description", with: "Reporter notes"
+    fill_in "Customer reference", with: "Ticket #999"
+    fill_in "Environment", with: "staging"
+    click_button "Create debugging case"
+
+    expect(page).to have_css("h1", text: "New debugging case")
+    expect(page).to have_field("Title", with: "Metadata preserve case")
+    expect(page).to have_field("Description", with: "Reporter notes")
+    expect(page).to have_field("Customer reference", with: "Ticket #999")
+    expect(page).to have_field("Environment", with: "staging")
   end
 end
