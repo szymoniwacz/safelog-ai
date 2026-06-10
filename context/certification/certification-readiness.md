@@ -1,6 +1,6 @@
 ---
 project: SafeLog AI
-updated: 2026-06-09
+updated: 2026-06-10
 scope: 10xDevs Builder + Architect + Champion
 ---
 
@@ -14,10 +14,10 @@ scope: 10xDevs Builder + Architect + Champion
 | Badge | Modules | Verdict | Summary |
 |-------|---------|---------|---------|
 | **10xBuilder** | M1–M3 | **READY** | MVP shipped; 135 RSpec + system + Playwright; Fly.io live at https://safelog-ai.fly.dev/; submission screenshots captured; local `bin/ci` + remote GHA green on `main` (2026-06-09). |
-| **10xArchitect** | M4 | **IN PROGRESS** | M4L2 map workflow done — [`repo-map.md`](../map/repo-map.md) + artifacts 1–3; pending Architect review, refactoring/modernization exercise. |
+| **10xArchitect** | M4 | **IN PROGRESS** | M4L2 map + M4L3 case-submission research/ast-grep done; pending Architect review, refactoring/modernization exercise. |
 | **10xChampion** | M5 | **NOT STARTED** | No M5 prompts, automation workflows, or Champion review artifacts in repository. |
 
-**Overall:** Builder ready to submit. Architect **in progress** — M4 repo map complete; review + exercises pending. Champion not started.
+**Overall:** Builder ready to submit. Architect **in progress** — M4L2 map + M4L3 research complete; review + exercises pending. Champion not started.
 
 ---
 
@@ -35,7 +35,7 @@ flowchart LR
 | Phase | Goal | Remaining before final submission |
 |-------|------|-----------------------------------|
 | **Builder** | Working MVP + context + tests + CI + deploy | None — ready to submit |
-| **Architect** | Large-repo architecture literacy + evidence | Repo map complete; remaining: Architect review, refactoring/modernization exercise |
+| **Architect** | Large-repo architecture literacy + evidence | M4L2 map + M4L3 research complete; remaining: Architect review, refactoring/modernization exercise |
 | **Champion** | AI-assisted team workflow + automation | M5 exercises; CI/CD AI integration; automation evidence — **none in repo yet** |
 | **Final package** | One submission, three badges | All sections below populated; demo script; screenshots |
 
@@ -97,7 +97,7 @@ mise exec -- bin/dev                             # local demo
 
 ## 10xArchitect
 
-**Verdict: IN PROGRESS** — repo map synthesis complete; Architect review and M4 exercises pending.
+**Verdict: IN PROGRESS** — M4L2 map + M4L3 research complete; Architect review and refactoring/modernization exercises pending.
 
 Module 4 course prompts exist (repo map / large-context workflow):
 
@@ -106,6 +106,8 @@ Module 4 course prompts exist (repo map / large-context workflow):
 | `.cursor/prompts/m4l2-1-territory-git-history.md` | `context/map/artifact-1-territory.md` | **PASS** |
 | `.cursor/prompts/m4l2-2-structure-dependency-cruiser.md` | `context/map/artifact-2-structure.md` | **PASS** |
 | `.cursor/prompts/m4l2-repo-map-synthesis.md` | `context/map/repo-map.md` | **PASS** |
+| `.cursor/prompts/m4l3-1-research-with-map.md` | `context/archive/2026-06-10-case-submission-flow-analysis/research.md` | **PASS** |
+| `.cursor/prompts/m4l3-2-ast-grep-verification.md` | AST-grep verification in same research doc | **PASS** |
 
 ### Checklist (Module 4 outcomes — placeholders)
 
@@ -113,6 +115,8 @@ Module 4 course prompts exist (repo map / large-context workflow):
 |------|--------|-------|
 | Architecture work — repo map / territory analysis | **PASS** | [`repo-map.md`](../map/repo-map.md) + artifacts 1–3 |
 | Large-context workflows — map synthesis | **PASS** | [`repo-map.md`](../map/repo-map.md) synthesizes territory, structure, contributors |
+| Large-context workflows — targeted research with map | **PASS** | [`research.md`](../archive/2026-06-10-case-submission-flow-analysis/research.md) (M4L3-1) |
+| Structural verification — ast-grep | **PASS** | AST-grep section in same research doc (M4L3-2) |
 | Refactoring exercises — documented change | **TODO** | Post-MVP refactors not opened as M4 changes |
 | Modernization work — evidence | **TODO** | Roadmap parked items (Postgres, observability) not started |
 | Architecture evidence — diagrams / boundaries | **PASS** | Mermaid + E2E SVG in map artifacts; Ruby boundaries in artifact-2 / repo-map |
@@ -126,6 +130,8 @@ Module 4 course prompts exist (repo map / large-context workflow):
 | Structure map (M4L2-2) | **PASS** | [`context/map/artifact-2-structure.md`](../map/artifact-2-structure.md) |
 | Contributors map | **PASS** | [`context/map/artifact-3-contributors.md`](../map/artifact-3-contributors.md) |
 | Repo map synthesis | **PASS** | [`context/map/repo-map.md`](../map/repo-map.md) |
+| Case submission flow research (M4L3-1) | **PASS** | [`context/archive/2026-06-10-case-submission-flow-analysis/research.md`](../archive/2026-06-10-case-submission-flow-analysis/research.md) |
+| AST-grep verification (M4L3-2) | **PASS** | Same research doc — § AST-grep verification |
 | Architect review | **TODO** | `context/reviews/*architect*` |
 
 ---
@@ -242,7 +248,7 @@ PLAYWRIGHT_SKIP_WEBSERVER=1 PLAYWRIGHT_BASE_URL=https://safelog-ai.fly.dev \
 
 | Gap | Action |
 |-----|--------|
-| M4 map workflow incomplete | Run Architect review; optional refactoring/modernization change |
+| M4L3 research complete; review + refactor pending | Run Architect review; optional refactoring/modernization change |
 | No Architect review document | Run course Architect review workflow when M4 work ships |
 | No post-MVP modernization change | Pick from roadmap Parked or course exercise |
 
