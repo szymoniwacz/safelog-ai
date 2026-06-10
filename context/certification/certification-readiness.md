@@ -14,10 +14,10 @@ scope: 10xDevs Builder + Architect + Champion
 | Badge | Modules | Verdict | Summary |
 |-------|---------|---------|---------|
 | **10xBuilder** | M1–M3 | **READY** | MVP shipped; 135 RSpec + system + Playwright; Fly.io live at https://safelog-ai.fly.dev/; submission screenshots captured; local `bin/ci` + remote GHA green on `main` (2026-06-09). |
-| **10xArchitect** | M4 | **IN PROGRESS** | M4L2 map + M4L3 case-submission research/ast-grep done; pending Architect review, refactoring/modernization exercise. |
+| **10xArchitect** | M4 | **IN PROGRESS** | M4L2–L4 complete (map, flow research, refactor ranking); pending Architect review, refactor implementation, modernization. |
 | **10xChampion** | M5 | **NOT STARTED** | No M5 prompts, automation workflows, or Champion review artifacts in repository. |
 
-**Overall:** Builder ready to submit. Architect **in progress** — M4L2 map + M4L3 research complete; review + exercises pending. Champion not started.
+**Overall:** Builder ready to submit. Architect **in progress** — M4L2–L4 exploration complete; review + refactor implementation pending. Champion not started.
 
 ---
 
@@ -35,7 +35,7 @@ flowchart LR
 | Phase | Goal | Remaining before final submission |
 |-------|------|-----------------------------------|
 | **Builder** | Working MVP + context + tests + CI + deploy | None — ready to submit |
-| **Architect** | Large-repo architecture literacy + evidence | M4L2 map + M4L3 research complete; remaining: Architect review, refactoring/modernization exercise |
+| **Architect** | Large-repo architecture literacy + evidence | M4L2–L4 exploration complete; remaining: Architect review, ranked refactor implementation, modernization |
 | **Champion** | AI-assisted team workflow + automation | M5 exercises; CI/CD AI integration; automation evidence — **none in repo yet** |
 | **Final package** | One submission, three badges | All sections below populated; demo script; screenshots |
 
@@ -97,17 +97,20 @@ mise exec -- bin/dev                             # local demo
 
 ## 10xArchitect
 
-**Verdict: IN PROGRESS** — M4L2 map + M4L3 research complete; Architect review and refactoring/modernization exercises pending.
+**Verdict: IN PROGRESS** — M4L2–L4 exploration complete; Architect review and refactor implementation pending.
 
-Module 4 course prompts exist (repo map / large-context workflow):
+Module 4 course prompts:
 
 | Prompt | Expected artifact | Status |
 |--------|-------------------|--------|
 | `.cursor/prompts/m4l2-1-territory-git-history.md` | `context/map/artifact-1-territory.md` | **PASS** |
 | `.cursor/prompts/m4l2-2-structure-dependency-cruiser.md` | `context/map/artifact-2-structure.md` | **PASS** |
 | `.cursor/prompts/m4l2-repo-map-synthesis.md` | `context/map/repo-map.md` | **PASS** |
-| `.cursor/prompts/m4l3-1-research-with-map.md` | `context/archive/2026-06-10-case-submission-flow-analysis/research.md` | **PASS** |
+| `.cursor/prompts/m4l3-1-research-with-map.md` | `context/changes/case-submission-flow-analysis/research.md` | **PASS** |
 | `.cursor/prompts/m4l3-2-ast-grep-verification.md` | AST-grep verification in same research doc | **PASS** |
+| `.cursor/prompts/m4l4-1-new-change-intention.md` | `context/changes/refactor-opportunities/change.md` | **PASS** |
+| `.cursor/prompts/m4l4-2-refactor-opportunities-research.md` | `context/changes/refactor-opportunities/research.md` | **PASS** |
+| `.cursor/prompts/m4l4-3-ranking-ast-grep-verification.md` | § Weryfikacja twierdzeń in same research doc | **PASS** |
 
 ### Checklist (Module 4 outcomes — placeholders)
 
@@ -115,9 +118,10 @@ Module 4 course prompts exist (repo map / large-context workflow):
 |------|--------|-------|
 | Architecture work — repo map / territory analysis | **PASS** | [`repo-map.md`](../map/repo-map.md) + artifacts 1–3 |
 | Large-context workflows — map synthesis | **PASS** | [`repo-map.md`](../map/repo-map.md) synthesizes territory, structure, contributors |
-| Large-context workflows — targeted research with map | **PASS** | [`research.md`](../archive/2026-06-10-case-submission-flow-analysis/research.md) (M4L3-1) |
-| Structural verification — ast-grep | **PASS** | AST-grep section in same research doc (M4L3-2) |
-| Refactoring exercises — documented change | **TODO** | Post-MVP refactors not opened as M4 changes |
+| Large-context workflows — targeted research with map | **PASS** | [`case-submission-flow-analysis/research.md`](../changes/case-submission-flow-analysis/research.md) (M4L3-1) |
+| Structural verification — ast-grep (flow analysis) | **PASS** | AST-grep section in case-submission research (M4L3-2) |
+| Refactoring exploration — ranked opportunities | **PASS** | [`refactor-opportunities/research.md`](../changes/refactor-opportunities/research.md) (M4L4-2); ast-grep verified (M4L4-3) |
+| Refactoring exercises — documented change | **TODO** | Exploration done (M4L4); ranked #1 TD-2 — plan + implement + impl-review not started |
 | Modernization work — evidence | **TODO** | Roadmap parked items (Postgres, observability) not started |
 | Architecture evidence — diagrams / boundaries | **PASS** | Mermaid + E2E SVG in map artifacts; Ruby boundaries in artifact-2 / repo-map |
 | Review artifacts — Architect impl/plan review | **TODO** | No `context/reviews/*architect*` artifact |
@@ -130,8 +134,10 @@ Module 4 course prompts exist (repo map / large-context workflow):
 | Structure map (M4L2-2) | **PASS** | [`context/map/artifact-2-structure.md`](../map/artifact-2-structure.md) |
 | Contributors map | **PASS** | [`context/map/artifact-3-contributors.md`](../map/artifact-3-contributors.md) |
 | Repo map synthesis | **PASS** | [`context/map/repo-map.md`](../map/repo-map.md) |
-| Case submission flow research (M4L3-1) | **PASS** | [`context/archive/2026-06-10-case-submission-flow-analysis/research.md`](../archive/2026-06-10-case-submission-flow-analysis/research.md) |
+| Case submission flow research (M4L3-1) | **PASS** | [`context/changes/case-submission-flow-analysis/research.md`](../changes/case-submission-flow-analysis/research.md) |
 | AST-grep verification (M4L3-2) | **PASS** | Same research doc — § AST-grep verification |
+| Refactor opportunities (M4L4-2) | **PASS** | [`context/changes/refactor-opportunities/research.md`](../changes/refactor-opportunities/research.md) — ranked TD-2, IMPL-1, TD-5 |
+| Ranking ast-grep verification (M4L4-3) | **PASS** | Same research doc — § Weryfikacja twierdzeń (ast-grep) |
 | Architect review | **TODO** | `context/reviews/*architect*` |
 
 ---
@@ -248,7 +254,7 @@ PLAYWRIGHT_SKIP_WEBSERVER=1 PLAYWRIGHT_BASE_URL=https://safelog-ai.fly.dev \
 
 | Gap | Action |
 |-----|--------|
-| M4L3 research complete; review + refactor pending | Run Architect review; optional refactoring/modernization change |
+| M4L4 exploration complete; implementation pending | Pick ranked opportunity (TD-2 #1); plan + implement + impl-review; Architect review when course prompts it |
 | No Architect review document | Run course Architect review workflow when M4 work ships |
 | No post-MVP modernization change | Pick from roadmap Parked or course exercise |
 
