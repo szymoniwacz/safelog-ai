@@ -44,5 +44,11 @@
 # Cursor hook runtime state (per-conversation QA failures).
 /.cursor/hooks/state/
 
+# 10xDevs course skills — local only (installed via 10x-cli, never commit).
+/.cursor/skills/
+/.cursor/rules/
+/.cursor/prompts/
+/.cursor/.10x-cli-manifest.json
+
 # Ignore key files for decrypting credentials and more.
 /config/*.key
