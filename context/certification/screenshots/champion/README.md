@@ -1,27 +1,49 @@
 # Champion submission screenshots (M5 CI code review)
 
-Captured from GitHub on 2026-06-18 via Playwright (`e2e/capture-champion-screenshots.spec.ts`).
+Captured from GitHub via Playwright (`e2e/capture-champion-screenshots.spec.ts`).
+
+## Fail scenario (intentional security issues)
+
+Branch `test/ai-code-review-workflow` → [PR #11](https://github.com/szymoniwacz/safelog-ai/pull/11)
 
 | File | Step |
 |------|------|
-| `01-pr-ai-review-comment.png` | [PR #11](https://github.com/szymoniwacz/safelog-ai/pull/11) — AI code review bot comment (verdict **fail**, label `ai-cr:failed`) |
-| `02-actions-workflow-run.png` | [Workflow run 27760320185](https://github.com/szymoniwacz/safelog-ai/actions/runs/27760320185) — **AI Code Review** job summary |
-| `03-actions-job-logs.png` | [Job 82132673336](https://github.com/szymoniwacz/safelog-ai/actions/runs/27760320185/job/82132673336) — all steps expanded; log lines from `gh run view` (GitHub UI hides log text without browser session) |
+| `01-pr-ai-review-comment-fail.png` | Bot comment — verdict **fail**, label `ai-cr:failed` |
+| `02-actions-workflow-run-fail.png` | [Run 27760320185](https://github.com/szymoniwacz/safelog-ai/actions/runs/27760320185) |
+| `03-actions-job-logs-fail.png` | [Job 82132673336](https://github.com/szymoniwacz/safelog-ai/actions/runs/27760320185/job/82132673336) — all steps expanded |
 
-Test PR branch: `test/ai-code-review-workflow` → `main` (intentional security issues for review validation).
+## Pass scenario (legitimate feature PR)
+
+Branch `feature/case-index-analysis-status` → [PR #12](https://github.com/szymoniwacz/safelog-ai/pull/12)
+
+| File | Step |
+|------|------|
+| `04-pr-ai-review-comment-pass.png` | Bot comment — verdict **pass**, label `ai-cr:passed` |
+| `05-actions-workflow-run-pass.png` | [Run 27763104255](https://github.com/szymoniwacz/safelog-ai/actions/runs/27763104255) |
+| `06-actions-job-logs-pass.png` | [Job 82142437908](https://github.com/szymoniwacz/safelog-ai/actions/runs/27763104255/job/82142437908) — all steps expanded |
+
+Job log screenshots (`03`, `06`) expand every step and fill log panes from `gh run view <run-id> --log` (GitHub UI hides log text without a browser session).
 
 ## Re-capture
 
 ```bash
+# All scenarios (fail + pass; requires `gh auth login` for job logs):
 PLAYWRIGHT_SKIP_WEBSERVER=1 \
 PLAYWRIGHT_CAPTURE_SCREENSHOTS=1 \
 npx playwright test e2e/capture-champion-screenshots.spec.ts
 
-# Job logs only (faster; requires `gh auth login`):
+# Pass only (PR #12):
+PLAYWRIGHT_SKIP_WEBSERVER=1 \
+PLAYWRIGHT_CAPTURE_SCREENSHOTS=1 \
+PLAYWRIGHT_CAPTURE_SCENARIO=pass \
+npx playwright test e2e/capture-champion-screenshots.spec.ts
+
+# Job logs only:
 PLAYWRIGHT_SKIP_WEBSERVER=1 \
 PLAYWRIGHT_CAPTURE_SCREENSHOTS=1 \
 PLAYWRIGHT_CAPTURE_JOB_LOGS_ONLY=1 \
+PLAYWRIGHT_CAPTURE_SCENARIO=pass \
 npx playwright test e2e/capture-champion-screenshots.spec.ts
 ```
 
-Requires public GitHub access to the URLs in the spec. Screenshot `03` expands every job step and fills log panes from `gh run view <run-id> --log` (same content as the Actions UI when signed in). Update run/job URLs in the spec if re-capturing against a newer workflow.
+Update URLs in `e2e/capture-champion-screenshots.spec.ts` when re-capturing against newer PRs or workflow runs.

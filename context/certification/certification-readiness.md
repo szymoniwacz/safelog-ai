@@ -165,7 +165,7 @@ Module 4 course prompts:
 | Quality gates — extended automation | **PARTIAL** | AI review on PR to `main`; Playwright still optional in main CI |
 | Champion exercises | **PARTIAL** | M5L2 + M5L3 implemented; remaining M5 lessons TODO |
 | Review artifacts — Champion review | **TODO** | No Champion review document |
-| Submission screenshots | **PASS** | [`screenshots/champion/`](screenshots/champion/) — 3 PNGs (2026-06-18) |
+| Submission screenshots | **PASS** | [`screenshots/champion/`](screenshots/champion/) — 6 PNGs: fail (PR #11) + pass (PR #12), 2026-06-18 |
 
 ### Evidence
 
@@ -174,8 +174,10 @@ Module 4 course prompts:
 | Review agent (M5L2) | [`packages/code-reviewer/`](../../packages/code-reviewer/) |
 | CI workflow (M5L3) | [`.github/workflows/ai-code-review.yml`](../../.github/workflows/ai-code-review.yml) |
 | Change spec | [`context/changes/ci-cd-code-review/`](../changes/ci-cd-code-review/) |
-| Test PR | [PR #11](https://github.com/szymoniwacz/safelog-ai/pull/11) — verdict **fail** (intentional issues) |
-| GHA run | [Run 27760320185](https://github.com/szymoniwacz/safelog-ai/actions/runs/27760320185) |
+| Test PR (fail) | [PR #11](https://github.com/szymoniwacz/safelog-ai/pull/11) — verdict **fail** (intentional issues) |
+| Test PR (pass) | [PR #12](https://github.com/szymoniwacz/safelog-ai/pull/12) — verdict **pass** (`feature/case-index-analysis-status`) |
+| GHA run (fail) | [Run 27760320185](https://github.com/szymoniwacz/safelog-ai/actions/runs/27760320185) |
+| GHA run (pass) | [Run 27763104255](https://github.com/szymoniwacz/safelog-ai/actions/runs/27763104255) |
 | Screenshots | [`context/certification/screenshots/champion/`](screenshots/champion/) |
 
 ---
@@ -188,7 +190,7 @@ Single packet for **Builder + Architect + Champion** when all badges are ready.
 |----------|---------|-----------|----------|
 | Project summary | README + PRD | [`repo-map.md`](../map/repo-map.md) TL;DR + [`context/domain/`](../domain/) DDD artifacts | TODO |
 | Demo script | See [Demo flow](#demo-flow) | TODO | TODO |
-| Screenshots | [`context/certification/screenshots/`](screenshots/) (7 PNGs, Fly 2026-06-09) | TODO | [`screenshots/champion/`](screenshots/champion/) (3 PNGs, GHA 2026-06-18) |
+| Screenshots | [`context/certification/screenshots/`](screenshots/) (7 PNGs, Fly 2026-06-09) | TODO | [`screenshots/champion/`](screenshots/champion/) (6 PNGs: PR #11 fail + PR #12 pass) |
 | Deployment URL | https://safelog-ai.fly.dev/ | Same URL + architecture notes | Same + automation proof |
 | Review documents | `m1-m3-*` reviews | TODO | TODO |
 | CI evidence | `bin/ci` + GHA config | TODO — include map/structure gates if added | [AI code review workflow](../../.github/workflows/ai-code-review.yml) + [run 27760320185](https://github.com/szymoniwacz/safelog-ai/actions/runs/27760320185) |

@@ -27,4 +27,4 @@ Requires the Fly app to be running. Production demo path: **New case** + manual 
 
 ## Champion (M5 CI code review)
 
-See [`champion/`](champion/) — 3 PNGs from [PR #11](https://github.com/szymoniwacz/safelog-ai/pull/11) and GitHub Actions run (2026-06-18).
+See [`champion/`](champion/) — 6 PNGs: fail ([PR #11](https://github.com/szymoniwacz/safelog-ai/pull/11)) + pass ([PR #12](https://github.com/szymoniwacz/safelog-ai/pull/12)), 2026-06-18.

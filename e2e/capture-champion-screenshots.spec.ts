@@ -10,12 +10,57 @@ const SCREENSHOT_DIR = path.join(
   "champion",
 );
 
-const PR_URL = "https://github.com/szymoniwacz/safelog-ai/pull/11";
-const WORKFLOW_RUN_URL =
-  "https://github.com/szymoniwacz/safelog-ai/actions/runs/27760320185";
-const JOB_LOG_URL =
-  "https://github.com/szymoniwacz/safelog-ai/actions/runs/27760320185/job/82132673336";
-const WORKFLOW_RUN_ID = "27760320185";
+type ReviewScenario = {
+  id: "fail" | "pass";
+  prUrl: string;
+  workflowRunUrl: string;
+  jobLogUrl: string;
+  workflowRunId: string;
+  files: {
+    prComment: string;
+    workflowRun: string;
+    jobLogs: string;
+  };
+};
+
+const SCENARIOS: ReviewScenario[] = [
+  {
+    id: "fail",
+    prUrl: "https://github.com/szymoniwacz/safelog-ai/pull/11",
+    workflowRunUrl:
+      "https://github.com/szymoniwacz/safelog-ai/actions/runs/27760320185",
+    jobLogUrl:
+      "https://github.com/szymoniwacz/safelog-ai/actions/runs/27760320185/job/82132673336",
+    workflowRunId: "27760320185",
+    files: {
+      prComment: "01-pr-ai-review-comment-fail.png",
+      workflowRun: "02-actions-workflow-run-fail.png",
+      jobLogs: "03-actions-job-logs-fail.png",
+    },
+  },
+  {
+    id: "pass",
+    prUrl: "https://github.com/szymoniwacz/safelog-ai/pull/12",
+    workflowRunUrl:
+      "https://github.com/szymoniwacz/safelog-ai/actions/runs/27763104255",
+    jobLogUrl:
+      "https://github.com/szymoniwacz/safelog-ai/actions/runs/27763104255/job/82142437908",
+    workflowRunId: "27763104255",
+    files: {
+      prComment: "04-pr-ai-review-comment-pass.png",
+      workflowRun: "05-actions-workflow-run-pass.png",
+      jobLogs: "06-actions-job-logs-pass.png",
+    },
+  },
+];
+
+function selectedScenarios(): ReviewScenario[] {
+  const filter = process.env.PLAYWRIGHT_CAPTURE_SCENARIO;
+  if (filter === "fail" || filter === "pass") {
+    return SCENARIOS.filter((scenario) => scenario.id === filter);
+  }
+  return SCENARIOS;
+}
 
 function stripLogLine(raw: string): string {
   return raw
@@ -101,6 +146,44 @@ async function expandJobLogSteps(page: Page, runId: string): Promise<void> {
   }
 }
 
+async function captureScenario(page: Page, scenario: ReviewScenario): Promise<void> {
+  const jobLogsOnly = process.env.PLAYWRIGHT_CAPTURE_JOB_LOGS_ONLY === "1";
+
+  if (!jobLogsOnly) {
+    await page.goto(scenario.prUrl, { waitUntil: "domcontentloaded" });
+    await expect(
+      page.getByRole("heading", { name: "AI code review", exact: true }),
+    ).toBeVisible({
+      timeout: 30_000,
+    });
+    await page.screenshot({
+      path: path.join(SCREENSHOT_DIR, scenario.files.prComment),
+      fullPage: true,
+    });
+
+    await page.goto(scenario.workflowRunUrl, { waitUntil: "domcontentloaded" });
+    await expect(page.getByText("AI Code Review", { exact: true }).first()).toBeVisible({
+      timeout: 30_000,
+    });
+    await page.screenshot({
+      path: path.join(SCREENSHOT_DIR, scenario.files.workflowRun),
+      fullPage: false,
+    });
+  }
+
+  await page.goto(scenario.jobLogUrl, { waitUntil: "domcontentloaded" });
+  await page.locator("check-step[data-name]").first().waitFor({
+    timeout: 30_000,
+  });
+
+  await expandJobLogSteps(page, scenario.workflowRunId);
+
+  await page.screenshot({
+    path: path.join(SCREENSHOT_DIR, scenario.files.jobLogs),
+    fullPage: true,
+  });
+}
+
 test("capture Champion M5 CI code review screenshots", async ({ page }) => {
   test.skip(
     !process.env.PLAYWRIGHT_CAPTURE_SCREENSHOTS,
@@ -109,44 +192,9 @@ test("capture Champion M5 CI code review screenshots", async ({ page }) => {
 
   await page.setViewportSize({ width: 1440, height: 900 });
 
-  if (!process.env.PLAYWRIGHT_CAPTURE_JOB_LOGS_ONLY) {
-    await page.goto(PR_URL, { waitUntil: "domcontentloaded" });
-    await expect(
-      page.getByRole("heading", { name: "AI code review", exact: true }),
-    ).toBeVisible({
-      timeout: 30_000,
-    });
-    await page.screenshot({
-      path: path.join(SCREENSHOT_DIR, "01-pr-ai-review-comment.png"),
-      fullPage: true,
-    });
-
-    await page.goto(WORKFLOW_RUN_URL, { waitUntil: "domcontentloaded" });
-    await expect(
-      page.getByText("AI Code Review", { exact: true }).first(),
-    ).toBeVisible({
-      timeout: 30_000,
-    });
-    await page.screenshot({
-      path: path.join(SCREENSHOT_DIR, "02-actions-workflow-run.png"),
-      fullPage: false,
+  for (const scenario of selectedScenarios()) {
+    await test.step(`capture ${scenario.id} review scenario`, async () => {
+      await captureScenario(page, scenario);
     });
   }
-
-  await page.goto(JOB_LOG_URL, { waitUntil: "domcontentloaded" });
-  await expect(
-    page.getByRole("heading", { name: "AI code review" }).first(),
-  ).toBeVisible({
-    timeout: 30_000,
-  });
-  await page.locator("check-step[data-name]").first().waitFor({
-    timeout: 30_000,
-  });
-
-  await expandJobLogSteps(page, WORKFLOW_RUN_ID);
-
-  await page.screenshot({
-    path: path.join(SCREENSHOT_DIR, "03-actions-job-logs.png"),
-    fullPage: true,
-  });
 });
