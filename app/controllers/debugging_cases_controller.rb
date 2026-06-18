@@ -39,7 +39,7 @@ class DebuggingCasesController < AuthenticatedController
   end
 
   def analyze
-    debugging_case = current_user.debugging_cases.find(params[:id])
+    debugging_case = DebuggingCase.find(params[:id])
     result = Analysis::AnalyzeCase.call(debugging_case: debugging_case)
 
     if result.success?
@@ -106,5 +106,6 @@ class DebuggingCasesController < AuthenticatedController
     @description = permitted[:description]
     @customer_reference = permitted[:customer_reference]
     @environment = permitted[:environment]
+    @sources = permitted[:sources]
   end
 end
