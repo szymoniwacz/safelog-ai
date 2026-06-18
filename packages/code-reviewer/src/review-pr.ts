@@ -1,7 +1,7 @@
 import { appendFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
-import "../lib/load-env.js";
+import "./lib/load-env.js";
 
 import { reviewPullRequest } from "./agent/reviewer.js";
 import {
