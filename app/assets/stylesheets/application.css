@@ -340,6 +340,36 @@ li + li {
   font-size: 0.875em;
 }
 
+.status-badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+.status-badge--muted {
+  background: var(--color-code-bg);
+  color: var(--color-text-muted);
+}
+
+.status-badge--success {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+}
+
+.status-badge--danger {
+  background: var(--color-danger-bg);
+  color: var(--color-danger-text);
+}
+
+.status-badge--warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+}
+
 /* Forms */
 
 .form-panel fieldset {

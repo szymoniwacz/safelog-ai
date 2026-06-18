@@ -18,6 +18,8 @@
       <tr>
         <th>Title</th>
         <th>Environment</th>
+        <th>Sources</th>
+        <th>Analysis</th>
         <th>Created</th>
       </tr>
     </thead>
@@ -26,6 +28,8 @@
         <tr>
           <td><%= link_to debugging_case.title, debugging_case_path(debugging_case) %></td>
           <td><%= debugging_case.environment.presence || "—" %></td>
+          <td><%= log_source_count_label(debugging_case) %></td>
+          <td><span class="<%= analysis_status_badge_class(debugging_case) %>"><%= analysis_status_label(debugging_case) %></span></td>
           <td><%= l(debugging_case.created_at, format: :short) %></td>
         </tr>
       <% end %>

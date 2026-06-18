@@ -6,7 +6,7 @@ class DebuggingCasesController < AuthenticatedController
   def index
     @show_archived = params[:filter] == "archived"
     scope = @show_archived ? current_user.debugging_cases.archived : current_user.debugging_cases.active
-    @debugging_cases = scope.order(created_at: :desc)
+    @debugging_cases = scope.includes(:log_sources, :ai_reports).order(created_at: :desc)
   end
 
   def new
