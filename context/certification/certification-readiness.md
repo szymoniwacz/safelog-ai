@@ -1,6 +1,6 @@
 ---
 project: SafeLog AI
-updated: 2026-06-10
+updated: 2026-06-18
 scope: 10xDevs Builder + Architect + Champion
 ---
 
@@ -15,9 +15,9 @@ scope: 10xDevs Builder + Architect + Champion
 |-------|---------|---------|---------|
 | **10xBuilder** | M1–M3 | **READY** | MVP shipped; 135 RSpec + system + Playwright; Fly.io live at https://safelog-ai.fly.dev/; submission screenshots captured; local `bin/ci` + remote GHA green on `main` (2026-06-09). |
 | **10xArchitect** | M4 | **IN PROGRESS** | M4L2–L5 complete (map, flow research, refactor ranking, domain distillation, invariant + ACL plans); pending Architect review, refactor **implementation**, modernization. |
-| **10xChampion** | M5 | **NOT STARTED** | No M5 prompts, automation workflows, or Champion review artifacts in repository. |
+| **10xChampion** | M5 | **IN PROGRESS** | M5L2 review agent (`packages/code-reviewer/`) + M5L3 GHA workflow; PR #11 AI review green; Champion screenshots captured. |
 
-**Overall:** Builder ready to submit. Architect **in progress** — M4L2–L5 exploration and DDD planning complete; ranked refactor plans in `context/domain/`; review + code implementation pending. Champion not started.
+**Overall:** Builder ready to submit. Architect **in progress** — M4L2–L5 exploration and DDD planning complete; ranked refactor plans in `context/domain/`; review + code implementation pending. Champion **in progress** — CI AI code review shipped; submission screenshots captured.
 
 ---
 
@@ -36,7 +36,7 @@ flowchart LR
 |-------|------|-----------------------------------|
 | **Builder** | Working MVP + context + tests + CI + deploy | None — ready to submit |
 | **Architect** | Large-repo architecture literacy + evidence | M4L2–L5 complete (incl. domain distillation + refactor plans); remaining: Architect review, implement ranked refactors, modernization |
-| **Champion** | AI-assisted team workflow + automation | M5 exercises; CI/CD AI integration; automation evidence — **none in repo yet** |
+| **Champion** | AI-assisted team workflow + automation | M5L2–L3 done; Champion review + remaining M5 exercises pending |
 | **Final package** | One submission, three badges | All sections below populated; demo script; screenshots |
 
 ---
@@ -153,24 +153,30 @@ Module 4 course prompts:
 
 ## 10xChampion
 
-**Verdict: NOT STARTED** — no Module 5 prompts or Champion artifacts in repository.
+**Verdict: IN PROGRESS** — M5L2 local review agent and M5L3 GitHub Actions integration implemented; submission screenshots captured.
 
-### Checklist (Module 5 outcomes — placeholders)
+### Checklist (Module 5 outcomes)
 
 | Item | Status | Notes |
 |------|--------|-------|
-| AI-assisted team workflow | **TODO** | No documented team/agent workflow beyond `AGENTS.md` |
-| CI/CD AI integration | **TODO** | No AI in GHA; no Cursor automation in CI |
-| Automation workflows — hooks / bots | **PARTIAL** | `.cursor/hooks.json` exists; not Champion certification evidence |
-| Quality gates — extended automation | **TODO** | Playwright optional; no post-merge deploy bot |
-| Champion exercises | **TODO** | No M5 prompt files in `.cursor/prompts/` |
+| AI-assisted team workflow | **PARTIAL** | `packages/code-reviewer/` — TypeScript agent (OpenAI via Vercel AI SDK) |
+| CI/CD AI integration | **PASS** | `.github/workflows/ai-code-review.yml`; composite action; labels `ai-cr:*` |
+| Automation workflows — hooks / bots | **PARTIAL** | GHA bot posts review on PR; `.cursor/hooks.json` exists |
+| Quality gates — extended automation | **PARTIAL** | AI review on PR to `main`; Playwright still optional in main CI |
+| Champion exercises | **PARTIAL** | M5L2 + M5L3 implemented; remaining M5 lessons TODO |
 | Review artifacts — Champion review | **TODO** | No Champion review document |
+| Submission screenshots | **PASS** | [`screenshots/champion/`](screenshots/champion/) — 3 PNGs (2026-06-18) |
 
-### Evidence (when complete)
+### Evidence
 
-- Documented automation (workflows, hooks, SDK scripts if used)
-- CI integration proof (runs, configs, screenshots)
-- Champion review under `context/reviews/`
+| Type | Location |
+|------|----------|
+| Review agent (M5L2) | [`packages/code-reviewer/`](../../packages/code-reviewer/) |
+| CI workflow (M5L3) | [`.github/workflows/ai-code-review.yml`](../../.github/workflows/ai-code-review.yml) |
+| Change spec | [`context/changes/ci-cd-code-review/`](../changes/ci-cd-code-review/) |
+| Test PR | [PR #11](https://github.com/szymoniwacz/safelog-ai/pull/11) — verdict **fail** (intentional issues) |
+| GHA run | [Run 27760320185](https://github.com/szymoniwacz/safelog-ai/actions/runs/27760320185) |
+| Screenshots | [`context/certification/screenshots/champion/`](screenshots/champion/) |
 
 ---
 
@@ -182,10 +188,10 @@ Single packet for **Builder + Architect + Champion** when all badges are ready.
 |----------|---------|-----------|----------|
 | Project summary | README + PRD | [`repo-map.md`](../map/repo-map.md) TL;DR + [`context/domain/`](../domain/) DDD artifacts | TODO |
 | Demo script | See [Demo flow](#demo-flow) | TODO | TODO |
-| Screenshots | [`context/certification/screenshots/`](screenshots/) (7 PNGs, Fly 2026-06-09) | TODO | TODO |
+| Screenshots | [`context/certification/screenshots/`](screenshots/) (7 PNGs, Fly 2026-06-09) | TODO | [`screenshots/champion/`](screenshots/champion/) (3 PNGs, GHA 2026-06-18) |
 | Deployment URL | https://safelog-ai.fly.dev/ | Same URL + architecture notes | Same + automation proof |
 | Review documents | `m1-m3-*` reviews | TODO | TODO |
-| CI evidence | `bin/ci` + GHA config | TODO — include map/structure gates if added | TODO — AI/automation CI |
+| CI evidence | `bin/ci` + GHA config | TODO — include map/structure gates if added | [AI code review workflow](../../.github/workflows/ai-code-review.yml) + [run 27760320185](https://github.com/szymoniwacz/safelog-ai/actions/runs/27760320185) |
 | Certification notes | This file | Update Architect section | Update Champion section |
 
 ### Demo flow (Builder — verified locally and on Fly)
@@ -271,9 +277,9 @@ PLAYWRIGHT_SKIP_WEBSERVER=1 PLAYWRIGHT_BASE_URL=https://safelog-ai.fly.dev \
 
 | Gap | Action |
 |-----|--------|
-| No M5 course artifacts in repo | Complete Module 5 exercises per course |
-| No CI/CD AI or team automation evidence | Implement and document per M5 requirements |
-| Playwright not in GHA | Optional Champion gate if course requires browser CI |
+| Remaining M5 lessons | Complete M5L4+ per course |
+| No Champion review document | Run course Champion review workflow |
+| Playwright not in main GHA | Optional Champion gate if course requires browser CI |
 
 ---
 
