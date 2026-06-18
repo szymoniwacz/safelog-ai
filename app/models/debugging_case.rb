@@ -22,4 +22,19 @@ class DebuggingCase < ApplicationRecord
 
     update!(archived_at: Time.current)
   end
+
+  def latest_ai_report
+    ai_reports.max_by(&:created_at)
+  end
+
+  def analysis_status
+    report = latest_ai_report
+    return :not_analyzed if report.nil?
+
+    case report.status
+    when "generated" then :analyzed
+    when "failed" then :failed
+    else :in_progress
+    end
+  end
 end

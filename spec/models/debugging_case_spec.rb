@@ -38,4 +38,34 @@ RSpec.describe DebuggingCase, type: :model do
       expect(debugging_case.reload.archived_at).to eq(original_timestamp)
     end
   end
+
+  describe "#analysis_status" do
+    it "returns not_analyzed when the case has no AI reports" do
+      debugging_case = create_case
+
+      expect(debugging_case.analysis_status).to eq(:not_analyzed)
+    end
+
+    it "returns analyzed when the latest report is generated" do
+      debugging_case = create_case
+      debugging_case.ai_reports.create!(status: :generated, markdown_body: "# Report")
+
+      expect(debugging_case.analysis_status).to eq(:analyzed)
+    end
+
+    it "returns failed when the latest report failed" do
+      debugging_case = create_case
+      debugging_case.ai_reports.create!(status: :failed)
+
+      expect(debugging_case.analysis_status).to eq(:failed)
+    end
+
+    it "uses the most recent report when multiple exist" do
+      debugging_case = create_case
+      debugging_case.ai_reports.create!(status: :generated, created_at: 2.hours.ago, markdown_body: "# Old")
+      debugging_case.ai_reports.create!(status: :failed, created_at: 1.hour.ago)
+
+      expect(debugging_case.analysis_status).to eq(:failed)
+    end
+  end
 end

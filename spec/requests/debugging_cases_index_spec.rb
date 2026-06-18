@@ -71,5 +71,27 @@ RSpec.describe "Debugging cases index", type: :request do
       expect(response).to have_http_status(:ok)
       expect(response.body).not_to include(other_case.title)
     end
+
+    it "shows source count and analysis status for each case" do
+      active_case.ai_reports.create!(status: :generated, markdown_body: "# Report")
+
+      sign_in user
+
+      get debugging_cases_path
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("1 source")
+      expect(response.body).to include("Analyzed")
+      expect(response.body).to include('class="status-badge status-badge--success"')
+    end
+
+    it "shows not analyzed when the case has no AI report" do
+      sign_in user
+
+      get debugging_cases_path
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("Not analyzed")
+    end
   end
 end
