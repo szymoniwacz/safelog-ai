@@ -68,6 +68,27 @@ The demo loader is unavailable in production (`POST /debugging_cases/load_demo` 
 
 When the fake client is active outside test, the case page shows a **Demo AI client active** notice. Set `OPENAI_API_KEY` locally or in Fly secrets for real AI output.
 
+Copy `.env.example` to `.env` at the repo root. Rails does not load it automatically — export before the server:
+
+```bash
+set -a && source .env && set +a
+mise exec -- bin/dev
+```
+
+## Code review agent (M5L2)
+
+Optional TypeScript agent in `packages/code-reviewer/` (`git diff | npm run review`). Environment load order:
+
+1. repo root `.env` (fallback — same `OPENAI_API_KEY` as SafeLog analyze)
+2. `packages/code-reviewer/.env` (optional; overrides only keys defined there)
+
+See `packages/code-reviewer/.env.example`. No package-local `.env` is required when root `.env` is set.
+
+```bash
+cd packages/code-reviewer && npm install
+git diff | npm run review
+```
+
 ## Production (Fly.io)
 
 **URL:** https://safelog-ai.fly.dev/

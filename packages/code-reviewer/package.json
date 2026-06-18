@@ -1,0 +1,25 @@
+{
+  "name": "@safelog-ai/code-reviewer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Local code review agent (M5L2) — git diff in, structured JSON out.",
+  "scripts": {
+    "review": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@ai-sdk/openai": "^2.0.0",
+    "ai": "^6.0.208",
+    "dotenv": "^16.5.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  }
+}

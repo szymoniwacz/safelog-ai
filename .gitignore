@@ -11,6 +11,9 @@
 
 # Ignore all environment files.
 /.env*
+!/.env.example
+
+/packages/code-reviewer/.env
 
 # Ignore all logfiles and tempfiles.
 /log/*
@@ -33,6 +36,7 @@
 /public/assets
 
 /node_modules
+/packages/code-reviewer/node_modules
 
 # Playwright MCP session snapshots (local browser automation).
 /.playwright-mcp/
