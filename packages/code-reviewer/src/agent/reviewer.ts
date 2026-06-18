@@ -11,6 +11,11 @@ export type CodeReviewerOptions = {
   maxSteps?: number;
 };
 
+export type PullRequestReviewInput = {
+  title?: string;
+  diff: string;
+};
+
 export function createCodeReviewer(options: CodeReviewerOptions = {}) {
   const maxSteps = options.maxSteps ?? DEFAULT_MAX_STEPS;
 
@@ -27,14 +32,21 @@ export async function reviewDiff(
   diff: string,
   options: CodeReviewerOptions = {},
 ): Promise<Review> {
-  const trimmed = diff.trim();
+  return reviewPullRequest({ diff }, options);
+}
+
+export async function reviewPullRequest(
+  input: PullRequestReviewInput,
+  options: CodeReviewerOptions = {},
+): Promise<Review> {
+  const trimmed = input.diff.trim();
   if (!trimmed) {
     throw new Error("Diff is empty. Pipe git diff output: git diff | npm run review");
   }
 
   const reviewer = createCodeReviewer(options);
   const { output } = await reviewer.generate({
-    prompt: buildReviewUserPrompt(trimmed),
+    prompt: buildReviewUserPrompt(trimmed, input.title),
   });
 
   if (!output) {

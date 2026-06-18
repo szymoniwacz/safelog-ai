@@ -75,9 +75,13 @@ set -a && source .env && set +a
 mise exec -- bin/dev
 ```
 
-## Code review agent (M5L2)
+## Code review agent (M5L2 + M5L3)
 
-Optional TypeScript agent in `packages/code-reviewer/` (`git diff | npm run review`). Environment load order:
+TypeScript agent in `packages/code-reviewer/` — local CLI (M5L2) and GitHub Actions on pull requests (M5L3).
+
+### Local review
+
+Environment load order:
 
 1. repo root `.env` (fallback — same `OPENAI_API_KEY` as SafeLog analyze)
 2. `packages/code-reviewer/.env` (optional; overrides only keys defined there)
@@ -88,6 +92,21 @@ See `packages/code-reviewer/.env.example`. No package-local `.env` is required w
 cd packages/code-reviewer && npm install
 git diff | npm run review
 ```
+
+### CI review (M5L3)
+
+Workflow: `.github/workflows/ai-code-review.yml` — runs on every PR to `main` and when label `ai-cr:review` is added.
+
+| Secret | Required |
+|--------|----------|
+| `OPENAI_API_KEY` | yes |
+| `CODE_REVIEWER_MODEL` | no (defaults to `OPENAI_MODEL` / `gpt-4o-mini`) |
+
+Create labels once in the repo: `ai-cr:passed` (green), `ai-cr:failed` (red), `ai-cr:review` (manual re-run trigger).
+
+Fork PRs are skipped (no secrets on untrusted code). Reviews are **advisory** — labels only, no merge gate in v1.
+
+Requirements: `context/changes/ci-cd-code-review/requirements.md`.
 
 ## Production (Fly.io)
 

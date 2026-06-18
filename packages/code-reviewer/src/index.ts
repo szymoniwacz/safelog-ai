@@ -5,12 +5,23 @@ import { readStdin } from "./lib/read-stdin.js";
 
 export {
   reviewDiff,
+  reviewPullRequest,
   createCodeReviewer,
   type CodeReviewerOptions,
+  type PullRequestReviewInput,
 } from "./agent/reviewer.js";
 export { resolveModelId, createReviewModel } from "./agent/model.js";
 export { buildReviewUserPrompt, SYSTEM_PROMPT } from "./prompts/system-prompt.js";
-export { REVIEW_SCHEMA, type Review } from "./schemas/review-schema.js";
+export {
+  REVIEW_SCHEMA,
+  CRITERION_LABELS,
+  type Review,
+} from "./schemas/review-schema.js";
+export {
+  formatReviewComment,
+  formatNeutralComment,
+  REVIEW_COMMENT_MARKER,
+} from "./lib/format-comment.js";
 export { readStdin } from "./lib/read-stdin.js";
 
 async function main(): Promise<void> {

@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Local code review agent (M5L2) — git diff in, structured JSON out.",
+  "description": "Code review agent (M5L2 local, M5L3 CI) — diff in, structured JSON out.",
   "scripts": {
     "review": "tsx src/index.ts",
+    "review:pr": "tsx src/review-pr.ts",
     "typecheck": "tsc --noEmit"
   },
   "exports": {

@@ -1,0 +1,74 @@
+name: AI Code Review
+description: Run the SafeLog code review agent on a pull request diff
+
+inputs:
+  api-key:
+    description: OpenAI API key
+    required: true
+  github-token:
+    description: GitHub token for PR comments and labels
+    required: true
+  pr-title:
+    description: Pull request title
+    required: true
+  pr-number:
+    description: Pull request number
+    required: true
+  base-ref:
+    description: Base branch ref (e.g. main)
+    required: true
+  model:
+    description: Optional model override
+    required: false
+    default: ""
+
+outputs:
+  verdict:
+    description: pass, fail, or skip
+    value: ${{ steps.review.outputs.verdict }}
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
+
+    - name: Compute diff
+      shell: bash
+      run: |
+        git fetch origin "${{ inputs.base-ref }}"
+        git diff "origin/${{ inputs.base-ref }}...HEAD" > /tmp/pr.diff || true
+
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: "22"
+        cache: npm
+        cache-dependency-path: packages/code-reviewer/package-lock.json
+
+    - name: Install dependencies
+      shell: bash
+      working-directory: packages/code-reviewer
+      run: npm ci
+
+    - name: Run review
+      id: review
+      shell: bash
+      working-directory: packages/code-reviewer
+      env:
+        OPENAI_API_KEY: ${{ inputs.api-key }}
+        CODE_REVIEWER_MODEL: ${{ inputs.model }}
+        PR_TITLE: ${{ inputs.pr-title }}
+      run: |
+        set -o pipefail
+        cat /tmp/pr.diff | npm run review:pr
+
+    - name: Post or update PR comment
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        PR_NUMBER: ${{ inputs.pr-number }}
+        VERDICT: ${{ steps.review.outputs.verdict }}
+      run: bash "${{ github.action_path }}/post-review.sh"
