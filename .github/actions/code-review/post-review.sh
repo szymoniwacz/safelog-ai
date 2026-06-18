@@ -19,10 +19,10 @@ existing_id="$(gh api \
   | head -1 || true)"
 
 if [[ -n "$existing_id" ]]; then
-  gh api \
+  jq -n --rawfile body "$COMMENT_FILE" '{body: $body}' | gh api \
     --method PATCH \
     "repos/${REPO}/issues/comments/${existing_id}" \
-    -f body="$(cat "$COMMENT_FILE")" \
+    --input - \
     > /dev/null
 else
   gh pr comment "$PR_NUMBER" --body-file "$COMMENT_FILE"

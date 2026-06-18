@@ -5,12 +5,20 @@ import type { LanguageModel } from "ai";
 
 const DEFAULT_MODEL = "gpt-4o-mini";
 
+function firstConfiguredModel(...candidates: Array<string | undefined>): string {
+  for (const candidate of candidates) {
+    const trimmed = candidate?.trim();
+    if (trimmed) return trimmed;
+  }
+
+  return DEFAULT_MODEL;
+}
+
 export function resolveModelId(model?: string): string {
-  return (
-    model ??
-    process.env.CODE_REVIEWER_MODEL ??
-    process.env.OPENAI_MODEL ??
-    DEFAULT_MODEL
+  return firstConfiguredModel(
+    model,
+    process.env.CODE_REVIEWER_MODEL,
+    process.env.OPENAI_MODEL,
   );
 }
 
