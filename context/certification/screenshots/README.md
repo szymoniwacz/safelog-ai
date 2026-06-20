@@ -7,6 +7,6 @@ Submission evidence for 10xDevs badges. Layout: **badge → lesson → PNGs**.
 | **10xBuilder** (M1–M3) | [`builder/`](builder/) | `e2e/capture-submission-screenshots.spec.ts` |
 | **10xChampion** — M5L3 CI code review | [`champion/m5l3/`](champion/m5l3/) | `e2e/capture-champion-screenshots.spec.ts` |
 | **10xChampion** — M5L4 AI toolkit publish | [`champion/m5l4/`](champion/m5l4/) | `e2e/capture-m5l4-screenshots.spec.ts` |
-| **10xArchitect** (M4) | [`architect/`](architect/) | — (no screenshots yet) |
+| **10xArchitect** (M4) | [`architect/`](architect/) | `e2e/capture-architect-screenshots.spec.ts` (English excerpts in [`architect-excerpts/`](architect-excerpts/)) |
 
 Tracker: [`../certification-readiness.md`](../certification-readiness.md).

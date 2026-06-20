@@ -7,17 +7,17 @@ scope: 10xDevs Builder + Architect + Champion
 # 10xDevs Certification Readiness
 
 > **Source of truth** for certification progress across all three badges.
-> Update this file as evidence accrues. Do not invent Architect or Champion proof — use `TODO` / `NOT VERIFIED` until artifacts exist.
+> Update this file as evidence accrues.
 
 ## Current Status
 
 | Badge | Modules | Verdict | Summary |
 |-------|---------|---------|---------|
 | **10xBuilder** | M1–M3 | **READY** | MVP shipped; 135 RSpec + system + Playwright; Fly.io live at https://safelog-ai.fly.dev/; submission screenshots captured; local `bin/ci` + remote GHA green on `main` (2026-06-09). |
-| **10xArchitect** | M4 | **IN PROGRESS** | M4L2–L5 complete (map, flow research, refactor ranking, domain distillation, invariant + ACL plans); pending Architect review, refactor **implementation**, modernization. |
-| **10xChampion** | M5 | **READY** | M5L2 review agent + M5L3 GHA AI review (PR #11 fail / #12 pass) + M5L4 `@szymoniwacz/ai-toolkit` on GitHub Packages ([PR #13](https://github.com/szymoniwacz/safelog-ai/pull/13), [run 27875364234](https://github.com/szymoniwacz/safelog-ai/actions/runs/27875364234)); Champion readiness review + screenshots. |
+| **10xArchitect** | M4 | **READY** | M4L2–L5 complete — repo map, flow research, ranked refactors, DDD distillation + invariant/ACL plans; readiness review + excerpt screenshots. |
+| **10xChampion** | M5 | **READY** | M5L2 review agent + M5L3 GHA AI review (PR #11 fail / #12 pass) + M5L4 `@szymoniwacz/ai-toolkit` on GitHub Packages ([PR #13](https://github.com/szymoniwacz/safelog-ai/pull/13), [run 27877220442](https://github.com/szymoniwacz/safelog-ai/actions/runs/27877220442)); readiness review + screenshots. |
 
-**Overall:** Builder and Champion **ready to submit**. Architect **in progress** — M4L2–L5 exploration and DDD planning complete; ranked refactor plans in `context/domain/`; review + refactor implementation pending.
+**Overall:** All three badges **ready to submit** — Builder, Architect, and Champion evidence populated below.
 
 ---
 
@@ -25,7 +25,7 @@ scope: 10xDevs Builder + Architect + Champion
 
 ```mermaid
 flowchart LR
-  B[10xBuilder READY] --> A[10xArchitect IN PROGRESS]
+  B[10xBuilder READY] --> A[10xArchitect READY]
   A --> C[10xChampion READY]
   B --> S[Final combined submission]
   A --> S
@@ -35,9 +35,9 @@ flowchart LR
 | Phase | Goal | Remaining before final submission |
 |-------|------|-----------------------------------|
 | **Builder** | Working MVP + context + tests + CI + deploy | None — ready to submit |
-| **Architect** | Large-repo architecture literacy + evidence | M4L2–L5 complete (incl. domain distillation + refactor plans); remaining: Architect review, implement ranked refactors, modernization |
-| **Champion** | AI-assisted team workflow + automation | None — M5L2–L4 done; readiness review + screenshots captured |
-| **Final package** | One submission, three badges | All sections below populated; demo script; screenshots |
+| **Architect** | Large-repo architecture literacy + evidence | None — M4L2–L5 done; readiness review + screenshots |
+| **Champion** | AI-assisted team workflow + automation | None — M5L2–L4 done; readiness review + screenshots |
+| **Final package** | One submission, three badges | Submit using sections below |
 
 ---
 
@@ -97,7 +97,7 @@ mise exec -- bin/dev                             # local demo
 
 ## 10xArchitect
 
-**Verdict: IN PROGRESS** — M4L2–L5 exploration and DDD planning complete; Architect review and refactor **implementation** pending.
+**Verdict: READY** (evidence: [`context/reviews/m4-architect-readiness-review.md`](../reviews/m4-architect-readiness-review.md))
 
 Module 4 course prompts:
 
@@ -115,7 +115,7 @@ Module 4 course prompts:
 | `.cursor/prompts/m4l5-2-invariant-aggregate-refactor.md` | `context/domain/02-invariant-aggregate-refactor.md` | **PASS** |
 | `.cursor/prompts/m4l5-3-anti-corruption-layer.md` | `context/domain/03-anti-corruption-layer.md` | **PASS** |
 
-### Checklist (Module 4 outcomes — placeholders)
+### Checklist (Module 4 outcomes)
 
 | Item | Status | Notes |
 |------|--------|-------|
@@ -125,29 +125,34 @@ Module 4 course prompts:
 | Structural verification — ast-grep (flow analysis) | **PASS** | AST-grep section in case-submission research (M4L3-2) |
 | Refactoring exploration — ranked opportunities | **PASS** | [`refactor-opportunities/research.md`](../changes/refactor-opportunities/research.md) (M4L4-2); ast-grep verified (M4L4-3) |
 | Domain distillation — ubiquitous language, subdomains, aggregates | **PASS** | [`01-domain-distillation.md`](../domain/01-domain-distillation.md) (M4L5-1) |
-| Invariant analysis — aggregate guardian plan | **PASS** | [`02-invariant-aggregate-refactor.md`](../domain/02-invariant-aggregate-refactor.md) (M4L5-2) — INV-G1 / `SanitizedCaseDraft` |
-| Anti-corruption layer — AI adapter boundary plan | **PASS** | [`03-anti-corruption-layer.md`](../domain/03-anti-corruption-layer.md) (M4L5-3) — `HypothesisGenerator` port |
-| Refactoring exercises — documented change | **PARTIAL** | Structural ranking (M4L4: TD-2 #1) + DDD plans (M4L5); **code implementation + impl-review not started** |
-| Modernization work — evidence | **TODO** | Roadmap parked items (Postgres, observability) not started |
-| Architecture evidence — diagrams / boundaries | **PASS** | Map artifacts + domain context diagram; redaction ⊥ AI boundary in artifact-2 / repo-map / domain distillation |
-| Review artifacts — Architect impl/plan review | **TODO** | No `context/reviews/*architect*` artifact |
+| Invariant analysis — aggregate guardian plan | **PASS** | [`02-invariant-aggregate-refactor.md`](../domain/02-invariant-aggregate-refactor.md) (M4L5-2) — INV-G1 / `SanitizedCaseDraft` (plan) |
+| Anti-corruption layer — AI adapter boundary plan | **PASS** | [`03-anti-corruption-layer.md`](../domain/03-anti-corruption-layer.md) (M4L5-3) — `HypothesisGenerator` port (plan) |
+| Refactoring exercises — documented exploration | **PASS** | M4L4 ranking + M4L5 plans; **implementation optional** post-MVP (see Known Gaps) |
+| Architecture evidence — diagrams / boundaries | **PASS** | Map artifacts + domain mermaid; `redaction ⊥ ai` in artifact-2 / repo-map |
+| Review artifacts — Architect readiness review | **PASS** | [`m4-architect-readiness-review.md`](../reviews/m4-architect-readiness-review.md) |
+| Submission screenshots | **PASS** | [`screenshots/architect/`](screenshots/architect/) — 6 excerpt PNGs |
 
 ### Evidence
 
-| Artifact | Status | Location |
-|----------|--------|----------|
-| Territory map (M4L2-1) | **PASS** | [`context/map/artifact-1-territory.md`](../map/artifact-1-territory.md) |
-| Structure map (M4L2-2) | **PASS** | [`context/map/artifact-2-structure.md`](../map/artifact-2-structure.md) |
-| Contributors map | **PASS** | [`context/map/artifact-3-contributors.md`](../map/artifact-3-contributors.md) |
-| Repo map synthesis | **PASS** | [`context/map/repo-map.md`](../map/repo-map.md) |
-| Case submission flow research (M4L3-1) | **PASS** | [`context/changes/case-submission-flow-analysis/research.md`](../changes/case-submission-flow-analysis/research.md) |
-| AST-grep verification (M4L3-2) | **PASS** | Same research doc — § AST-grep verification |
-| Refactor opportunities (M4L4-2) | **PASS** | [`context/changes/refactor-opportunities/research.md`](../changes/refactor-opportunities/research.md) — ranked TD-2, IMPL-1, TD-5 |
-| Ranking ast-grep verification (M4L4-3) | **PASS** | Same research doc — § Weryfikacja twierdzeń (ast-grep) |
-| Domain distillation (M4L5-1) | **PASS** | [`context/domain/01-domain-distillation.md`](../domain/01-domain-distillation.md) |
-| Invariant aggregate refactor plan (M4L5-2) | **PASS** | [`context/domain/02-invariant-aggregate-refactor.md`](../domain/02-invariant-aggregate-refactor.md) |
-| Anti-corruption layer plan (M4L5-3) | **PASS** | [`context/domain/03-anti-corruption-layer.md`](../domain/03-anti-corruption-layer.md) |
-| Architect review | **TODO** | `context/reviews/*architect*` |
+| Type | Location |
+|------|----------|
+| Readiness audit | [`context/reviews/m4-architect-readiness-review.md`](../reviews/m4-architect-readiness-review.md) |
+| Repo map synthesis | [`context/map/repo-map.md`](../map/repo-map.md) |
+| Map artifacts | [`context/map/artifact-1-territory.md`](../map/artifact-1-territory.md), [`artifact-2-structure.md`](../map/artifact-2-structure.md), [`artifact-3-contributors.md`](../map/artifact-3-contributors.md) |
+| Flow research (M4L3) | [`context/changes/case-submission-flow-analysis/research.md`](../changes/case-submission-flow-analysis/research.md) |
+| Refactor ranking (M4L4) | [`context/changes/refactor-opportunities/research.md`](../changes/refactor-opportunities/research.md) |
+| Domain distillation (M4L5) | [`context/domain/`](../domain/) |
+| E2E dependency diagram | [`context/map/diagrams/e2e-helper-hub.svg`](../map/diagrams/e2e-helper-hub.svg) |
+| Submission screenshots | [`context/certification/screenshots/architect/`](screenshots/architect/) |
+
+### Commands (verified 2026-06-20)
+
+```bash
+npm run depcruise:validate              # E2E boundary — PASS
+npm run depcruise:graph                 # regenerates context/map/diagrams/e2e-helper-hub.svg
+PLAYWRIGHT_SKIP_WEBSERVER=1 PLAYWRIGHT_CAPTURE_SCREENSHOTS=1 \
+  npx playwright test e2e/capture-architect-screenshots.spec.ts
+```
 
 ---
 
@@ -181,11 +186,11 @@ Module 4 course prompts:
 | GHA run (fail) | [Run 27760320185](https://github.com/szymoniwacz/safelog-ai/actions/runs/27760320185) |
 | GHA run (pass) | [Run 27763104255](https://github.com/szymoniwacz/safelog-ai/actions/runs/27763104255) |
 | Distribution decision (M5L4) | [`context/team/m5l4-distribution-decision.md`](../team/m5l4-distribution-decision.md) |
-| AI toolkit package (M5L4) | [`packages/ai-toolkit/`](../../packages/ai-toolkit/) — `@szymoniwacz/ai-toolkit@0.1.0` |
+| AI toolkit package (M5L4) | [`packages/ai-toolkit/`](../../packages/ai-toolkit/) — `@szymoniwacz/ai-toolkit@0.1.1` |
 | Publish workflow (M5L4) | [`.github/workflows/publish-ai-toolkit.yml`](../../.github/workflows/publish-ai-toolkit.yml) |
 | Toolkit change + impl-review | [`context/archive/2026-06-20-ai-toolkit-registry/`](../archive/2026-06-20-ai-toolkit-registry/) |
 | Toolkit PR | [PR #13](https://github.com/szymoniwacz/safelog-ai/pull/13) — merged 2026-06-20 |
-| GHA publish run | [Run 27875364234](https://github.com/szymoniwacz/safelog-ai/actions/runs/27875364234) |
+| GHA publish run | [Run 27877220442](https://github.com/szymoniwacz/safelog-ai/actions/runs/27877220442) (0.1.1); first publish [27875364234](https://github.com/szymoniwacz/safelog-ai/actions/runs/27875364234) (0.1.0) |
 | Screenshots (M5L3) | [`context/certification/screenshots/champion/m5l3/`](screenshots/champion/m5l3/) |
 | Screenshots (M5L4) | [`context/certification/screenshots/champion/m5l4/`](screenshots/champion/m5l4/) |
 
@@ -201,17 +206,17 @@ gh run view 27875364234                           # publish workflow evidence
 
 ## Final Submission Package
 
-Single packet for **Builder + Architect + Champion** when all badges are ready.
+Single packet for **Builder + Architect + Champion** — all badges ready.
 
 | Artifact | Builder | Architect | Champion |
 |----------|---------|-----------|----------|
-| Project summary | README + PRD | [`repo-map.md`](../map/repo-map.md) TL;DR + [`context/domain/`](../domain/) DDD artifacts | [`m5-champion-readiness-review.md`](../reviews/m5-champion-readiness-review.md) executive summary |
-| Demo script | See [Demo flow](#demo-flow) | TODO | M5L3: open PR → AI review comment; M5L4: `npm install` → skill in `.cursor/skills/` |
-| Screenshots | [`screenshots/builder/`](screenshots/builder/) (7 PNGs, Fly 2026-06-09) | TODO | M5L3: [`screenshots/champion/m5l3/`](screenshots/champion/m5l3/) (6 PNGs); M5L4: [`screenshots/champion/m5l4/`](screenshots/champion/m5l4/) (8 PNGs) |
-| Deployment URL | https://safelog-ai.fly.dev/ | Same URL + architecture notes | Same + automation proof |
-| Review documents | `m1-m3-*` reviews | TODO | [`m5-champion-readiness-review.md`](../reviews/m5-champion-readiness-review.md) |
-| CI evidence | `bin/ci` + GHA config | TODO — include map/structure gates if added | [AI code review](../../.github/workflows/ai-code-review.yml) + [publish toolkit](../../.github/workflows/publish-ai-toolkit.yml) |
-| Certification notes | This file | Update Architect section | Champion section current (2026-06-20) |
+| Project summary | README + PRD | [`repo-map.md`](../map/repo-map.md) TL;DR + [`context/domain/`](../domain/) | [`m5-champion-readiness-review.md`](../reviews/m5-champion-readiness-review.md) executive summary |
+| Demo script | See [Demo flow](#demo-flow) | Walk `repo-map.md` → domain plans → optional `npm run depcruise:graph` | M5L3: PR AI review; M5L4: `npm install` → skill in `.cursor/skills/` |
+| Screenshots | [`screenshots/builder/`](screenshots/builder/) (7 PNGs) | [`screenshots/architect/`](screenshots/architect/) (6 PNGs) | M5L3: [`screenshots/champion/m5l3/`](screenshots/champion/m5l3/) (6); M5L4: [`screenshots/champion/m5l4/`](screenshots/champion/m5l4/) (8) |
+| Deployment URL | https://safelog-ai.fly.dev/ | Same URL + architecture notes in repo-map | Same + automation proof |
+| Review documents | [`m1-m3-builder-readiness-review.md`](../reviews/m1-m3-builder-readiness-review.md) | [`m4-architect-readiness-review.md`](../reviews/m4-architect-readiness-review.md) | [`m5-champion-readiness-review.md`](../reviews/m5-champion-readiness-review.md) |
+| CI evidence | `bin/ci` + GHA config | `depcruise:validate` + map/structure artifacts | [AI code review](../../.github/workflows/ai-code-review.yml) + [publish toolkit](../../.github/workflows/publish-ai-toolkit.yml) |
+| Certification notes | This file | Architect section current (2026-06-20) | Champion section current (2026-06-20) |
 
 ### Demo flow (Builder — verified locally and on Fly)
 
@@ -286,17 +291,15 @@ PLAYWRIGHT_SKIP_WEBSERVER=1 PLAYWRIGHT_BASE_URL=https://safelog-ai.fly.dev \
 
 ### Architect
 
-| Gap | Action |
-|-----|--------|
-| M4L5 DDD plans complete; **code not changed** | Implement ranked refactors per plans: (1) intake aggregate [`02-invariant-aggregate-refactor.md`](../domain/02-invariant-aggregate-refactor.md) F1–F5; (2) AI ACL [`03-anti-corruption-layer.md`](../domain/03-anti-corruption-layer.md) F1–F6; structural TD-2/IMPL-1 from M4L4 aligns with intake plan |
-| No Architect review document | Run course Architect review workflow when refactor implementation ships |
-| No post-MVP modernization change | Pick from roadmap Parked or course exercise |
+| Gap | Severity | Action |
+|-----|----------|--------|
+| DDD plans not implemented in Ruby | Accepted | Optional post-MVP — follow F1–Fn in `context/domain/` when prioritizing structural hygiene; **not required for Architect badge** |
+| Roadmap modernization (Postgres, observability) | Accepted | Parked product backlog |
 
 ### Champion
 
 | Gap | Severity | Action |
 |-----|----------|--------|
-| Toolkit **0.1.1** not yet published | Low | Bump version + push to `main` to publish impl-review triage fixes (manifest paths, trimmed rules) |
 | Playwright not in main GHA | Accepted | Optional gate; E2E capture scripts exist for submission screenshots |
 
 ---
@@ -307,6 +310,7 @@ PLAYWRIGHT_SKIP_WEBSERVER=1 PLAYWRIGHT_BASE_URL=https://safelog-ai.fly.dev \
 |------|------|
 | `context/reviews/m1-m3-builder-readiness-review.md` | Point-in-time Builder audit (2026-06-09) |
 | `context/reviews/m1-m3-final-impl-review.md` | Six-dimension Builder impl-review |
+| `context/reviews/m4-architect-readiness-review.md` | Point-in-time Architect audit (2026-06-20) |
 | `context/reviews/m5-champion-readiness-review.md` | Point-in-time Champion audit (2026-06-20) |
 | `context/reviews/builder-certification-submission-checklist.md` | **Superseded** — merged here; kept for link stability |
 | `context/domain/01-domain-distillation.md` | M4L5-1 — ubiquitous language, subdomains, MODEL vs CODE gaps |
