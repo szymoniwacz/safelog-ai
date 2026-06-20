@@ -426,8 +426,8 @@ No migration — greenfield package. Existing repos without the package are unch
 
 #### Automated
 
-- [ ] 5.1 Publish workflow green on main after version bump
+- [x] 5.1 Publish workflow green on main after version bump
 
 #### Manual
 
-- [ ] 5.2 Package visible on GitHub Packages; consumer install verified
+- [x] 5.2 Package visible on GitHub Packages; consumer install verified
