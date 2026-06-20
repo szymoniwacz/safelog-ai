@@ -1,7 +1,7 @@
 ---
 change_id: ai-toolkit-registry
 title: Ai toolkit registry
-status: preparing
+status: planned
 created: 2026-06-20
 updated: 2026-06-20
 archived_at: null
