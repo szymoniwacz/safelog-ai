@@ -403,13 +403,13 @@ No migration — greenfield package. Existing repos without the package are unch
 
 #### Automated
 
-- [ ] 3.1 SKILL.md frontmatter `name` matches directory `code-review`
-- [ ] 3.2 Rules source file has no consumer sentinel markers
-- [ ] 3.3 `npm pack --dry-run` includes skill and rules
+- [x] 3.1 SKILL.md frontmatter `name` matches directory `code-review`
+- [x] 3.2 Rules source file has no consumer sentinel markers
+- [x] 3.3 `npm pack --dry-run` includes skill and rules
 
 #### Manual
 
-- [ ] 3.4 Skill and rules content reviewed for Rails portability
+- [x] 3.4 Skill and rules content reviewed for Rails portability
 
 ### Phase 4: Publish CI and Installer Smoke Test
 
