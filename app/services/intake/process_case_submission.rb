@@ -43,7 +43,7 @@ module Intake
           )
 
           result.findings.each do |finding|
-            log_source.redaction_findings.create!(finding)
+            log_source.redaction_findings.create!(**finding.to_h)
           end
         end
       end

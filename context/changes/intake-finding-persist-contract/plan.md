@@ -294,8 +294,8 @@ No data migration. Deploy is code-only; existing persisted findings unchanged.
 
 #### Automated
 
-- [ ] 1.1 `mise exec -- bundle exec rspec spec/services/redaction/`
-- [ ] 1.2 `mise exec -- bin/ci`
+- [x] 1.1 `mise exec -- bundle exec rspec spec/services/redaction/`
+- [x] 1.2 `mise exec -- bin/ci`
 
 #### Manual
 

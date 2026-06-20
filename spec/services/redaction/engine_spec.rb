@@ -18,13 +18,13 @@ RSpec.describe Redaction::Engine do
       expect(result.sanitized_text).not_to include("sk-test-token-abcdef123456")
 
       expect(result.findings).to contain_exactly(
-        hash_including(
+        have_attributes(
           finding_type: "email",
           line_number: 1,
           placeholder: "[EMAIL_1]",
           risk_level: "high"
         ),
-        hash_including(
+        have_attributes(
           finding_type: "authorization_header",
           line_number: 2,
           placeholder: "[AUTH_1]",
@@ -33,10 +33,12 @@ RSpec.describe Redaction::Engine do
       )
 
       result.findings.each do |finding|
-        expect(finding).not_to have_key(:original)
-        expect(finding).not_to have_key(:raw)
-        expect(finding.values.join).not_to include("user@example.com")
-        expect(finding.values.join).not_to include("sk-test-token-abcdef123456")
+        expect(finding).to be_a(Redaction::Finding)
+        expect(finding.members).not_to include(:original, :raw)
+        expect([ finding.finding_type, finding.line_number.to_s, finding.placeholder, finding.risk_level ].join)
+          .not_to include("user@example.com")
+        expect([ finding.finding_type, finding.line_number.to_s, finding.placeholder, finding.risk_level ].join)
+          .not_to include("sk-test-token-abcdef123456")
       end
     end
 
@@ -49,7 +51,7 @@ RSpec.describe Redaction::Engine do
       result = described_class.redact(raw)
 
       expect(result.findings).to include(
-        hash_including(
+        have_attributes(
           finding_type: "request_id",
           line_number: 2,
           placeholder: "[REQUEST_1]"
@@ -64,7 +66,7 @@ RSpec.describe Redaction::Engine do
 
       expect(first.sanitized_text).to include("[REQUEST_1]")
       expect(second.sanitized_text).to include("[REQUEST_1]")
-      expect(first.findings.first[:placeholder]).to eq(second.findings.first[:placeholder])
+      expect(first.findings.first.placeholder).to eq(second.findings.first.placeholder)
     end
 
     it "correlates the same request id across two sources in one submission" do
