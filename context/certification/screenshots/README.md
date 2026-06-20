@@ -9,4 +9,5 @@ Submission evidence for 10xDevs badges. Layout: **badge → lesson → PNGs**.
 | **10xChampion** — M5L4 AI toolkit publish | [`champion/m5l4/`](champion/m5l4/) | `e2e/capture-m5l4-screenshots.spec.ts` |
 | **10xArchitect** (M4) | [`architect/`](architect/) | `e2e/capture-architect-screenshots.spec.ts` (English excerpts in [`architect-excerpts/`](architect-excerpts/)) |
 
-Tracker: [`../certification-readiness.md`](../certification-readiness.md).
+Tracker: [`../certification-readiness.md`](../certification-readiness.md).  
+Deadlines and forms: [`../submission-guide.md`](../submission-guide.md).

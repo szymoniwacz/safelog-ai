@@ -8,6 +8,23 @@ scope: 10xDevs Builder + Architect + Champion
 
 > **Source of truth** for certification progress across all three badges.
 > Update this file as evidence accrues.
+>
+> **Submission deadlines, forms, and course rules:** [`submission-guide.md`](submission-guide.md)
+
+## Submission deadlines (course)
+
+Official 10xDevs 3.0 intake closes **23:59** on each date. All badges submitted in the **same** chosen round (no adding Architect/Champion later).
+
+| Round | Date | Notes |
+|-------|------|-------|
+| **1** | **2026-07-05** | Distinctions + Demo Day eligibility |
+| **2** | **2026-08-10** | — |
+| **3** | **2026-09-14** | Final |
+
+- **Builder (M1–M3):** separate form — see platform post *Certyfikacja 10xBuilder*.
+- **Architect + Champion (M4–M5):** [shared Baserow form](https://baserow.io/form/fwnBioduXc90QTli6lsCVL_YgRdTECPTCmwiVhu8d-E).
+
+Full rules, SafeLog artifact mapping, and recommended strategy: [`submission-guide.md`](submission-guide.md).
 
 ## Current Status
 
@@ -34,10 +51,10 @@ flowchart LR
 
 | Phase | Goal | Remaining before final submission |
 |-------|------|-----------------------------------|
-| **Builder** | Working MVP + context + tests + CI + deploy | None — ready to submit |
-| **Architect** | Large-repo architecture literacy + evidence | None — M4L2–L5 done; readiness review + screenshots |
-| **Champion** | AI-assisted team workflow + automation | None — M5L2–L4 done; readiness review + screenshots |
-| **Final package** | One submission, three badges | Submit using sections below |
+| **Builder** | Working MVP + context + tests + CI + deploy | None — ready; use Builder form in chosen [deadline round](submission-guide.md#submission-deadlines) |
+| **Architect** | Large-repo architecture literacy + evidence | None — M4L2–L5 done; M4L5 two-pager + [Baserow form](https://baserow.io/form/fwnBioduXc90QTli6lsCVL_YgRdTECPTCmwiVhu8d-E) |
+| **Champion** | AI-assisted team workflow + automation | None — M5L2–L4 done; screenshots in same round as Builder |
+| **Final package** | One submission round, up to three badges | Pick round (Jul 5 / Aug 10 / Sep 14); see [submission rules](submission-guide.md#submission-rules--plan-your-strategy) |
 
 ---
 
@@ -206,7 +223,7 @@ gh run view 27875364234                           # publish workflow evidence
 
 ## Final Submission Package
 
-Single packet for **Builder + Architect + Champion** — all badges ready.
+Single **certification round** for **Builder + Architect + Champion** — all badges ready in repo; submit both forms in the same chosen deadline ([`submission-guide.md`](submission-guide.md)).
 
 | Artifact | Builder | Architect | Champion |
 |----------|---------|-----------|----------|
@@ -308,6 +325,7 @@ PLAYWRIGHT_SKIP_WEBSERVER=1 PLAYWRIGHT_BASE_URL=https://safelog-ai.fly.dev \
 
 | File | Role |
 |------|------|
+| `context/certification/submission-guide.md` | Official course deadlines, forms, submission rules, SafeLog mapping |
 | `context/reviews/m1-m3-builder-readiness-review.md` | Point-in-time Builder audit (2026-06-09) |
 | `context/reviews/m1-m3-final-impl-review.md` | Six-dimension Builder impl-review |
 | `context/reviews/m4-architect-readiness-review.md` | Point-in-time Architect audit (2026-06-20) |
