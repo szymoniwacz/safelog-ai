@@ -14,12 +14,14 @@
   "files": [
     "skills/",
     "rules/",
+    "lib/",
     "install.js",
     "uninstall.js",
     "README.md"
   ],
   "scripts": {
-    "postinstall": "node install.js"
+    "postinstall": "node install.js",
+    "smoke": "node scripts/smoke-install.js"
   },
   "bin": {
     "ai-toolkit": "./bin/ai-toolkit.js"

@@ -415,12 +415,12 @@ No migration — greenfield package. Existing repos without the package are unch
 
 #### Automated
 
-- [ ] 4.1 Smoke script passes locally from `packages/ai-toolkit`
-- [ ] 4.2 Publish workflow YAML valid; validate job runs smoke + pack dry-run
+- [x] 4.1 Smoke script passes locally from `packages/ai-toolkit`
+- [x] 4.2 Publish workflow YAML valid; validate job runs smoke + pack dry-run
 
 #### Manual
 
-- [ ] 4.3 Workflow uses Node 22, checkout@v6, `@szymoniwacz` scope, path filters
+- [x] 4.3 Workflow uses Node 22, checkout@v6, `@szymoniwacz` scope, path filters
 
 ### Phase 5: Consumer Documentation and First Publish
 
