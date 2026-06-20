@@ -3,7 +3,10 @@
 module Ai
   class ClientResolver
     def self.current
-      return FakeClient.new if Rails.env.test?
+      if Rails.env.test?
+        return InvalidClient.new if Ai::E2eContext.client_mode == "invalid"
+        return FakeClient.new
+      end
       return OpenAiClient.new if ENV["OPENAI_API_KEY"].present?
 
       FakeClient.new

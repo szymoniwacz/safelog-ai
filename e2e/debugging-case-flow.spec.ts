@@ -43,7 +43,8 @@ test("full debugging case journey in the browser", async ({ page }) => {
   await expect(railsLog).toContainText("[AUTH_1]");
 
   await page.getByRole("button", { name: "Analyze case" }).click();
-  await expect(page.getByText("Analysis complete.")).toBeVisible();
+
+  await expect(page.locator(".flash-messages").getByText("Analysis complete.")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Hypothesis report" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Correlation signals" })).toBeVisible();
   const correlationSection = page.locator("section.card").filter({

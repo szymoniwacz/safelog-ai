@@ -7,6 +7,14 @@ RSpec.describe Ai::ClientResolver do
     it "returns a fake client in test" do
       expect(described_class.current).to be_a(Ai::FakeClient)
     end
+
+    it "returns an invalid client when E2E header mode is set" do
+      Ai::E2eContext.client_mode = "invalid"
+
+      expect(described_class.current).to be_a(Ai::InvalidClient)
+    ensure
+      Ai::E2eContext.reset
+    end
   end
 
   describe ".fake_client_active?" do

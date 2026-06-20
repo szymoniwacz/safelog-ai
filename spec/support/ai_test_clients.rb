@@ -29,14 +29,14 @@ module AiTestClients
     attr_reader :complete_calls, :last_request
 
     def initialize
-      @complete_calls = 0
+      @delegate = Ai::InvalidClient.new
     end
 
     def complete(request)
-      @complete_calls += 1
-      @last_request = request
-
-      Ai::CompletionResult.new(structured: { summary: "" }, markdown: "")
+      result = @delegate.complete(request)
+      @complete_calls = @delegate.complete_calls
+      @last_request = @delegate.last_request
+      result
     end
   end
 end

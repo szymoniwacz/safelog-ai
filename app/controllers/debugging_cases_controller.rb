@@ -40,6 +40,9 @@ class DebuggingCasesController < AuthenticatedController
 
   def analyze
     debugging_case = current_user.debugging_cases.find(params[:id])
+    if Rails.env.test?
+      Ai::E2eContext.client_mode = request.headers["X-E2E-AI-Client"]
+    end
     result = Analysis::AnalyzeCase.call(debugging_case: debugging_case)
 
     if result.success?
@@ -47,6 +50,8 @@ class DebuggingCasesController < AuthenticatedController
     else
       redirect_to debugging_case_path(debugging_case), alert: result.user_message
     end
+  ensure
+    Ai::E2eContext.reset if Rails.env.test?
   end
 
   def download_report
