@@ -47,3 +47,7 @@ npx playwright test e2e/capture-champion-screenshots.spec.ts
 ```
 
 Update URLs in `e2e/capture-champion-screenshots.spec.ts` when re-capturing against newer PRs or workflow runs.
+
+## M5L4 — AI toolkit publish
+
+See [`m5l4/`](m5l4/) — GitHub Packages publish evidence ([PR #13](https://github.com/szymoniwacz/safelog-ai/pull/13), [run 27875364234](https://github.com/szymoniwacz/safelog-ai/actions/runs/27875364234)).

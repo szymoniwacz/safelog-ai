@@ -1,9 +1,9 @@
 {
   "package": "@szymoniwacz/ai-toolkit",
-  "version": "0.1.0",
-  "installedAt": "2026-06-20T16:17:27.284Z",
+  "version": "0.1.1",
+  "installedAt": "2026-06-20T16:32:03.918Z",
   "files": [
-    ".cursor/skills/code-review/.cursor/skills/code-review/SKILL.md",
+    ".cursor/skills/code-review/SKILL.md",
     "AGENTS.md"
   ]
 }

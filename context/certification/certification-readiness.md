@@ -1,6 +1,6 @@
 ---
 project: SafeLog AI
-updated: 2026-06-18
+updated: 2026-06-20
 scope: 10xDevs Builder + Architect + Champion
 ---
 
@@ -15,9 +15,9 @@ scope: 10xDevs Builder + Architect + Champion
 |-------|---------|---------|---------|
 | **10xBuilder** | M1–M3 | **READY** | MVP shipped; 135 RSpec + system + Playwright; Fly.io live at https://safelog-ai.fly.dev/; submission screenshots captured; local `bin/ci` + remote GHA green on `main` (2026-06-09). |
 | **10xArchitect** | M4 | **IN PROGRESS** | M4L2–L5 complete (map, flow research, refactor ranking, domain distillation, invariant + ACL plans); pending Architect review, refactor **implementation**, modernization. |
-| **10xChampion** | M5 | **IN PROGRESS** | M5L2 review agent (`packages/code-reviewer/`) + M5L3 GHA workflow; PR #11 AI review green; Champion screenshots captured. |
+| **10xChampion** | M5 | **READY** | M5L2 review agent + M5L3 GHA AI review (PR #11 fail / #12 pass) + M5L4 `@szymoniwacz/ai-toolkit` on GitHub Packages ([PR #13](https://github.com/szymoniwacz/safelog-ai/pull/13), [run 27875364234](https://github.com/szymoniwacz/safelog-ai/actions/runs/27875364234)); Champion readiness review + screenshots. |
 
-**Overall:** Builder ready to submit. Architect **in progress** — M4L2–L5 exploration and DDD planning complete; ranked refactor plans in `context/domain/`; review + code implementation pending. Champion **in progress** — CI AI code review shipped; submission screenshots captured.
+**Overall:** Builder and Champion **ready to submit**. Architect **in progress** — M4L2–L5 exploration and DDD planning complete; ranked refactor plans in `context/domain/`; review + refactor implementation pending.
 
 ---
 
@@ -26,7 +26,7 @@ scope: 10xDevs Builder + Architect + Champion
 ```mermaid
 flowchart LR
   B[10xBuilder READY] --> A[10xArchitect IN PROGRESS]
-  A --> C[10xChampion TODO]
+  A --> C[10xChampion READY]
   B --> S[Final combined submission]
   A --> S
   C --> S
@@ -36,7 +36,7 @@ flowchart LR
 |-------|------|-----------------------------------|
 | **Builder** | Working MVP + context + tests + CI + deploy | None — ready to submit |
 | **Architect** | Large-repo architecture literacy + evidence | M4L2–L5 complete (incl. domain distillation + refactor plans); remaining: Architect review, implement ranked refactors, modernization |
-| **Champion** | AI-assisted team workflow + automation | M5L2–L3 done; Champion review + remaining M5 exercises pending |
+| **Champion** | AI-assisted team workflow + automation | None — M5L2–L4 done; readiness review + screenshots captured |
 | **Final package** | One submission, three badges | All sections below populated; demo script; screenshots |
 
 ---
@@ -153,32 +153,49 @@ Module 4 course prompts:
 
 ## 10xChampion
 
-**Verdict: IN PROGRESS** — M5L2 local review agent and M5L3 GitHub Actions integration implemented; submission screenshots captured.
+**Verdict: READY** (evidence: [`context/reviews/m5-champion-readiness-review.md`](../reviews/m5-champion-readiness-review.md))
 
 ### Checklist (Module 5 outcomes)
 
 | Item | Status | Notes |
 |------|--------|-------|
-| AI-assisted team workflow | **PARTIAL** | `packages/code-reviewer/` — TypeScript agent (OpenAI via Vercel AI SDK) |
+| AI-assisted team workflow | **PASS** | `packages/code-reviewer/` — TypeScript agent (OpenAI via Vercel AI SDK) |
 | CI/CD AI integration | **PASS** | `.github/workflows/ai-code-review.yml`; composite action; labels `ai-cr:*` |
-| Automation workflows — hooks / bots | **PARTIAL** | GHA bot posts review on PR; `.cursor/hooks.json` exists |
-| Quality gates — extended automation | **PARTIAL** | AI review on PR to `main`; Playwright still optional in main CI |
-| Champion exercises | **PARTIAL** | M5L2 + M5L3 implemented; remaining M5 lessons TODO |
-| Review artifacts — Champion review | **TODO** | No Champion review document |
-| Submission screenshots | **PASS** | [`screenshots/champion/`](screenshots/champion/) — 6 PNGs: fail (PR #11) + pass (PR #12), 2026-06-18 |
+| Team artifact distribution (M5L4) | **PASS** | `@szymoniwacz/ai-toolkit` — GitHub Packages; postinstall + manifest |
+| Automation workflows — hooks / bots | **PASS** | GHA bots (AI review + toolkit publish); `.cursor/hooks.json` |
+| Quality gates — extended automation | **PASS** | AI review on PR to `main`; toolkit validate + smoke in publish workflow |
+| Champion exercises | **PASS** | M5L2 + M5L3 + M5L4 implemented and archived |
+| Review artifacts — Champion review | **PASS** | [`m5-champion-readiness-review.md`](../reviews/m5-champion-readiness-review.md) |
+| Submission screenshots | **PASS** | M5L3: [`screenshots/champion/`](screenshots/champion/) (6 PNGs); M5L4: [`screenshots/champion/m5l4/`](screenshots/champion/m5l4/) |
 
 ### Evidence
 
 | Type | Location |
 |------|----------|
+| Readiness audit | [`context/reviews/m5-champion-readiness-review.md`](../reviews/m5-champion-readiness-review.md) |
 | Review agent (M5L2) | [`packages/code-reviewer/`](../../packages/code-reviewer/) |
 | CI workflow (M5L3) | [`.github/workflows/ai-code-review.yml`](../../.github/workflows/ai-code-review.yml) |
-| Change spec | [`context/changes/ci-cd-code-review/`](../changes/ci-cd-code-review/) |
+| Change spec (M5L3) | [`context/changes/ci-cd-code-review/`](../changes/ci-cd-code-review/) |
 | Test PR (fail) | [PR #11](https://github.com/szymoniwacz/safelog-ai/pull/11) — verdict **fail** (intentional issues) |
 | Test PR (pass) | [PR #12](https://github.com/szymoniwacz/safelog-ai/pull/12) — verdict **pass** (`feature/case-index-analysis-status`) |
 | GHA run (fail) | [Run 27760320185](https://github.com/szymoniwacz/safelog-ai/actions/runs/27760320185) |
 | GHA run (pass) | [Run 27763104255](https://github.com/szymoniwacz/safelog-ai/actions/runs/27763104255) |
-| Screenshots | [`context/certification/screenshots/champion/`](screenshots/champion/) |
+| Distribution decision (M5L4) | [`context/team/m5l4-distribution-decision.md`](../team/m5l4-distribution-decision.md) |
+| AI toolkit package (M5L4) | [`packages/ai-toolkit/`](../../packages/ai-toolkit/) — `@szymoniwacz/ai-toolkit@0.1.0` |
+| Publish workflow (M5L4) | [`.github/workflows/publish-ai-toolkit.yml`](../../.github/workflows/publish-ai-toolkit.yml) |
+| Toolkit change + impl-review | [`context/archive/2026-06-20-ai-toolkit-registry/`](../archive/2026-06-20-ai-toolkit-registry/) |
+| Toolkit PR | [PR #13](https://github.com/szymoniwacz/safelog-ai/pull/13) — merged 2026-06-20 |
+| GHA publish run | [Run 27875364234](https://github.com/szymoniwacz/safelog-ai/actions/runs/27875364234) |
+| Screenshots (M5L3) | [`context/certification/screenshots/champion/`](screenshots/champion/) |
+| Screenshots (M5L4) | [`context/certification/screenshots/champion/m5l4/`](screenshots/champion/m5l4/) |
+
+### Commands (verified 2026-06-20)
+
+```bash
+cd packages/ai-toolkit && npm run smoke          # install/uninstall round-trip — PASS
+npx @szymoniwacz/ai-toolkit install             # refresh AGENTS.md + skill from registry
+gh run view 27875364234                           # publish workflow evidence
+```
 
 ---
 
@@ -188,13 +205,13 @@ Single packet for **Builder + Architect + Champion** when all badges are ready.
 
 | Artifact | Builder | Architect | Champion |
 |----------|---------|-----------|----------|
-| Project summary | README + PRD | [`repo-map.md`](../map/repo-map.md) TL;DR + [`context/domain/`](../domain/) DDD artifacts | TODO |
-| Demo script | See [Demo flow](#demo-flow) | TODO | TODO |
-| Screenshots | [`context/certification/screenshots/`](screenshots/) (7 PNGs, Fly 2026-06-09) | TODO | [`screenshots/champion/`](screenshots/champion/) (6 PNGs: PR #11 fail + PR #12 pass) |
+| Project summary | README + PRD | [`repo-map.md`](../map/repo-map.md) TL;DR + [`context/domain/`](../domain/) DDD artifacts | [`m5-champion-readiness-review.md`](../reviews/m5-champion-readiness-review.md) executive summary |
+| Demo script | See [Demo flow](#demo-flow) | TODO | M5L3: open PR → AI review comment; M5L4: `npm install` → skill in `.cursor/skills/` |
+| Screenshots | [`context/certification/screenshots/`](screenshots/) (7 PNGs, Fly 2026-06-09) | TODO | M5L3: [`screenshots/champion/`](screenshots/champion/) (6 PNGs); M5L4: [`screenshots/champion/m5l4/`](screenshots/champion/m5l4/) |
 | Deployment URL | https://safelog-ai.fly.dev/ | Same URL + architecture notes | Same + automation proof |
-| Review documents | `m1-m3-*` reviews | TODO | TODO |
-| CI evidence | `bin/ci` + GHA config | TODO — include map/structure gates if added | [AI code review workflow](../../.github/workflows/ai-code-review.yml) + [run 27760320185](https://github.com/szymoniwacz/safelog-ai/actions/runs/27760320185) |
-| Certification notes | This file | Update Architect section | Update Champion section |
+| Review documents | `m1-m3-*` reviews | TODO | [`m5-champion-readiness-review.md`](../reviews/m5-champion-readiness-review.md) |
+| CI evidence | `bin/ci` + GHA config | TODO — include map/structure gates if added | [AI code review](../../.github/workflows/ai-code-review.yml) + [publish toolkit](../../.github/workflows/publish-ai-toolkit.yml) |
+| Certification notes | This file | Update Architect section | Champion section current (2026-06-20) |
 
 ### Demo flow (Builder — verified locally and on Fly)
 
@@ -277,11 +294,10 @@ PLAYWRIGHT_SKIP_WEBSERVER=1 PLAYWRIGHT_BASE_URL=https://safelog-ai.fly.dev \
 
 ### Champion
 
-| Gap | Action |
-|-----|--------|
-| Remaining M5 lessons | Complete M5L4+ per course |
-| No Champion review document | Run course Champion review workflow |
-| Playwright not in main GHA | Optional Champion gate if course requires browser CI |
+| Gap | Severity | Action |
+|-----|----------|--------|
+| Toolkit **0.1.1** not yet published | Low | Bump version + push to `main` to publish impl-review triage fixes (manifest paths, trimmed rules) |
+| Playwright not in main GHA | Accepted | Optional gate; E2E capture scripts exist for submission screenshots |
 
 ---
 
@@ -291,6 +307,7 @@ PLAYWRIGHT_SKIP_WEBSERVER=1 PLAYWRIGHT_BASE_URL=https://safelog-ai.fly.dev \
 |------|------|
 | `context/reviews/m1-m3-builder-readiness-review.md` | Point-in-time Builder audit (2026-06-09) |
 | `context/reviews/m1-m3-final-impl-review.md` | Six-dimension Builder impl-review |
+| `context/reviews/m5-champion-readiness-review.md` | Point-in-time Champion audit (2026-06-20) |
 | `context/reviews/builder-certification-submission-checklist.md` | **Superseded** — merged here; kept for link stability |
 | `context/domain/01-domain-distillation.md` | M4L5-1 — ubiquitous language, subdomains, MODEL vs CODE gaps |
 | `context/domain/02-invariant-aggregate-refactor.md` | M4L5-2 — INV-G1 aggregate guardian plan (plans only) |

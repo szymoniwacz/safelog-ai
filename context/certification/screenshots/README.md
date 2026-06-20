@@ -25,6 +25,14 @@ npx playwright test e2e/capture-submission-screenshots.spec.ts
 
 Requires the Fly app to be running. Production demo path: **New case** + manual paste (no **Load demo case**).
 
-## Champion (M5 CI code review)
+## Champion (M5 CI code review + toolkit publish)
 
-See [`champion/`](champion/) — 6 PNGs: fail ([PR #11](https://github.com/szymoniwacz/safelog-ai/pull/11)) + pass ([PR #12](https://github.com/szymoniwacz/safelog-ai/pull/12)), 2026-06-18.
+**M5L3** — [`champion/`](champion/) — 6 PNGs: fail ([PR #11](https://github.com/szymoniwacz/safelog-ai/pull/11)) + pass ([PR #12](https://github.com/szymoniwacz/safelog-ai/pull/12)), 2026-06-18.
+
+**M5L4** — [`champion/m5l4/`](champion/m5l4/) — 5 PNGs: publish workflow ([run 27875364234](https://github.com/szymoniwacz/safelog-ai/actions/runs/27875364234)), GitHub Packages, [PR #13](https://github.com/szymoniwacz/safelog-ai/pull/13).
+
+```bash
+# M5L4 re-capture (requires gh auth):
+PLAYWRIGHT_SKIP_WEBSERVER=1 PLAYWRIGHT_CAPTURE_SCREENSHOTS=1 \
+  npx playwright test e2e/capture-m5l4-screenshots.spec.ts
+```
