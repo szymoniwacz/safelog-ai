@@ -7,6 +7,7 @@ const SCREENSHOT_DIR = path.join(
   "context",
   "certification",
   "screenshots",
+  "builder",
 );
 
 test.describe.configure({ mode: "serial" });

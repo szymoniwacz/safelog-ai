@@ -1,38 +1,12 @@
-# Builder submission screenshots
+# Certification screenshots
 
-Captured from **https://safelog-ai.fly.dev/** on 2026-06-09 via Playwright (`e2e/capture-submission-screenshots.spec.ts`).
+Submission evidence for 10xDevs badges. Layout: **badge → lesson → PNGs**.
 
-**Note for reviewers:** these screenshots use **manual intake** (New case + paste). The public Fly app does not show **Load demo case** — that button appears only in local development/test. See `../certification-readiness.md` § Public demo vs local `load_demo`.
+| Badge | Folder | Capture spec |
+|-------|--------|--------------|
+| **10xBuilder** (M1–M3) | [`builder/`](builder/) | `e2e/capture-submission-screenshots.spec.ts` |
+| **10xChampion** — M5L3 CI code review | [`champion/m5l3/`](champion/m5l3/) | `e2e/capture-champion-screenshots.spec.ts` |
+| **10xChampion** — M5L4 AI toolkit publish | [`champion/m5l4/`](champion/m5l4/) | `e2e/capture-m5l4-screenshots.spec.ts` |
+| **10xArchitect** (M4) | [`architect/`](architect/) | — (no screenshots yet) |
 
-| File | Step |
-|------|------|
-| `01-sign-in.png` | Public sign-in page |
-| `02-sign-up.png` | Registration page (empty form) |
-| `03-dashboard.png` | Dashboard after registration |
-| `04-new-case-intake.png` | New case form with multi-source paste (pre-submit) |
-| `05-case-redaction-summary.png` | Case show — sanitized logs + redaction summary (raw secrets not visible) |
-| `06-hypothesis-report.png` | After analyze — hypothesis report + correlation signals |
-| `07-archived-cases.png` | Case index — Archived filter |
-
-## Re-capture
-
-```bash
-PLAYWRIGHT_SKIP_WEBSERVER=1 \
-PLAYWRIGHT_BASE_URL=https://safelog-ai.fly.dev \
-PLAYWRIGHT_CAPTURE_SCREENSHOTS=1 \
-npx playwright test e2e/capture-submission-screenshots.spec.ts
-```
-
-Requires the Fly app to be running. Production demo path: **New case** + manual paste (no **Load demo case**).
-
-## Champion (M5 CI code review + toolkit publish)
-
-**M5L3** — [`champion/`](champion/) — 6 PNGs: fail ([PR #11](https://github.com/szymoniwacz/safelog-ai/pull/11)) + pass ([PR #12](https://github.com/szymoniwacz/safelog-ai/pull/12)), 2026-06-18.
-
-**M5L4** — [`champion/m5l4/`](champion/m5l4/) — 5 PNGs: publish workflow ([run 27875364234](https://github.com/szymoniwacz/safelog-ai/actions/runs/27875364234)), GitHub Packages, [PR #13](https://github.com/szymoniwacz/safelog-ai/pull/13).
-
-```bash
-# M5L4 re-capture (requires gh auth):
-PLAYWRIGHT_SKIP_WEBSERVER=1 PLAYWRIGHT_CAPTURE_SCREENSHOTS=1 \
-  npx playwright test e2e/capture-m5l4-screenshots.spec.ts
-```
+Tracker: [`../certification-readiness.md`](../certification-readiness.md).

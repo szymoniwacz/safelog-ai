@@ -1,5 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import { execSync } from "node:child_process";
+import fs from "node:fs";
 import path from "node:path";
 
 const SCREENSHOT_DIR = path.join(
@@ -24,6 +25,9 @@ type PublishCapture = {
     publishJobLogs: string;
     packagePage: string;
     prMerged: string;
+    packageJson: string;
+    manifest: string;
+    skillInstalled: string;
   };
 };
 
@@ -44,8 +48,17 @@ const PUBLISH_RUN: PublishCapture = {
     publishJobLogs: "03-publish-job-logs.png",
     packagePage: "04-github-packages-page.png",
     prMerged: "05-pr-13-merged.png",
+    packageJson: "06-consumer-package-json.png",
+    manifest: "07-consumer-manifest.png",
+    skillInstalled: "08-consumer-skill-installed.png",
   },
 };
+
+const CONSUMER_FILES = {
+  packageJson: "package.json",
+  manifest: ".cursor/.ai-toolkit-manifest.json",
+  skill: ".cursor/skills/code-review/SKILL.md",
+} as const;
 
 function stripLogLine(raw: string): string {
   return raw
@@ -131,6 +144,53 @@ async function expandJobLogSteps(page: Page, runId: string): Promise<void> {
   }
 }
 
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+async function captureRepoFile(
+  page: Page,
+  repoPath: string,
+  filename: string,
+): Promise<void> {
+  const absolutePath = path.join(process.cwd(), repoPath);
+  if (!fs.existsSync(absolutePath)) {
+    throw new Error(`missing consumer evidence file: ${repoPath}`);
+  }
+
+  let content = fs.readFileSync(absolutePath, "utf8");
+  if (repoPath === CONSUMER_FILES.skill) {
+    content = content.split("\n").slice(0, 24).join("\n");
+  }
+
+  await page.setContent(
+    `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>${escapeHtml(repoPath)}</title>
+    <style>
+      body { margin: 0; background: #0d1117; color: #c9d1d9; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+      header { padding: 16px 24px; border-bottom: 1px solid #30363d; font-size: 14px; color: #58a6ff; }
+      pre { margin: 0; padding: 24px; white-space: pre-wrap; line-height: 1.5; font-size: 13px; }
+    </style>
+  </head>
+  <body>
+    <header>szymoniwacz/safelog-ai — ${escapeHtml(repoPath)}</header>
+    <pre>${escapeHtml(content)}</pre>
+  </body>
+</html>`,
+  );
+
+  await page.screenshot({
+    path: path.join(SCREENSHOT_DIR, filename),
+    fullPage: true,
+  });
+}
+
 async function captureJobLogs(
   page: Page,
   jobUrl: string,
@@ -163,7 +223,7 @@ test("capture Champion M5L4 publish workflow screenshots", async ({ page }) => {
     });
     await page.screenshot({
       path: path.join(SCREENSHOT_DIR, PUBLISH_RUN.files.workflowRun),
-      fullPage: false,
+      fullPage: true,
     });
   });
 
@@ -205,5 +265,17 @@ test("capture Champion M5L4 publish workflow screenshots", async ({ page }) => {
       path: path.join(SCREENSHOT_DIR, PUBLISH_RUN.files.prMerged),
       fullPage: true,
     });
+  });
+
+  await test.step("consumer package.json dependency", async () => {
+    await captureRepoFile(page, CONSUMER_FILES.packageJson, PUBLISH_RUN.files.packageJson);
+  });
+
+  await test.step("consumer install manifest", async () => {
+    await captureRepoFile(page, CONSUMER_FILES.manifest, PUBLISH_RUN.files.manifest);
+  });
+
+  await test.step("consumer installed skill", async () => {
+    await captureRepoFile(page, CONSUMER_FILES.skill, PUBLISH_RUN.files.skillInstalled);
   });
 });

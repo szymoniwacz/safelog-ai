@@ -62,7 +62,7 @@ flowchart LR
 | Deployment evidence | **PASS** | `deploy-plan.md` § Deployment status + lessons learned; manual E2E verification (2026-06-09) |
 | Demo flow — local | **PASS** | README demo section; **Load demo case** + manual intake; system + Playwright specs |
 | Demo flow — public | **PASS** | Manual intake → analyze → archive on Fly (2026-06-09); **no load_demo** — see [Public demo vs local](#public-demo-vs-local-load_demo) |
-| Submission screenshots | **PASS** | [`context/certification/screenshots/`](screenshots/) — 7 PNGs from live Fly (2026-06-09) |
+| Submission screenshots | **PASS** | [`context/certification/screenshots/builder/`](screenshots/builder/) — 7 PNGs from live Fly (2026-06-09) |
 | Security evidence | **PASS** | Security checklist in builder readiness review; log guard, encryption, AI boundary specs |
 
 ### Evidence
@@ -74,7 +74,7 @@ flowchart LR
 | Historical impl-review | [`context/reviews/mvp-impl-review.md`](../reviews/mvp-impl-review.md) |
 | PRD / roadmap / test-plan | [`context/foundation/`](../foundation/) |
 | Deploy plan | [`context/deployment/deploy-plan.md`](../deployment/deploy-plan.md) |
-| Submission screenshots | [`context/certification/screenshots/`](screenshots/) |
+| Submission screenshots | [`context/certification/screenshots/builder/`](screenshots/builder/) |
 | Health check | [`context/foundation/health-check.md`](../foundation/health-check.md) |
 
 ### Commands (verified 2026-06-09)
@@ -166,7 +166,7 @@ Module 4 course prompts:
 | Quality gates — extended automation | **PASS** | AI review on PR to `main`; toolkit validate + smoke in publish workflow |
 | Champion exercises | **PASS** | M5L2 + M5L3 + M5L4 implemented and archived |
 | Review artifacts — Champion review | **PASS** | [`m5-champion-readiness-review.md`](../reviews/m5-champion-readiness-review.md) |
-| Submission screenshots | **PASS** | M5L3: [`screenshots/champion/`](screenshots/champion/) (6 PNGs); M5L4: [`screenshots/champion/m5l4/`](screenshots/champion/m5l4/) |
+| Submission screenshots | **PASS** | M5L3: [`screenshots/champion/m5l3/`](screenshots/champion/m5l3/) (6 PNGs); M5L4: [`screenshots/champion/m5l4/`](screenshots/champion/m5l4/) (8 PNGs) |
 
 ### Evidence
 
@@ -186,7 +186,7 @@ Module 4 course prompts:
 | Toolkit change + impl-review | [`context/archive/2026-06-20-ai-toolkit-registry/`](../archive/2026-06-20-ai-toolkit-registry/) |
 | Toolkit PR | [PR #13](https://github.com/szymoniwacz/safelog-ai/pull/13) — merged 2026-06-20 |
 | GHA publish run | [Run 27875364234](https://github.com/szymoniwacz/safelog-ai/actions/runs/27875364234) |
-| Screenshots (M5L3) | [`context/certification/screenshots/champion/`](screenshots/champion/) |
+| Screenshots (M5L3) | [`context/certification/screenshots/champion/m5l3/`](screenshots/champion/m5l3/) |
 | Screenshots (M5L4) | [`context/certification/screenshots/champion/m5l4/`](screenshots/champion/m5l4/) |
 
 ### Commands (verified 2026-06-20)
@@ -207,7 +207,7 @@ Single packet for **Builder + Architect + Champion** when all badges are ready.
 |----------|---------|-----------|----------|
 | Project summary | README + PRD | [`repo-map.md`](../map/repo-map.md) TL;DR + [`context/domain/`](../domain/) DDD artifacts | [`m5-champion-readiness-review.md`](../reviews/m5-champion-readiness-review.md) executive summary |
 | Demo script | See [Demo flow](#demo-flow) | TODO | M5L3: open PR → AI review comment; M5L4: `npm install` → skill in `.cursor/skills/` |
-| Screenshots | [`context/certification/screenshots/`](screenshots/) (7 PNGs, Fly 2026-06-09) | TODO | M5L3: [`screenshots/champion/`](screenshots/champion/) (6 PNGs); M5L4: [`screenshots/champion/m5l4/`](screenshots/champion/m5l4/) |
+| Screenshots | [`screenshots/builder/`](screenshots/builder/) (7 PNGs, Fly 2026-06-09) | TODO | M5L3: [`screenshots/champion/m5l3/`](screenshots/champion/m5l3/) (6 PNGs); M5L4: [`screenshots/champion/m5l4/`](screenshots/champion/m5l4/) (8 PNGs) |
 | Deployment URL | https://safelog-ai.fly.dev/ | Same URL + architecture notes | Same + automation proof |
 | Review documents | `m1-m3-*` reviews | TODO | [`m5-champion-readiness-review.md`](../reviews/m5-champion-readiness-review.md) |
 | CI evidence | `bin/ci` + GHA config | TODO — include map/structure gates if added | [AI code review](../../.github/workflows/ai-code-review.yml) + [publish toolkit](../../.github/workflows/publish-ai-toolkit.yml) |
@@ -237,18 +237,18 @@ Reviewers and course staff often compare the README demo (which mentions **Load 
 | **How to start a case** | **Load demo case** *or* **New case** + manual paste | **New case** only — paste ≥2 log sources (Rails, CloudWatch, browser console, etc.) |
 | **Redaction / analyze / export / archive** | Same services and UI | Same services and UI |
 | **AI output** | Fake client if `OPENAI_API_KEY` unset (notice on case page) | Same |
-| **Submission screenshots** | N/A | Captured via manual intake on Fly — see [`screenshots/04-new-case-intake.png`](screenshots/04-new-case-intake.png) |
+| **Submission screenshots** | N/A | Captured via manual intake on Fly — see [`screenshots/builder/04-new-case-intake.png`](screenshots/builder/04-new-case-intake.png) |
 
 **Why production has no load_demo:** `Demo::LoadCase.available?` is true only in development and test (`app/services/demo/load_case.rb`). Production keeps the demo surface minimal and avoids a dev-only shortcut on a public URL.
 
 **Reviewer checklist (Fly, after `fly deploy`):**
 
 1. Confirm app is up: `curl -sf https://safelog-ai.fly.dev/up`
-2. Register a new account (or sign in) — screenshots [`01-sign-in.png`](screenshots/01-sign-in.png), [`02-sign-up.png`](screenshots/02-sign-up.png)
+2. Register a new account (or sign in) — screenshots [`builder/01-sign-in.png`](screenshots/builder/01-sign-in.png), [`builder/02-sign-up.png`](screenshots/builder/02-sign-up.png)
 3. **New case** → paste multiple sources with fake secrets (e.g. email, token, shared `request_id`)
-4. Verify show page: placeholders only, **Redaction summary** present — [`05-case-redaction-summary.png`](screenshots/05-case-redaction-summary.png)
-5. **Analyze case** → hypothesis report — [`06-hypothesis-report.png`](screenshots/06-hypothesis-report.png)
-6. Optional: download report, archive, **Archived** tab — [`07-archived-cases.png`](screenshots/07-archived-cases.png)
+4. Verify show page: placeholders only, **Redaction summary** present — [`builder/05-case-redaction-summary.png`](screenshots/builder/05-case-redaction-summary.png)
+5. **Analyze case** → hypothesis report — [`builder/06-hypothesis-report.png`](screenshots/builder/06-hypothesis-report.png)
+6. Optional: download report, archive, **Archived** tab — [`builder/07-archived-cases.png`](screenshots/builder/07-archived-cases.png)
 
 Do **not** expect a **Load demo case** button on Fly; that is not a deploy bug.
 

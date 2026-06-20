@@ -1,4 +1,4 @@
-# Champion submission screenshots (M5L4 AI toolkit publish)
+# Champion — M5L4 AI toolkit publish
 
 Captured from GitHub via Playwright (`e2e/capture-m5l4-screenshots.spec.ts`).
 
@@ -13,6 +13,16 @@ Captured from GitHub via Playwright (`e2e/capture-m5l4-screenshots.spec.ts`).
 | `03-publish-job-logs.png` | Publish job — `npm publish` to GitHub Packages |
 | `04-github-packages-page.png` | Package page on GitHub Packages |
 | `05-pr-13-merged.png` | Merged PR introducing the toolkit package |
+
+## Consumer install (this repo)
+
+After `npm install @szymoniwacz/ai-toolkit` from GitHub Packages:
+
+| File | Step |
+|------|------|
+| `06-consumer-package-json.png` | Root `package.json` — devDependency on `@szymoniwacz/ai-toolkit` |
+| `07-consumer-manifest.png` | `.cursor/.ai-toolkit-manifest.json` — installed files tracked |
+| `08-consumer-skill-installed.png` | `.cursor/skills/code-review/SKILL.md` materialized locally |
 
 ## Re-capture
 

@@ -8,6 +8,7 @@ const SCREENSHOT_DIR = path.join(
   "certification",
   "screenshots",
   "champion",
+  "m5l3",
 );
 
 type ReviewScenario = {

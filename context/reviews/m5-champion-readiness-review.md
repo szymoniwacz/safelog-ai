@@ -51,7 +51,7 @@ Champion work spans three vertical slices:
 | **M5L4** — consumer install | **PASS** | Root `.npmrc`, `package.json` devDep; `.cursor/.ai-toolkit-manifest.json`; AGENTS.md sentinels (commit `33bd57d`) |
 | **M5L4** — impl-review | **PASS** | [`context/archive/2026-06-20-ai-toolkit-registry/reviews/impl-review.md`](../archive/2026-06-20-ai-toolkit-registry/reviews/impl-review.md) — APPROVED |
 | **Automation** — hooks / bots | **PASS** | GHA bots (AI review + publish); `.cursor/hooks.json` present |
-| **Submission screenshots** | **PASS** | M5L3: [`screenshots/champion/`](../certification/screenshots/champion/); M5L4: [`screenshots/champion/m5l4/`](../certification/screenshots/champion/m5l4/) + capture spec |
+| **Submission screenshots** | **PASS** | M5L3: [`screenshots/champion/m5l3/`](../certification/screenshots/champion/m5l3/); M5L4: [`screenshots/champion/m5l4/`](../certification/screenshots/champion/m5l4/) + capture specs |
 
 ---
 
@@ -78,7 +78,7 @@ Local agent is separate from the distributable toolkit (by design): reviewer sta
 | Action | `.github/actions/code-review/` — installs agent, runs review, posts comment, applies labels `ai-cr:passed` / `ai-cr:failed` |
 | Fail evidence | PR #11 — intentional security issues; workflow run 27760320185 |
 | Pass evidence | PR #12 — legitimate feature; workflow run 27763104255 |
-| Screenshots | 6 PNGs under `context/certification/screenshots/champion/` (2026-06-18) |
+| Screenshots | 6 PNGs under `context/certification/screenshots/champion/m5l3/` (2026-06-18) |
 
 ---
 
@@ -137,4 +137,5 @@ Note: `.cursor/skills/` is gitignored; cloned repos need `npm install` (with Pac
 | [`context/certification/certification-readiness.md`](../certification/certification-readiness.md) | Living certification tracker |
 | [`context/changes/ci-cd-code-review/`](../changes/ci-cd-code-review/) | M5L3 change spec |
 | [`context/archive/2026-06-20-ai-toolkit-registry/`](../archive/2026-06-20-ai-toolkit-registry/) | M5L4 plan + impl-review |
-| [`context/certification/screenshots/champion/`](../certification/screenshots/champion/) | M5L3 + M5L4 submission screenshots |
+| [`context/certification/screenshots/champion/m5l3/`](../certification/screenshots/champion/m5l3/) | M5L3 CI code review screenshots |
+| [`context/certification/screenshots/champion/m5l4/`](../certification/screenshots/champion/m5l4/) | M5L4 toolkit publish screenshots |
