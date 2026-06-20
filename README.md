@@ -68,7 +68,13 @@ The demo loader is unavailable in production (`POST /debugging_cases/load_demo` 
 
 When the fake client is active outside test, the case page shows a **Demo AI client active** notice. Set `OPENAI_API_KEY` locally or in Fly secrets for real AI output.
 
-Copy `.env.example` to `.env` at the repo root. Rails does not load it automatically — export before the server:
+Copy `.env.example` to `.env` at the repo root. In **development** and **test**, `dotenv-rails` loads `.env` on boot. Restart the server after changing keys.
+
+```bash
+mise exec -- bin/dev                   # http://localhost:3000
+```
+
+You can still export manually if you prefer:
 
 ```bash
 set -a && source .env && set +a
