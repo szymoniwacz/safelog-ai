@@ -52,6 +52,7 @@
 /.cursor/skills/
 /.cursor/rules/
 /.cursor/prompts/
+/.cursor/config-templates/
 /.cursor/.10x-cli-manifest.json
 
 # Ignore key files for decrypting credentials and more.
