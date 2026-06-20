@@ -316,8 +316,8 @@ No data migration. Deploy is code-only; existing persisted findings unchanged.
 
 #### Automated
 
-- [x] 3.1 `mise exec -- bundle exec rspec spec/services/intake/process_case_submission_spec.rb`
-- [x] 3.2 `mise exec -- bin/ci`
+- [x] 3.1 `mise exec -- bundle exec rspec spec/services/intake/process_case_submission_spec.rb` — 999760c
+- [x] 3.2 `mise exec -- bin/ci` — 999760c
 
 #### Manual
 
