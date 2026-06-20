@@ -391,13 +391,13 @@ No migration — greenfield package. Existing repos without the package are unch
 
 #### Automated
 
-- [ ] 2.1 `node --check packages/ai-toolkit/install.js`
-- [ ] 2.2 `node --check packages/ai-toolkit/uninstall.js`
-- [ ] 2.3 `node --check packages/ai-toolkit/bin/ai-toolkit.js`
+- [x] 2.1 `node --check packages/ai-toolkit/install.js`
+- [x] 2.2 `node --check packages/ai-toolkit/uninstall.js`
+- [x] 2.3 `node --check packages/ai-toolkit/bin/ai-toolkit.js`
 
 #### Manual
 
-- [ ] 2.4 Temp-dir install/reinstall/uninstall behaves per contract
+- [x] 2.4 Temp-dir install/reinstall/uninstall behaves per contract
 
 ### Phase 3: Skill and Rules Content
 
