@@ -499,6 +499,45 @@ form.button_to button:not([class]):hover {
   background: var(--color-danger-bg);
 }
 
+.btn[disabled],
+.btn[aria-busy="true"] {
+  opacity: 0.75;
+  cursor: wait;
+}
+
+body.is-analyzing {
+  cursor: wait;
+}
+
+.analyze-form__status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin: var(--space-md) 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+}
+
+.analyze-form__status[hidden] {
+  display: none;
+}
+
+.spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* Log / code blocks */
 
 .log-source {

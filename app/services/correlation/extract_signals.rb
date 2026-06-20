@@ -15,7 +15,8 @@ module Correlation
     end
 
     def call
-      sources = @debugging_case.log_sources.includes(:redaction_findings).order(:position)
+      preload_log_sources!
+      sources = @debugging_case.ordered_log_sources
       findings_by_placeholder = index_finding_types(sources)
       stats = tally_placeholders(sources)
 
@@ -32,6 +33,15 @@ module Correlation
     end
 
     private
+
+    def preload_log_sources!
+      return if @debugging_case.association(:log_sources).loaded?
+
+      ActiveRecord::Associations::Preloader.new(
+        records: [ @debugging_case ],
+        associations: { log_sources: :redaction_findings }
+      ).call
+    end
 
     def index_finding_types(sources)
       findings_by_placeholder = Hash.new { |placeholders, key| placeholders[key] = Set.new }

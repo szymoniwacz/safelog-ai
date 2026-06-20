@@ -37,4 +37,14 @@ class DebuggingCase < ApplicationRecord
     else :in_progress
     end
   end
+
+  # Use in-memory sources when already loaded (e.g. after ExtractSignals) to avoid
+  # a second query and repeated decryption of sanitized_content.
+  def ordered_log_sources
+    if association(:log_sources).loaded?
+      log_sources.sort_by(&:position)
+    else
+      log_sources.order(:position).to_a
+    end
+  end
 end

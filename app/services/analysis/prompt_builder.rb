@@ -47,9 +47,9 @@ module Analysis
         sections << "Customer reference: #{@debugging_case.customer_reference}"
       end
       sections << "Description: #{@debugging_case.description}" if @debugging_case.description.present?
-      sections << "Correlation signals:\n#{JSON.pretty_generate(@correlation_payload)}"
+      sections << "Correlation signals:\n#{JSON.generate(@correlation_payload)}"
 
-      @debugging_case.log_sources.order(:position).each_with_index do |source, index|
+      @debugging_case.ordered_log_sources.each_with_index do |source, index|
         label = source.name.presence || source.source_type.humanize
         sections << "Log source #{index + 1} (#{label}, #{source.source_type}):\n#{source.sanitized_content}"
       end

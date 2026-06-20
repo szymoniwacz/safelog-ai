@@ -97,5 +97,18 @@ RSpec.describe Correlation::ExtractSignals do
 
       expect(result[:signals]).to eq([])
     end
+
+    it "loads log_sources into memory for downstream prompt assembly" do
+      debugging_case = create_case_from_submission(
+        title: "Association preload",
+        sources: [
+          { source_type: "rails_log", pasted_content: "request_id=req-preload-1" }
+        ]
+      )
+
+      described_class.call(debugging_case: debugging_case)
+
+      expect(debugging_case.association(:log_sources)).to be_loaded
+    end
   end
 end

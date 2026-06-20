@@ -39,7 +39,7 @@ class DebuggingCasesController < AuthenticatedController
   end
 
   def analyze
-    debugging_case = current_user.debugging_cases.find(params[:id])
+    debugging_case = current_user.debugging_cases.includes(:log_sources).find(params[:id])
     if Rails.env.test?
       Ai::E2eContext.client_mode = request.headers["X-E2E-AI-Client"]
     end

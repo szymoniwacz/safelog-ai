@@ -92,5 +92,22 @@ RSpec.describe Analysis::AnalyzeCase do
       expect(result.ai_report.markdown_body).to be_nil
       expect(client.complete_calls).to eq(2)
     end
+
+    it "marks the report failed when the AI provider returns an HTTP error" do
+      debugging_case = create_case_from_submission(
+        title: "Provider failure",
+        sources: [
+          { source_type: "rails_log", pasted_content: "request_id=req-provider-fail-1" }
+        ]
+      )
+      client = instance_double(Ai::FakeClient, complete: nil)
+      allow(client).to receive(:complete).and_raise(Faraday::BadRequestError, "bad request")
+
+      result = described_class.call(debugging_case: debugging_case, client: client)
+
+      expect(result).not_to be_success
+      expect(result.user_message).to eq(Analysis::AnalyzeCase::FAILURE_MESSAGE)
+      expect(result.ai_report).to be_failed
+    end
   end
 end

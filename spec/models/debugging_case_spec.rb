@@ -68,4 +68,43 @@ RSpec.describe DebuggingCase, type: :model do
       expect(debugging_case.analysis_status).to eq(:failed)
     end
   end
+
+  describe "#ordered_log_sources" do
+    def create_case_with_two_sources
+      Intake::ProcessCaseSubmission.call(
+        user: user,
+        submission: Intake::CaseSubmission.new(
+          title: "Ordered sources",
+          sources: [
+            { source_type: "rails_log", name: "First", pasted_content: "request_id=req-order-1" },
+            { source_type: "browser_console", name: "Second", pasted_content: "request_id=req-order-1" }
+          ]
+        )
+      ).debugging_case
+    end
+
+    it "returns log sources ordered by position" do
+      debugging_case = create_case_with_two_sources
+
+      labels = debugging_case.ordered_log_sources.map { |source| source.name.presence || source.source_type }
+
+      expect(labels).to eq([ "First", "Second" ])
+    end
+
+    it "does not query log_sources again when the association is already loaded" do
+      debugging_case = create_case_with_two_sources
+      debugging_case.log_sources.load
+
+      query_count = 0
+      counter = lambda do |*, payload|
+        query_count += 1 if payload[:sql].match?(/FROM "#{LogSource.table_name}"/i)
+      end
+
+      ActiveSupport::Notifications.subscribed(counter, "sql.active_record") do
+        debugging_case.ordered_log_sources.map(&:sanitized_content)
+      end
+
+      expect(query_count).to eq(0)
+    end
+  end
 end

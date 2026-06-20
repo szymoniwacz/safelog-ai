@@ -169,5 +169,17 @@ RSpec.describe "Debugging cases", type: :request do
 
       expect(response.body).to include("Demo AI client active")
     end
+
+    it "renders analyze loading UI for in-flight feedback" do
+      sign_in user
+
+      get debugging_case_path(debugging_case)
+
+      expect(response.body).to include('id="analyze-case-form"')
+      expect(response.body).to include('id="analyze-case-status"')
+      expect(response.body).to include('class="spinner"')
+      expect(response.body).to include("Analyzing case… correlation and AI may take a few seconds.")
+      expect(response.body).to include('document.body.classList.add("is-analyzing")')
+    end
   end
 end

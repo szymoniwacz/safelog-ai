@@ -120,5 +120,50 @@ RSpec.describe Analysis::PromptBuilder do
       expect(content).to include("[EMAIL_1]")
       expect(content).not_to include(secret_email)
     end
+
+    it "serializes correlation signals as compact JSON" do
+      debugging_case = create_case_from_submission(
+        title: "Compact JSON",
+        sources: [
+          { source_type: "rails_log", pasted_content: "request_id=req-compact-json-1" }
+        ]
+      )
+      correlation_payload = Correlation::ExtractSignals.call(debugging_case: debugging_case)
+      request = described_class.call(
+        debugging_case: debugging_case,
+        correlation_payload: correlation_payload
+      )
+
+      user_content = request.messages.find { |message| message[:role] == "user" }[:content]
+
+      expect(user_content).to include("Correlation signals:\n#{JSON.generate(correlation_payload)}")
+      expect(user_content).not_to match(/Correlation signals:\n{\n/)
+    end
+
+    it "reuses loaded log sources without a second log_sources query" do
+      debugging_case = create_case_from_submission(
+        title: "Loaded sources",
+        sources: [
+          { source_type: "rails_log", pasted_content: "request_id=req-loaded-sources-1" },
+          { source_type: "browser_console", pasted_content: "request_id=req-loaded-sources-1" }
+        ]
+      )
+      correlation_payload = Correlation::ExtractSignals.call(debugging_case: debugging_case)
+      expect(debugging_case.association(:log_sources)).to be_loaded
+
+      query_count = 0
+      counter = lambda do |*, payload|
+        query_count += 1 if payload[:sql].match?(/FROM "#{LogSource.table_name}"/i)
+      end
+
+      ActiveSupport::Notifications.subscribed(counter, "sql.active_record") do
+        described_class.call(
+          debugging_case: debugging_case,
+          correlation_payload: correlation_payload
+        )
+      end
+
+      expect(query_count).to eq(0)
+    end
   end
 end

@@ -17,8 +17,35 @@
   <% if @fake_ai_client_active %>
     <p class="callout callout--info"><em>Demo AI client active — analyze returns sample output until OPENAI_API_KEY is configured.</em></p>
   <% end %>
-  <%= button_to "Analyze case", analyze_debugging_case_path(@debugging_case), method: :post, class: "btn" %>
+  <div class="analyze-form">
+    <%= button_to "Analyze case",
+          analyze_debugging_case_path(@debugging_case),
+          method: :post,
+          class: "btn",
+          form: { id: "analyze-case-form", class: "analyze-form__form" },
+          id: "analyze-case-submit" %>
+    <p class="analyze-form__status" id="analyze-case-status" hidden role="status" aria-live="polite">
+      <span class="spinner" aria-hidden="true"></span>
+      Analyzing case… correlation and AI may take a few seconds.
+    </p>
+  </div>
 </section>
+
+<script>
+(function () {
+  const form = document.getElementById("analyze-case-form");
+  const status = document.getElementById("analyze-case-status");
+  const submit = document.getElementById("analyze-case-submit");
+  if (!form || !status || !submit) return;
+
+  form.addEventListener("submit", function () {
+    submit.disabled = true;
+    submit.setAttribute("aria-busy", "true");
+    status.hidden = false;
+    document.body.classList.add("is-analyzing");
+  });
+})();
+</script>
 
 <section class="card">
   <h2>Case metadata</h2>
