@@ -1,0 +1,8 @@
+# Copy to consumer repo as .npmrc (scope mapping only — no tokens).
+@szymoniwacz:registry=https://npm.pkg.github.com
+
+# Auth tokens belong in user-level ~/.npmrc or CI secrets — never commit:
+#   //npm.pkg.github.com/:_authToken=YOUR_GITHUB_TOKEN
+#
+# Local: npm login --registry=https://npm.pkg.github.com
+# CI:    export GH_PKG_TOKEN with read:packages and append auth in the install step
