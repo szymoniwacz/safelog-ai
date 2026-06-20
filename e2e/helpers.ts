@@ -1,4 +1,6 @@
-import { type Locator, type Page, expect } from "@playwright/test";
+import fs from "fs";
+import path from "path";
+import { type Browser, type BrowserContext, type Locator, type Page, expect } from "@playwright/test";
 
 export const DEFAULT_PASSWORD = "password123";
 
@@ -36,6 +38,18 @@ export function logSourceFieldset(page: Page, slot: number): Locator {
   return page.locator("fieldset").filter({
     has: page.locator("legend", { hasText: `Log source ${slot}` }),
   });
+}
+
+export async function saveAuthStorageState(page: Page, storagePath: string): Promise<void> {
+  fs.mkdirSync(path.dirname(storagePath), { recursive: true });
+  await page.context().storageState({ path: storagePath });
+}
+
+export async function createAuthenticatedContext(
+  browser: Browser,
+  storagePath: string,
+): Promise<BrowserContext> {
+  return browser.newContext({ storageState: storagePath });
 }
 
 export async function fillLogSourceSlot(

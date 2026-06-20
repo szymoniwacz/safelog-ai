@@ -34,4 +34,23 @@ test.describe("Authentication", () => {
     await signIn(page, email, password);
     await expect(page.getByRole("heading", { name: "SafeLog AI", exact: true })).toBeVisible();
   });
+
+  test("does not sign in with invalid password", async ({ page }) => {
+    const email = uniqueEmail("pw-invalid-signin");
+    const password = DEFAULT_PASSWORD;
+    const wrongPassword = "wrong-password-xyz";
+
+    await signUp(page, email, password);
+    await page.getByRole("button", { name: "Sign out" }).click();
+
+    await page.goto("/users/sign_in");
+    await page.getByLabel("Email").fill(email);
+    await page.getByLabel("Password").fill(wrongPassword);
+    await page.getByRole("button", { name: "Sign in" }).click();
+
+    await expect(page).toHaveURL(/\/users\/sign_in$/);
+    await expect(page.getByRole("heading", { name: "Sign in to SafeLog AI" })).toBeVisible();
+    await expect(page.getByText("Invalid email or password.")).toBeVisible();
+    await expect(page.locator("body")).not.toContainText(wrongPassword);
+  });
 });
