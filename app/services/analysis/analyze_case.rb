@@ -38,7 +38,7 @@ module Analysis
       )
 
       success(ai_report)
-    rescue Ai::InvalidResponseError
+    rescue Ai::InvalidResponseError, Faraday::Error
       ai_report&.update!(status: :failed, structured_json: nil, markdown_body: nil)
       failure(ai_report)
     end

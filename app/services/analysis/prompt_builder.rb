@@ -30,6 +30,12 @@ module Analysis
         You are a debugging assistant for SafeLog AI. Analyze sanitized log evidence only.
         Respond with hypothesis-framed conclusions, not certainty about production root cause.
         Use placeholder tokens exactly as provided (e.g. [REQUEST_1]).
+
+        Respond with a single JSON object (no markdown fences) with exactly two top-level keys:
+        - "structured": object with "summary" (string), "hypotheses" (array of objects with
+          "title" and "description", optional "confidence"), "uncertainty_notes" (array of
+          non-empty strings, at least one), optional "correlation_highlights" (array of strings)
+        - "markdown": non-empty string containing a hypothesis-framed report in Markdown
       TEXT
     end
 

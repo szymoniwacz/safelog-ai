@@ -43,6 +43,26 @@ RSpec.describe Analysis::PromptBuilder do
       expect(request.case_ref).to eq(debugging_case.id.to_s)
     end
 
+    it "instructs the model to return JSON for OpenAI json_object mode" do
+      debugging_case = create_case_from_submission(
+        title: "Checkout failure",
+        sources: [
+          { source_type: "rails_log", pasted_content: "request_id=req-json-prompt-1" }
+        ]
+      )
+      correlation_payload = Correlation::ExtractSignals.call(debugging_case: debugging_case)
+      request = described_class.call(
+        debugging_case: debugging_case,
+        correlation_payload: correlation_payload
+      )
+
+      system_content = request.messages.find { |message| message[:role] == "system" }[:content]
+
+      expect(system_content).to match(/json/i)
+      expect(system_content).to include('"structured"')
+      expect(system_content).to include('"markdown"')
+    end
+
     it "excludes environment metadata-only secrets from the assembled prompt" do
       secret_email = "env-prompt-#{SecureRandom.hex(4)}@secret.example"
 
