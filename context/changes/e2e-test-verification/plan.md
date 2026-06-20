@@ -345,9 +345,9 @@ _(none)_
 
 #### Automated
 
-- [x] 3.1 Targeted Playwright run: `mise exec -- bin/e2e e2e/authentication.spec.ts`
-- [x] 3.2 Full Playwright suite: `mise exec -- bin/e2e`
-- [x] 3.3 Full CI gate: `mise exec -- bin/ci`
+- [x] 3.1 Targeted Playwright run: `mise exec -- bin/e2e e2e/authentication.spec.ts` — 5edb5b4
+- [x] 3.2 Full Playwright suite: `mise exec -- bin/e2e` — 5edb5b4
+- [x] 3.3 Full CI gate: `mise exec -- bin/ci` — 5edb5b4
 
 #### Manual
 
