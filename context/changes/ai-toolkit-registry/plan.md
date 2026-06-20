@@ -379,13 +379,13 @@ No migration — greenfield package. Existing repos without the package are unch
 
 #### Automated
 
-- [ ] 1.1 `cd packages/ai-toolkit && npm pack --dry-run` lists only whitelisted files
-- [ ] 1.2 `node -e "JSON.parse(require('fs').readFileSync('packages/ai-toolkit/package.json','utf8'))"` succeeds
-- [ ] 1.3 `test -f packages/ai-toolkit/package-lock.json`
+- [x] 1.1 `cd packages/ai-toolkit && npm pack --dry-run` lists only whitelisted files
+- [x] 1.2 `node -e "JSON.parse(require('fs').readFileSync('packages/ai-toolkit/package.json','utf8'))"` succeeds
+- [x] 1.3 `test -f packages/ai-toolkit/package-lock.json`
 
 #### Manual
 
-- [ ] 1.4 `package.json` fields match M5L4 spec; no secrets in committed files
+- [x] 1.4 `package.json` fields match M5L4 spec; no secrets in committed files
 
 ### Phase 2: Install and Uninstall Scripts
 
