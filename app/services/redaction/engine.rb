@@ -33,12 +33,12 @@ module Redaction
             value: correlation_value
           )
 
-          findings << {
+          findings << Finding.new(
             finding_type: pattern[:finding_type],
             line_number: line_number,
             placeholder: placeholder,
             risk_level: pattern[:risk_level]
-          }
+          )
 
           placeholder
         end
