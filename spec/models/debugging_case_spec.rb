@@ -21,8 +21,8 @@ RSpec.describe DebuggingCase, type: :model do
       archived_case = create_case(title: "Archived case")
       archived_case.archive!
 
-      expect(described_class.active).to contain_exactly(active_case)
-      expect(described_class.archived).to contain_exactly(archived_case)
+      expect(user.debugging_cases.active).to contain_exactly(active_case)
+      expect(user.debugging_cases.archived).to contain_exactly(archived_case)
     end
   end
 

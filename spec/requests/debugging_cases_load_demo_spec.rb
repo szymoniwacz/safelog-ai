@@ -7,10 +7,11 @@ RSpec.describe "Debugging case load demo", type: :request do
 
   describe "POST /debugging_cases/load_demo" do
     it "redirects guests to sign in" do
-      post load_demo_debugging_cases_path
+      expect {
+        post load_demo_debugging_cases_path
+      }.not_to change(DebuggingCase, :count)
 
       expect(response).to redirect_to(new_user_session_path)
-      expect(DebuggingCase.count).to eq(0)
     end
 
     it "creates a demo case for the signed-in user and redirects to show" do
