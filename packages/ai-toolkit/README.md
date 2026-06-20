@@ -83,6 +83,16 @@ Removes manifest-tracked files, the skill directory, and the sentinel block from
 
 If you previously hand-edited the managed skill, reinstall overwrites it — keep custom skills in a different directory name.
 
+## Cloned repos without the skill on disk
+
+Some repos gitignore `.cursor/skills/` (local-only course skills). The installed skill is then **not committed** — only `AGENTS.md` sentinels and `.cursor/.ai-toolkit-manifest.json` may be in git. After clone, run:
+
+```bash
+npm install
+```
+
+(with GitHub Packages auth configured) or `npx @szymoniwacz/ai-toolkit install` to materialize `.cursor/skills/code-review/`.
+
 ## Publishing (maintainers)
 
 This package is published from [`szymoniwacz/safelog-ai`](https://github.com/szymoniwacz/safelog-ai) via [`.github/workflows/publish-ai-toolkit.yml`](../../.github/workflows/publish-ai-toolkit.yml).

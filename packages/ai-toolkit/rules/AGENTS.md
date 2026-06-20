@@ -1,5 +1,7 @@
 Team agent rules for Rails projects using mise and conventional CI gates.
 
+For review conventions, use the `code-review` skill installed at `.cursor/skills/code-review/`.
+
 ## Hard rules for agents
 
 - Never persist, log, send, or expose raw sensitive intake data after sanitization or redaction.
@@ -18,20 +20,4 @@ Team agent rules for Rails projects using mise and conventional CI gates.
 - Run local commands via `mise exec --`. Production builds use Docker or the project's deployment runtime — never mise in container production images.
 - Follow project guardrails in `context/foundation/prd.md` when present.
 
-## Commands
-
-Run `mise install` once, then:
-
-- `mise exec -- bundle config set --local path vendor/bundle` && `mise exec -- bundle install` — gems into `vendor/bundle` only (see `.bundle/config`; never `gem install` outside Bundler)
-- `mise exec -- bin/setup` — bundle path + deps + `db:prepare` (+ dev server unless `--skip-server`)
-- `mise exec -- bin/dev` — Puma (port 3000)
-- `mise exec -- bin/ci` — RuboCop, bundler-audit, Brakeman, and the full test suite
-- `mise exec -- bin/rubocop` / `bin/brakeman` / `bin/bundler-audit` — individual gates
-- `mise exec -- bundle exec rspec spec/` — full RSpec suite
-- `mise exec -- bundle exec rspec spec/system` — system specs when present
-
-RSpec lives under `spec/` with request, service, and model coverage. Run `mise exec -- bin/ci` before pushing. New tests for sensitive-data features must prove raw intake never persists and never reaches AI stubs.
-
-## Style and commits
-
-Ruby/Node versions: `.mise.toml`; RuboCop omakase (CI-enforced). Keep `app/controllers/` to HTTP only (params, session, render); put domain logic in `app/services/<domain>/`. Commits: short imperative subjects (see `git log`). PRs: include a security note when touching intake, encryption, or AI; keep `bin/ci` green.
+Commands, CI gates, and commit style: follow your project's existing `AGENTS.md` or run `mise exec -- bin/ci` before pushing.

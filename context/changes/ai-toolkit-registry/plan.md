@@ -379,55 +379,55 @@ No migration — greenfield package. Existing repos without the package are unch
 
 #### Automated
 
-- [x] 1.1 `cd packages/ai-toolkit && npm pack --dry-run` lists only whitelisted files
-- [x] 1.2 `node -e "JSON.parse(require('fs').readFileSync('packages/ai-toolkit/package.json','utf8'))"` succeeds
-- [x] 1.3 `test -f packages/ai-toolkit/package-lock.json`
+- [x] 1.1 `cd packages/ai-toolkit && npm pack --dry-run` lists only whitelisted files — 4c5b97d
+- [x] 1.2 `node -e "JSON.parse(require('fs').readFileSync('packages/ai-toolkit/package.json','utf8'))"` succeeds — 4c5b97d
+- [x] 1.3 `test -f packages/ai-toolkit/package-lock.json` — 4c5b97d
 
 #### Manual
 
-- [x] 1.4 `package.json` fields match M5L4 spec; no secrets in committed files
+- [x] 1.4 `package.json` fields match M5L4 spec; no secrets in committed files — 4c5b97d
 
 ### Phase 2: Install and Uninstall Scripts
 
 #### Automated
 
-- [x] 2.1 `node --check packages/ai-toolkit/install.js`
-- [x] 2.2 `node --check packages/ai-toolkit/uninstall.js`
-- [x] 2.3 `node --check packages/ai-toolkit/bin/ai-toolkit.js`
+- [x] 2.1 `node --check packages/ai-toolkit/install.js` — 4c5b97d
+- [x] 2.2 `node --check packages/ai-toolkit/uninstall.js` — 4c5b97d
+- [x] 2.3 `node --check packages/ai-toolkit/bin/ai-toolkit.js` — 4c5b97d
 
 #### Manual
 
-- [x] 2.4 Temp-dir install/reinstall/uninstall behaves per contract
+- [x] 2.4 Temp-dir install/reinstall/uninstall behaves per contract — 4c5b97d
 
 ### Phase 3: Skill and Rules Content
 
 #### Automated
 
-- [x] 3.1 SKILL.md frontmatter `name` matches directory `code-review`
-- [x] 3.2 Rules source file has no consumer sentinel markers
-- [x] 3.3 `npm pack --dry-run` includes skill and rules
+- [x] 3.1 SKILL.md frontmatter `name` matches directory `code-review` — 4c5b97d
+- [x] 3.2 Rules source file has no consumer sentinel markers — 4c5b97d
+- [x] 3.3 `npm pack --dry-run` includes skill and rules — 4c5b97d
 
 #### Manual
 
-- [x] 3.4 Skill and rules content reviewed for Rails portability
+- [x] 3.4 Skill and rules content reviewed for Rails portability — 4c5b97d
 
 ### Phase 4: Publish CI and Installer Smoke Test
 
 #### Automated
 
-- [x] 4.1 Smoke script passes locally from `packages/ai-toolkit`
-- [x] 4.2 Publish workflow YAML valid; validate job runs smoke + pack dry-run
+- [x] 4.1 Smoke script passes locally from `packages/ai-toolkit` — 4c5b97d
+- [x] 4.2 Publish workflow YAML valid; validate job runs smoke + pack dry-run — 4c5b97d
 
 #### Manual
 
-- [x] 4.3 Workflow uses Node 22, checkout@v6, `@szymoniwacz` scope, path filters
+- [x] 4.3 Workflow uses Node 22, checkout@v6, `@szymoniwacz` scope, path filters — 4c5b97d
 
 ### Phase 5: Consumer Documentation and First Publish
 
 #### Automated
 
-- [x] 5.1 Publish workflow green on main after version bump
+- [x] 5.1 Publish workflow green on main after version bump — 4c5b97d
 
 #### Manual
 
-- [x] 5.2 Package visible on GitHub Packages; consumer install verified
+- [x] 5.2 Package visible on GitHub Packages; consumer install verified — 33bd57d

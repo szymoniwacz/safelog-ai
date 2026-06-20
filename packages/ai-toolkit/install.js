@@ -84,7 +84,7 @@ function runInstall({ explicit = false } = {}) {
   const rulesContent = fs.readFileSync(rulesSrc, "utf8");
   updateAgentsMd(agentsPath, rulesContent);
 
-  const installedFiles = listFilesRecursive(skillDest, consumerRoot).map(
+  const installedFiles = listFilesRecursive(skillDest, skillDest).map(
     (file) => `${SKILL_REL}/${file}`,
   );
   installedFiles.push(AGENTS_REL);
