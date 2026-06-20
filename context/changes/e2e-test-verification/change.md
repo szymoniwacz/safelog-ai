@@ -1,7 +1,7 @@
 ---
 change_id: e2e-test-verification
 title: Map Playwright E2E gaps against MVP edge cases
-status: plan_reviewed
+status: implementing
 created: 2026-06-20
 updated: 2026-06-20
 archived_at: null

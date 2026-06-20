@@ -321,9 +321,9 @@ and `.gitignore`.
 
 #### Automated
 
-- [ ] 1.1 Targeted Playwright run: `mise exec -- bin/e2e e2e/debugging-case-validation.spec.ts`
-- [ ] 1.2 Full Playwright suite: `mise exec -- bin/e2e`
-- [ ] 1.3 Full CI gate: `mise exec -- bin/ci`
+- [x] 1.1 Targeted Playwright run: `mise exec -- bin/e2e e2e/debugging-case-validation.spec.ts`
+- [x] 1.2 Full Playwright suite: `mise exec -- bin/e2e`
+- [x] 1.3 Full CI gate: `mise exec -- bin/ci`
 
 #### Manual
 
