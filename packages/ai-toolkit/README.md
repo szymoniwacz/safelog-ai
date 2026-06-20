@@ -31,7 +31,7 @@ Reinstalling updates the skill directory and replaces content between sentinels 
 
 ### 1. Scope registry mapping
 
-Add to the consumer repo `.npmrc` (committed — no tokens):
+Add to the consumer repo `.npmrc` (committed — no tokens). See [`docs/consumer.npmrc.example`](docs/consumer.npmrc.example):
 
 ```text
 @szymoniwacz:registry=https://npm.pkg.github.com
@@ -85,7 +85,32 @@ If you previously hand-edited the managed skill, reinstall overwrites it — kee
 
 ## Publishing (maintainers)
 
-This package is published from `szymoniwacz/safelog-ai` via GitHub Actions when `packages/ai-toolkit/**` changes on `main` and `package.json` version is bumped.
+This package is published from [`szymoniwacz/safelog-ai`](https://github.com/szymoniwacz/safelog-ai) via [`.github/workflows/publish-ai-toolkit.yml`](../../.github/workflows/publish-ai-toolkit.yml).
+
+### Release checklist
+
+1. Edit skill or rules content under `packages/ai-toolkit/`.
+2. Bump `version` in `packages/ai-toolkit/package.json` (manual — no auto-bump in v1).
+3. Open a PR — the **Publish AI Toolkit** workflow runs `validate` (package checks, `npm pack --dry-run`, smoke install/uninstall).
+4. Merge to `main` — `publish` runs only when `packages/ai-toolkit/**` changed on the push.
+5. Confirm `@szymoniwacz/ai-toolkit@<version>` appears under the repo **Packages** tab (private, linked to this repository).
+6. In consumer repos: `npm update @szymoniwacz/ai-toolkit` or `npx @szymoniwacz/ai-toolkit install` after upgrading.
+
+### First publish verification
+
+After the first successful publish workflow on `main`:
+
+- [ ] Package `@szymoniwacz/ai-toolkit@0.1.0` visible on GitHub Packages
+- [ ] Consumer install succeeds with `.npmrc` scope mapping + GitHub Packages auth
+- [ ] `npx @szymoniwacz/ai-toolkit uninstall` removes managed files cleanly
+
+Local pre-merge checks:
+
+```bash
+cd packages/ai-toolkit
+npm run smoke
+npm pack --dry-run
+```
 
 ## License
 
