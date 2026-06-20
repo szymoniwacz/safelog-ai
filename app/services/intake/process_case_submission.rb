@@ -43,7 +43,9 @@ module Intake
           )
 
           result.findings.each do |finding|
-            log_source.redaction_findings.create!(**finding.to_h)
+            log_source.redaction_findings.create!(
+              RedactionFinding.build_from_engine_finding(finding)
+            )
           end
         end
       end
