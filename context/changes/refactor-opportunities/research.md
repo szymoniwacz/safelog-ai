@@ -1,15 +1,16 @@
 ---
 date: 2026-06-10T18:00:00+0200
 researcher: Composer
-git_commit: 9fe8adf8761d8fe524fd68a1daeebef6831a6678
+git_commit: e96dc9277c67648f03543b3291eb2d62a2edf0bb
 branch: main
 repository: safelog-ai
 topic: "Refactor opportunities — which structural problems to fix, in what order"
 tags: [research, refactor, technical-debt, intake, redaction, structural-debt, verified]
 status: complete
-last_updated: 2026-06-10
-last_updated_by: Composer (m4l4-3 ast-grep verification)
-verification_commit: 2ce9993a7bef94b013d977263619b272f29a4e07
+last_updated: 2026-06-22
+last_updated_by: Composer (main re-verification)
+last_updated_note: "Re-verified TD-1–TD-10, G-01–G-15, IMPL-1 against main; disposition for active changes"
+verification_commit: e96dc9277c67648f03543b3291eb2d62a2edf0bb
 ast_grep_version: 0.43.0
 source_analysis: context/changes/case-submission-flow-analysis/research.md
 ---
@@ -18,7 +19,7 @@ source_analysis: context/changes/case-submission-flow-analysis/research.md
 
 **Date**: 2026-06-10
 **Researcher**: Composer (3 sub-agents per structural candidate)
-**Git Commit**: `9fe8adf8761d8fe524fd68a1daeebef6831a6678` (research) · verified `2ce9993a7bef94b013d977263619b272f29a4e07`
+**Git Commit**: `e96dc9277c67648f03543b3291eb2d62a2edf0bb` (re-verified 2026-06-22) · original research `9fe8adf`
 **Branch**: main
 **Repository**: safelog-ai
 **Source analysis**: [`context/changes/case-submission-flow-analysis/research.md`](../case-submission-flow-analysis/research.md)
@@ -31,15 +32,115 @@ Which problems documented in the case-submission-flow analysis are **structural 
 
 ## Summary
 
-Source analysis [`case-submission-flow-analysis/research.md`](../case-submission-flow-analysis/research.md) documents 10 technical-debt items (TD-1–TD-10), 15 test gaps (G-01–G-15), and 3 open questions on the intake→redaction→persist path. Of **27 distinct problems**, **6 are structural refactor candidates** (TD-2, TD-5, TD-7, TD-10, IMPL-1, G-05); the rest are test, documentation, or product-scope gaps.
+Source analysis [`case-submission-flow-analysis/research.md`](../case-submission-flow-analysis/research.md) documents 10 technical-debt items (TD-1–TD-10), 15 test gaps (G-01–G-15), and 3 open questions on the intake→redaction→persist path. Of **27 distinct problems**, **6 were structural refactor candidates** (TD-2, TD-5, TD-7, TD-10, IMPL-1, G-05); the rest are test, documentation, or product-scope gaps.
 
-**Ranked refactor opportunities (proposal for planning):**
+**Re-verification against main (`e96dc92`, 2026-06-22):** Two ranked refactors and several test gaps are **done** via merged changes [`intake-finding-persist-contract`](../intake-finding-persist-contract/plan.md) (PR #14) and [`e2e-test-verification`](../e2e-test-verification/plan.md) (PR #15). [`ci-cd-code-review`](../ci-cd-code-review/requirements.md) is unrelated to intake ranking but **implemented** on main.
 
-1. **TD-2** — explicit finding persist boundary (lowest change cost, highest leverage before extending findings)
-2. **IMPL-1** — extract `redact_metadata` + persist object from `ProcessCaseSubmission` (composes with TD-2; enables rollback specs)
-3. **TD-5** — CRLF normalization in `Engine` (low blast radius; real-world paste correctness)
+| Outcome | Count | IDs |
+|---------|-------|-----|
+| **Done** | 6 | TD-1, TD-2, G-01, G-02, G-12, G-14 |
+| **Partially done** | 2 | TD-8 (validation E2E; paste-on-error still RSpec-only), G-15 (1-slot in `seed.spec.ts` / `user-isolation.spec.ts`; no dedicated minimum-source spec) |
+| **Still open** | 16 | TD-3–TD-6, TD-9, G-03–G-04, G-05–G-07, G-09–G-11, G-13, IMPL-1, OQ-1, OQ-3 |
+| **Rejected** (refactor ranking) | 3 | TD-7, TD-10, OQ-2 |
 
-Rejected for refactor ranking: TD-7 (product decision), TD-10 facade (doc-only suffices), G-05 (trivial dead code), OQ-3 (validation feature).
+**Updated ranked refactor opportunities (open work only):**
+
+1. ~~**TD-2** — explicit finding persist boundary~~ → **DONE** (`Redaction::Finding` + `RedactionFinding.build_from_engine_finding`, PR #14)
+2. **IMPL-1** — extract `redact_metadata` + persist object from `ProcessCaseSubmission` (now **#1 open**; rollback specs prerequisite met)
+3. **TD-5** — CRLF normalization in `Engine` (still **#2 open**; low blast radius)
+
+Rejected for refactor ranking (unchanged): TD-7 (product decision), TD-10 facade (doc-only suffices), G-05 as standalone ranked item (trivial dead code — bundle with TD-3), OQ-3 (validation feature).
+
+---
+
+## Re-verification against main (2026-06-22)
+
+**Commit:** `e96dc9277c67648f03543b3291eb2d62a2edf0bb` · **Branch:** main  
+**Method:** live code + git history (`git log --oneline` on key paths); ast-grep re-run on changed claims; cross-check merged PRs #14 and #15.
+
+### Full problem inventory — current status
+
+| ID | Problem (from source) | Jun-10 class | **Status (Jun-22)** | Evidence |
+|----|------------------------|--------------|---------------------|----------|
+| TD-1 | Transaction rollback tested only on outer `create!` | NON-CANDIDATE | **DONE** | G-01/G-02 in `process_case_submission_spec.rb:256–300` (PR #14) |
+| TD-2 | `findings` hash as implicit DB contract | CANDIDATE | **DONE** | `Redaction::Finding` (`finding.rb:4–16`); `build_from_engine_finding` (`redaction_finding.rb:8–18`); persist seam `process_case_submission.rb:46–47` |
+| TD-3 | No unit spec for `CaseSubmission` | NON-CANDIDATE | **STILL OPEN** | No `spec/**/case_submission_spec.rb` |
+| TD-4 | Strong params without mass-assignment test | NON-CANDIDATE | **STILL OPEN** | No dedicated mass-assignment example |
+| TD-5 | `\r\n` line endings in `Engine` | CANDIDATE | **STILL OPEN** | `engine.rb:15–20` — `split(/\n/, -1)` only; zero `\r` in `spec/` |
+| TD-6 | Known pattern gap without regression spec | NON-CANDIDATE | **STILL OPEN** | `patterns.rb:7–10` gap; `engine_spec.rb` tests Bearer context only |
+| TD-7 | Plaintext metadata columns | CANDIDATE | **REJECTED** | Unchanged product decision (F-02); `encrypts` still only on diagnostic fields |
+| TD-8 | E2E covers only happy path | NON-CANDIDATE | **PARTIAL** | Validation E2E done (G-14); analyze-failure E2E added post-plan; paste-not-rerendered on 422 still RSpec-only |
+| TD-9 | `filter_parameter_logging` checklist | NON-CANDIDATE | **STILL OPEN** | Comment in `security_persistence_helpers.rb:10`; no checklist artifact |
+| TD-10 | `Demo::LoadCase` hidden coupling | CANDIDATE | **REJECTED** | No `Intake::SubmitCase`; 2 callers unchanged |
+| IMPL-1 | `ProcessCaseSubmission` mixed responsibilities | CANDIDATE | **STILL OPEN** | 74-line monolith; no `RedactMetadata` / `PersistRedactedCase` |
+| G-01 | Rollback when `log_sources.create!` fails | NON-CANDIDATE | **DONE** | `process_case_submission_spec.rb:256–274` |
+| G-02 | Rollback when `redaction_findings.create!` fails | NON-CANDIDATE | **DONE** | `process_case_submission_spec.rb:276–300` |
+| G-03 | `sources: nil` path unverified | NON-CANDIDATE | **STILL OPEN** | No dedicated example |
+| G-04 | Mass assignment test | NON-CANDIDATE | **STILL OPEN** | Same as TD-4 |
+| G-05 | `Source` struct passthrough dead branch | CANDIDATE | **STILL OPEN** (code) / **REJECTED** (rank) | Branch at `case_submission.rb:29–30`; zero `Source.new` in `spec/` |
+| G-06 | Multiple invalid source types | NON-CANDIDATE | **STILL OPEN** | No dedicated example |
+| G-07 | Windows `\r\n` in `Engine` | NON-CANDIDATE | **STILL OPEN** | Same as TD-5 |
+| G-08 | No regression spec for standalone `sk-xxx` | NON-CANDIDATE | **STILL OPEN** | Bearer-only coverage in `engine_spec.rb:10` |
+| G-09 | `position` values not asserted explicitly | NON-CANDIDATE | **STILL OPEN** | `position: index` at `process_case_submission.rb:41`; no explicit assertion in intake specs |
+| G-10 | Plaintext columns — no baseline encryption audit | NON-CANDIDATE | **STILL OPEN** | `encryption_at_rest_spec.rb` unchanged scope |
+| G-11 | Multiple patterns on one line — not tested | NON-CANDIDATE | **STILL OPEN** | `engine_spec.rb` — 4 examples, none multi-match per line |
+| G-12 | No `redaction_finding_spec.rb` | NON-CANDIDATE | **DONE** | `spec/models/redaction_finding_spec.rb` — 4 examples |
+| G-13 | Empty/nil input to `Engine.redact` | NON-CANDIDATE | **STILL OPEN** | No nil/empty examples in `engine_spec.rb` |
+| G-14 | E2E: no validation-failure path | NON-CANDIDATE | **DONE** | `e2e/debugging-case-validation.spec.ts` — 2 tests (PR #15) |
+| G-15 | E2E: always 3 slots, no single-source | NON-CANDIDATE | **PARTIAL** | `debugging-case-flow.spec.ts` still 3 slots; `seed.spec.ts` + `user-isolation.spec.ts` use 1 slot |
+| OQ-1 | Normalize `\r\n` vs document? | NON-CANDIDATE | **STILL OPEN** | Prerequisite for TD-5 |
+| OQ-2 | Encrypt plaintext metadata post-MVP? | NON-CANDIDATE | **REJECTED** (refactor) | Product/threat-model input only |
+| OQ-3 | Limit `pasted_content` size | NON-CANDIDATE | **STILL OPEN** | Validation feature, not refactor |
+
+### Merged changes verified on main
+
+#### intake-finding-persist-contract (PR #14, `005b6cb`)
+
+All substantive plan phases **done**:
+
+- Typed `Redaction::Finding` with validation (`app/services/redaction/finding.rb`)
+- Engine emits `Finding.new(...)` not hashes (`engine.rb:36–41`)
+- `RedactionFinding.build_from_engine_finding` with type guard (`redaction_finding.rb:8–18`)
+- Sole `redaction_findings.create!` uses mapper (`process_case_submission.rb:46–47`)
+- Contract spec + G-12 (`spec/models/redaction_finding_spec.rb`)
+- G-01/G-02 rollback oracles (`process_case_submission_spec.rb:256–300`)
+- Explicitly out of scope and correctly omitted: IMPL-1, TD-5
+
+#### e2e-test-verification (PR #15, `4073546`)
+
+Plan phases 1–3 **done**; E2E still **not** in `bin/ci` (by design):
+
+| Planned | Status | Evidence |
+|---------|--------|----------|
+| `debugging-case-validation.spec.ts` (2 tests) | **DONE** | Closes G-14 / TD-8 validation slice |
+| `user-isolation.spec.ts` (1 test) | **DONE** | Cross-user 404 in browser |
+| Invalid sign-in in `authentication.spec.ts` | **DONE** | Test 4 |
+| `storageState` helpers + `.auth/` gitignore | **DONE** | `e2e/helpers.ts`, `.gitignore:47` |
+| Wire Playwright into CI | **N/A (intentional skip)** | `config/ci.rb` — RSpec only |
+| Analyze failure E2E | **Superseded** | `e2e/analyze-failure.spec.ts` added post-plan (plan marked blocked) |
+
+**Regression count (excl. `capture-*`):** 11 tests / 7 files (plan target was 9 / 6).
+
+#### ci-cd-code-review (`79a7314` + follow-ups)
+
+Unrelated to intake ranking; **implemented** on main:
+
+- `.github/workflows/ai-code-review.yml` — PR to `main` + `ai-cr:review` label
+- `.github/actions/code-review/` — diff → `packages/code-reviewer` → comment + labels
+- 6-criterion schema includes `documentation` (`review-schema.ts`)
+- Advisory only — not in `ci.yml`
+
+**Minor gaps vs requirements (do not block archive):** fork PRs skip silently (no neutral comment); API failure exits before `post-review.sh`; `requirements.md` header still `status: draft`.
+
+### Active changes disposition
+
+| Change folder | `change.md` status | Recommendation | Rationale |
+|---------------|-------------------|----------------|-----------|
+| `refactor-opportunities` | research | **Stay open** | Living backlog for IMPL-1, TD-5, and test-gap companions; this doc is the ranking source |
+| `intake-finding-persist-contract` | implemented | **Archive** | All plan phases done on main; no open code work |
+| `e2e-test-verification` | implemented | **Archive** | Plan complete; residual G-15/TD-8 gaps are test backlog items, not this change |
+| `ci-cd-code-review` | implemented | **Archive** | Workflow shipped; minor req/doc drift can be a follow-up ticket |
+| `case-submission-flow-analysis` | *(no change.md)* | **Archive** (merge context into refactor-opportunities) | Source analysis superseded by this re-verification; keep as historical input only |
 
 ---
 
@@ -301,42 +402,34 @@ E2E (`bin/e2e`) is **not** in `bin/ci` — TD-5/IMPL-1 changes unlikely to need 
 
 ## Refactor opportunities (ranked)
 
-Proposal for planning session. **Not a decision** — ranking based on evidence: cost of debt vs cost of change, blast radius, incremental path.
+Proposal for planning session. **Not a decision** — ranking based on evidence at `e96dc92`.
 
-### 1. TD-2 — Explicit finding persist boundary
+### ~~1. TD-2 — Explicit finding persist boundary~~ **DONE**
 
-| Dimension | Assessment |
-|-----------|------------|
-| **Current → target** | Engine hash passed directly to `create!(finding)` → explicit mapper (`RedactionFinding.build_from_engine_finding`) or typed `Redaction::Finding` + `#to_persistence_attrs` at sole call-site |
-| **Why #1** | Only structural seam between redaction domain and persistence with **zero code-level contract enforcement**. Debt cost rises with every findings extension (new columns, pattern metadata). Change cost is **lowest** among candidates (~4 files, reversible). Unblocks safe evolution without touching 31-file blast radius. |
-| **Blast radius** | ~4 files minimum; downstream (correlation, summary, views) reads AR attrs — unaffected if schema unchanged |
-| **Incremental path** | (1) Factory + contract spec → (2) swap `create!(finding)` for `create!(factory(finding))` → (3) optional typed object in engine |
-| **First prerequisite** | Contract spec asserting engine output keys ⊆ `{ finding_type, line_number, placeholder, risk_level }` and all four present |
-
-**Trade-off:** Adds one indirection line at the persist seam. Acceptable — documents contract that today exists only by naming convention.
+Implemented in PR #14 (`intake-finding-persist-contract`). Engine typed VO + AR mapper at sole persist seam. Rollback specs (G-01/G-02) shipped in same change.
 
 ---
 
-### 2. IMPL-1 — Extract `redact_metadata`, then persist object
+### 1. IMPL-1 — Extract `redact_metadata`, then persist object *(was #2)*
 
 | Dimension | Assessment |
 |-----------|------------|
 | **Current → target** | Monolithic `ProcessCaseSubmission` (~72 lines, 4 responsibilities) → thin coordinator + `Intake::RedactMetadata` + `Intake::PersistRedactedCase` (transaction stays in coordinator or persist object) |
-| **Why #2** | Debt cost: mixed responsibilities make TD-1 rollback tests harder to write (must stub inside monolith). Change cost: **medium** — but public `.call`/`Result` API unchanged, 2 runtime callers unaffected. Aligns with future metadata/source field additions (5 commits so far all touched this file). Composes with TD-2 (persist object is natural home for finding mapper). |
-| **Blast radius** | Extraction-only: `process_case_submission.rb` + 1–2 new files + existing specs. Full intake blast radius (31 files) only if contract changes. |
-| **Incremental path** | (1) G-01/G-02 rollback specs → (2) extract `redact_metadata` → (3) extract persist inside same transaction → (4) optional TD-2 mapper in persist object |
-| **First prerequisite** | Inner-loop rollback specs (G-01, G-02) **before** moving transaction block |
+| **Why #1 (open)** | TD-2 prerequisite met (rollback specs exist). Debt cost: mixed responsibilities still block clean extraction. Change cost: **medium** — public `.call`/`Result` unchanged. Persist object is natural home for finding mapper (already in place). |
+| **Blast radius** | Extraction-only: `process_case_submission.rb` + 1–2 new files + existing specs |
+| **Incremental path** | (1) ~~G-01/G-02 rollback specs~~ **done** → (2) extract `redact_metadata` → (3) extract persist inside same transaction |
+| **First prerequisite** | ~~Inner-loop rollback specs~~ **done** — can proceed to `redact_metadata` extract |
 
 **Trade-off:** More files for a ~72-line class. Justified if TD-1 tests or new intake fields are planned soon; optional hygiene if MVP is stable.
 
 ---
 
-### 3. TD-5 — CRLF normalization in `Engine`
+### 2. TD-5 — CRLF normalization in `Engine` *(was #3)*
 
 | Dimension | Assessment |
 |-----------|------------|
 | **Current → target** | `split(/\n/, -1)` on raw paste (trailing `\r` retained) → normalize `\r\n`/`\r` to `\n` before split (or per-line chomp) |
-| **Why #3** | Real-world Windows paste is plausible for log debugging tool. Debt cost: unknown `line_number`/pattern behavior on CRLF input. Change cost: **low** (2 files: engine + spec). Sole runtime callers (2 call-sites in `process_case_submission.rb`). |
+| **Why #2 (open)** | Real-world Windows paste still plausible. Debt cost unchanged. Change cost: **low** (2 files). |
 | **Blast radius** | **Low** — `engine.rb`, `engine_spec.rb`; optionally one line in `process_case_submission_spec.rb` |
 | **Incremental path** | (1) Characterization spec with `"line\r\nsecret"` input documenting current behavior → (2) normalize + update spec → (3) verify security oracles still green |
 | **First prerequisite** | Behavior decision (source OQ-1): normalize (recommended) vs accept-and-document |
@@ -362,11 +455,11 @@ These items from the source analysis are **not structural refactors** but should
 
 | Priority (source) | ID | Companion to ranked opportunity |
 |-------------------|-----|--------------------------------|
-| P0 | TD-1 / G-01, G-02 | Prerequisite for IMPL-1 (#2) |
-| P0 | G-03 (`sources: nil`) | Companion to G-05 unit spec (TD-3) |
+| P0 | ~~TD-1 / G-01, G-02~~ | **DONE** (PR #14) |
+| P0 | G-03 (`sources: nil`) | Companion to G-05 unit spec (TD-3) — **still open** |
 | P1 | TD-4 / G-04 | Independent test slice |
 | P1 | TD-3 | Companion to G-05; no refactor required |
-| P2 | TD-6, TD-8 | Independent test/E2E slices |
+| P2 | TD-6, ~~TD-8~~ | TD-8 partial (validation E2E done); TD-6 still open |
 | P3 | TD-9 | Process/docs only |
 
 ---
@@ -382,7 +475,10 @@ These items from the source analysis are **not structural refactors** but should
 
 ## Related Research
 
-- `context/changes/case-submission-flow-analysis/research.md` — intake flow analysis (input evidence)
+- `context/changes/case-submission-flow-analysis/research.md` — intake flow analysis (input evidence; **archive candidate**)
+- `context/changes/intake-finding-persist-contract/plan.md` — TD-2 implementation (**done**, PR #14)
+- `context/changes/e2e-test-verification/plan.md` — G-14/TD-8 validation E2E (**done**, PR #15)
+- `context/changes/ci-cd-code-review/requirements.md` — AI PR review workflow (**done**, unrelated to intake ranking)
 - `context/archive/2026-05-27-safe-multi-source-intake/plan.md` — S-02 original intake design
 - `context/archive/2026-05-27-encrypted-diagnostic-schema/plan-brief.md` — F-02 encryption scope (TD-7)
 - `context/archive/2026-05-27-load-demo-case/plan-brief.md` — S-06 demo reuse decision (TD-10)
@@ -390,7 +486,26 @@ These items from the source analysis are **not structural refactors** but should
 
 ## Weryfikacja twierdzeń (ast-grep)
 
-Weryfikacja twierdzeń strukturalnych wspierających ranking (ast-grep 0.43.0, `-l ruby`, zakres `app/` / `spec/` o ile nie zaznaczono). Commit: `2ce9993a7bef94b013d977263619b272f29a4e07`.
+Weryfikacja pierwotna: ast-grep 0.43.0, commit `2ce9993`. **Re-run 2026-06-22** at `e96dc92` — delta rows marked **changed**.
+
+| # | Twierdzenie | Jun-10 | **Jun-22** | Dowód |
+|---|-------------|--------|------------|-------|
+| V-01 | Jedyny runtime call-site `redaction_findings.create!` w `app/` | Potwierdzone | **Potwierdzone** | `process_case_submission.rb:46` |
+| V-02 | Brak mappera/DTO/`Data.define` dla findings | Potwierdzone | **Zmienione → mapper + VO istnieją** | `finding.rb:4`; `build_from_engine_finding` at `:8–18` |
+| V-03 | Hash findings ma 4 klucze | Potwierdzone | **Zmienione → typed Finding, nie hash** | `engine.rb:36–41` emits `Finding.new(...)` |
+| V-04 | 2 runtime callery `ProcessCaseSubmission.call` | Potwierdzone | **Potwierdzone** | controller + `load_case.rb:23` |
+| V-05 | 2 runtime call-site'y `Redaction::Engine.redact` | Potwierdzone | **Potwierdzone** | `process_case_submission.rb:36`, `:63` |
+| V-06 | Jedyny `DebuggingCase.transaction` w `app/` | Potwierdzone | **Potwierdzone** | `process_case_submission.rb:27` |
+| V-07 | 3× `create!` na 3 modelach | Potwierdzone | **Potwierdzone** | `:28`, `:38`, `:46` |
+| V-08 | `redact_metadata` — 5 call-site'ów | Potwierdzone | **Potwierdzone** | `:29–32`, `:40` |
+| V-09 | `ProcessCaseSubmission` ~72 linie | Potwierdzone | **Potwierdzone (74 linie)** | `wc -l` |
+| V-17 | Brak `redaction_finding_spec.rb` | Potwierdzone | **Zmienione → plik istnieje** | `spec/models/redaction_finding_spec.rb` |
+| V-19 | `process_case_submission_spec.rb` — 12 examples | Potwierdzone | **Zmienione → 14 examples** | +G-01/G-02 |
+| V-16 | Zero `\r`/CRLF w `spec/` | Potwierdzone | **Potwierdzone** | brak matchy |
+
+**Wpływ na ranking:** TD-2 done — IMPL-1 becomes top open refactor. V-02/V-03/V-17 supersede original "implicit contract" claims. Remaining open candidates unchanged in shape (IMPL-1 monolith, TD-5 CRLF, G-05 passthrough).
+
+*(Pełna tabela Jun-10 poniżej — historyczna; wiersze V-02, V-03, V-17, V-19 mają status superseded przez re-run powyżej.)*
 
 | # | Twierdzenie | Werdykt | Dowód | Metoda |
 |---|-------------|---------|-------|--------|
@@ -422,6 +537,7 @@ Weryfikacja twierdzeń strukturalnych wspierających ranking (ast-grep 0.43.0, `
 
 ## Open Questions (for planning, not exploration)
 
-1. Should IMPL-1 (#2) proceed only if new intake fields are planned, or proactively for test ergonomics?
-2. TD-5 (#3): normalize vs document — product preference on Windows paste fidelity?
-3. Should G-05 branch removal be bundled with ranked #2 or handled as test-only work (TD-3)?
+1. Should IMPL-1 (#1 open) proceed only if new intake fields are planned, or proactively now that rollback specs exist?
+2. TD-5 (#2 open): normalize vs document — product preference on Windows paste fidelity?
+3. Should G-05 branch removal be bundled with IMPL-1 or handled as test-only work (TD-3)?
+4. Should residual G-15 / paste-on-error-422 gaps get a new E2E change or stay in refactor-opportunities test backlog?
