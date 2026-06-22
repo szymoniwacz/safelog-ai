@@ -68,6 +68,7 @@ end
 
 group :test do
   gem "capybara"
+  gem "simplecov", require: false
   gem "webmock"
 end
 
