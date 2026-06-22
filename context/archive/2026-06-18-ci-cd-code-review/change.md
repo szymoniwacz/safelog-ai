@@ -1,10 +1,10 @@
 ---
 change_id: ci-cd-code-review
 title: CI/CD AI code review on pull requests
-status: implemented
+status: archived
 created: 2026-06-18
-updated: 2026-06-18
-archived_at: null
+updated: 2026-06-22
+archived_at: 2026-06-22T11:12:07Z
 ---
 
 ## Notes
