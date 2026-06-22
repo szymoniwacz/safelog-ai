@@ -253,6 +253,22 @@ RSpec.describe Intake::ProcessCaseSubmission do
       expect(result.errors[:title]).to include("forced failure")
     end
 
+    it "returns ActiveRecord errors when PersistRedactedCase raises RecordInvalid" do
+      submission = build_submission
+      invalid_record = LogSource.new
+      invalid_record.errors.add(:sanitized_content, "forced persist failure")
+
+      allow(Intake::PersistRedactedCase).to receive(:call).and_raise(
+        ActiveRecord::RecordInvalid.new(invalid_record)
+      )
+
+      result = described_class.call(user: user, submission: submission)
+
+      expect(result).not_to be_success
+      expect(result.debugging_case).to be_nil
+      expect(result.errors[:sanitized_content]).to include("forced persist failure")
+    end
+
     it "redacts all PRD MVP pattern types on persist" do
       session_secret = "sess-redact-#{SecureRandom.hex(4)}"
       customer_secret = "cust-redact-#{SecureRandom.hex(4)}"

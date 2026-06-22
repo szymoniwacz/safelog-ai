@@ -327,36 +327,36 @@ No data migration. Deploy is code-only; behavior and persisted shape unchanged.
 
 #### Automated
 
-- [x] 1.1 `mise exec -- bundle exec rspec spec/services/intake/redact_metadata_spec.rb`
-- [x] 1.2 `mise exec -- bundle exec rspec spec/services/intake/process_case_submission_spec.rb`
-- [x] 1.3 `mise exec -- bin/ci`
+- [x] 1.1 `mise exec -- bundle exec rspec spec/services/intake/redact_metadata_spec.rb` — 8abeb9e
+- [x] 1.2 `mise exec -- bundle exec rspec spec/services/intake/process_case_submission_spec.rb` — 8abeb9e
+- [x] 1.3 `mise exec -- bin/ci` — 8abeb9e
 
 #### Manual
 
-- [ ] 1.4 No behavior change visible in case create flow (metadata still redacted on persist)
+- [x] 1.4 No behavior change visible in case create flow (metadata still redacted on persist)
 
 ### Phase 2: Extract PersistRedactedCase
 
 #### Automated
 
-- [x] 2.1 `mise exec -- bundle exec rspec spec/services/intake/persist_redacted_case_spec.rb`
-- [x] 2.2 `mise exec -- bundle exec rspec spec/services/intake/process_case_submission_spec.rb`
-- [x] 2.3 `mise exec -- bundle exec rspec spec/`
-- [x] 2.4 `mise exec -- bin/ci`
+- [x] 2.1 `mise exec -- bundle exec rspec spec/services/intake/persist_redacted_case_spec.rb` — 8abeb9e
+- [x] 2.2 `mise exec -- bundle exec rspec spec/services/intake/process_case_submission_spec.rb` — 8abeb9e
+- [x] 2.3 `mise exec -- bundle exec rspec spec/` — 8abeb9e
+- [x] 2.4 `mise exec -- bin/ci` — 8abeb9e
 
 #### Manual
 
-- [ ] 2.5 Demo case load still creates a full case tree in dev/test
-- [ ] 2.6 New case via UI still shows redacted metadata and findings on show page
+- [x] 2.5 Demo case load still creates a full case tree in dev/test
+- [x] 2.6 New case via UI still shows redacted metadata and findings on show page
 
 ### Phase 3: Bundle G-05 — Remove Source passthrough
 
 #### Automated
 
-- [x] 3.1 `mise exec -- bundle exec rspec spec/services/intake/case_submission_spec.rb`
-- [x] 3.2 `mise exec -- bundle exec rspec spec/services/intake/`
-- [x] 3.3 `mise exec -- bin/ci`
+- [x] 3.1 `mise exec -- bundle exec rspec spec/services/intake/case_submission_spec.rb` — 8abeb9e
+- [x] 3.2 `mise exec -- bundle exec rspec spec/services/intake/` — 8abeb9e
+- [x] 3.3 `mise exec -- bin/ci` — 8abeb9e
 
 #### Manual
 
-- [ ] 3.4 Case create form still accepts multi-source paste payload (no regression)
+- [x] 3.4 Case create form still accepts multi-source paste payload (no regression)

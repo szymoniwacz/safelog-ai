@@ -11,6 +11,7 @@ RSpec.describe Intake::RedactMetadata do
     end
 
     it "returns nil for empty text" do
+      # Legacy behavior: blank? early return yields nil, not "".
       expect(described_class.call("", registry: registry)).to be_nil
     end
 
