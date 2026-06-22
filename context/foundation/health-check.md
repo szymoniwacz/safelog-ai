@@ -107,4 +107,4 @@ SafeLog AI has a reproducible Ruby lockfile, clean gem audit, a working RSpec su
 
 **Production:** Fly.io deploy at https://safelog-ai.fly.dev/ verified 2026-06-09 (`/up` health check passing when running). App may be **intentionally suspended** when not needed — run `fly deploy` before demo. See `context/deployment/deploy-plan.md`.
 
-Next step: Builder badge **READY** — track all three badges in `context/certification/certification-readiness.md`. Proceed with Module 4 (Architect) repo-map workflow per `.cursor/prompts/m4l2-*`.
+Next step: All three badges **READY** (2026-06-22) — submit via [`context/certification/submission-checklist.md`](../certification/submission-checklist.md).

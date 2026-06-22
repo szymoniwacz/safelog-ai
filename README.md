@@ -4,7 +4,7 @@ Rails 8.1 app for safe multi-source log debugging. Paste logs from several sourc
 
 **MVP database:** SQLite (simpler local and Fly.io deploy). Diagnostic text fields are encrypted at rest with Rails Active Record Encryption.
 
-Further product and agent context: `AGENTS.md`, `context/foundation/`. Certification progress (Builder / Architect / Champion): `context/certification/certification-readiness.md`.
+Further product and agent context: `AGENTS.md`, `context/foundation/`. Certification progress (Builder / Architect / Champion): `context/certification/certification-readiness.md`. Architect two-pager: `context/certification/architecture-report.md`.
 
 ## Security principles
 

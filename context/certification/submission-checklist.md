@@ -1,0 +1,154 @@
+---
+project: SafeLog AI
+updated: 2026-06-22
+scope: Copy-paste guide for all three 10xDevs certification forms
+---
+
+# Certification Submission Checklist
+
+> **Rules:** Submit **Builder** and **Architect/Champion** forms in the **same deadline round**. You cannot add badges later.
+>
+> Deadlines (23:59): **2026-07-05** · **2026-08-10** · **2026-09-14** (final)
+
+---
+
+## Before you submit
+
+| Step | Command / action | Expected |
+|------|------------------|----------|
+| Local CI | `mise exec -- bin/ci` | 181 examples, 0 failures |
+| Production health | `curl -sf https://safelog-ai.fly.dev/up` | HTTP 200 |
+| Fly redeploy (if down) | `fly deploy --app safelog-ai` | `/up` returns 200 |
+| Architect PDF | `npm run cert:architecture-pdf` | `architecture-report.pdf` exists |
+
+---
+
+## Form 1 — 10xBuilder (M1–M3)
+
+Platform post: *Certyfikacja 10xBuilder: Formularz zgłoszeniowy i kluczowe zasady*.
+
+### Copy-paste values
+
+| Field (typical) | Value |
+|-----------------|-------|
+| **Project name** | SafeLog AI |
+| **Public URL** | https://safelog-ai.fly.dev/ |
+| **Repository** | https://github.com/szymoniwacz/safelog-ai |
+| **Stack** | Rails 8.1, SQLite, Devise, server-rendered ERB, Fly.io |
+| **CI evidence** | https://github.com/szymoniwacz/safelog-ai/actions/runs/27950236114 |
+
+### Project summary (PL)
+
+SafeLog AI to aplikacja Rails do bezpiecznego debugowania incydentów produkcyjnych z wielu źródeł logów. Surowe logi są redagowane **w pamięci** przed zapisem i przed wysłaniem do AI — persystowane są wyłącznie sanityzowane dowody (szyfrowane w SQLite). Użytkownik tworzy case z wielu wklejonych źródeł, widzi podsumowanie redakcji, uruchamia analizę AI (raport hipotez, nie werdykt), eksportuje Markdown i archiwizuje case. Auth: Devise; izolacja per-user (404 cross-user). Testy: 181 RSpec + 8 system + 11 Playwright E2E; fake AI w CI.
+
+### Screenshots to attach
+
+Upload all 7 PNGs from [`screenshots/builder/`](screenshots/builder/):
+
+1. `01-sign-in.png`
+2. `02-sign-up.png`
+3. `03-dashboard.png`
+4. `04-new-case-intake.png`
+5. `05-case-redaction-summary.png`
+6. `06-hypothesis-report.png`
+7. `07-archived-cases.png`
+
+**Note for reviewers:** Fly production has **no Load demo case** button — use **New case** + manual paste. See [`certification-readiness.md`](certification-readiness.md) § Public demo vs local `load_demo`.
+
+### Supporting docs (links if form allows)
+
+| Doc | Path |
+|-----|------|
+| Readiness audit | `context/reviews/m1-m3-builder-readiness-review.md` |
+| PRD | `context/foundation/prd.md` |
+| Deploy plan | `context/deployment/deploy-plan.md` |
+
+---
+
+## Form 2 — 10xArchitect + 10xChampion (M4–M5)
+
+**URL:** https://baserow.io/form/fwnBioduXc90QTli6lsCVL_YgRdTECPTCmwiVhu8d-E
+
+Select **both** Architect and Champion in the same submission.
+
+### 10xArchitect (M4)
+
+| Field (typical) | Value |
+|-----------------|-------|
+| **Architecture report** | Upload [`architecture-report.pdf`](architecture-report.pdf) |
+| **Report source (markdown)** | [`architecture-report.md`](architecture-report.md) |
+| **Repo map** | `context/map/repo-map.md` |
+| **Flow research** | `context/changes/case-submission-flow-analysis/research.md` |
+| **Refactor ranking** | `context/changes/refactor-opportunities/research.md` |
+| **Domain notes** | `context/domain/` (3 files) |
+| **Readiness review** | `context/reviews/m4-architect-readiness-review.md` |
+
+**Screenshots (optional supplement):** 6 PNGs in [`screenshots/architect/`](screenshots/architect/)
+
+**Defensibility one-liner:** Report synthesizes M4L2–L5 artifacts with ast-grep verification — repo map, intake flow research, ranked refactors, DDD distillation + invariant/ACL plans (plans only; implementation optional post-MVP).
+
+### 10xChampion (M5)
+
+Course requires **one** of two paths; SafeLog covers **both**.
+
+#### Option A — CI/CD code review (M5L2–M3)
+
+| Evidence | Location |
+|----------|----------|
+| Agent | `packages/code-reviewer/` |
+| Workflow | `.github/workflows/ai-code-review.yml` |
+| Fail PR | https://github.com/szymoniwacz/safelog-ai/pull/11 |
+| Pass PR | https://github.com/szymoniwacz/safelog-ai/pull/12 |
+| Screenshots | [`screenshots/champion/m5l3/`](screenshots/champion/m5l3/) (6 PNGs) |
+
+#### Option B — Team AI registry (M5L4)
+
+| Evidence | Location |
+|----------|----------|
+| Package | `@szymoniwacz/ai-toolkit@0.1.1` on GitHub Packages |
+| Source | `packages/ai-toolkit/` |
+| Publish workflow | `.github/workflows/publish-ai-toolkit.yml` |
+| Publish run | https://github.com/szymoniwacz/safelog-ai/actions/runs/27877220442 |
+| Toolkit PR | https://github.com/szymoniwacz/safelog-ai/pull/13 |
+| Screenshots | [`screenshots/champion/m5l4/`](screenshots/champion/m5l4/) (8 PNGs) |
+
+**Champion summary (PL):** Pipeline code review (TypeScript agent + GHA na PR do `main`, scenariusze fail/pass) oraz dystrybucja team AI toolkit przez GitHub Packages z postinstall do Cursor skills/rules.
+
+### Readiness review
+
+`context/reviews/m5-champion-readiness-review.md`
+
+---
+
+## Demo script (all badges)
+
+1. Open https://safelog-ai.fly.dev/ → sign up / sign in.
+2. **New debugging case** → paste ≥2 log sources with fake secrets (email, token, shared request_id).
+3. Confirm show page: placeholders only, **Redaction summary** visible.
+4. **Analyze case** → hypothesis report + correlation signals.
+5. **Download** Markdown report → **Archive** → **Archived** filter.
+
+Local alternative: `mise exec -- bin/dev` → **Load demo case** (dev/test only).
+
+---
+
+## Verification log (2026-06-22)
+
+| Check | Result |
+|-------|--------|
+| `bin/ci` | 181 examples, 0 failures |
+| `bin/e2e --grep-invert capture` | 11 passed |
+| `npm run depcruise:validate` | 0 violations |
+| `packages/ai-toolkit` smoke | passed |
+| Fly `/up` | 200 |
+| GHA `main` | [run 27950236114](https://github.com/szymoniwacz/safelog-ai/actions/runs/27950236114) success |
+
+---
+
+## Related
+
+| File | Role |
+|------|------|
+| [`certification-readiness.md`](certification-readiness.md) | Full checklists per badge |
+| [`submission-guide.md`](submission-guide.md) | Course deadlines and rules |
+| [`architecture-report.pdf`](architecture-report.pdf) | Architect upload artifact |

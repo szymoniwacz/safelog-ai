@@ -1,6 +1,6 @@
 ---
 project: SafeLog AI
-updated: 2026-06-20
+updated: 2026-06-22
 scope: 10xDevs Builder + Architect + Champion
 ---
 
@@ -30,8 +30,8 @@ Full rules, SafeLog artifact mapping, and recommended strategy: [`submission-gui
 
 | Badge | Modules | Verdict | Summary |
 |-------|---------|---------|---------|
-| **10xBuilder** | M1–M3 | **READY** | MVP shipped; 135 RSpec + system + Playwright; Fly.io live at https://safelog-ai.fly.dev/; submission screenshots captured; local `bin/ci` + remote GHA green on `main` (2026-06-09). |
-| **10xArchitect** | M4 | **READY** | M4L2–L5 complete — repo map, flow research, ranked refactors, DDD distillation + invariant/ACL plans; readiness review + excerpt screenshots. |
+| **10xBuilder** | M1–M3 | **READY** | MVP shipped; 181 RSpec + 8 system + 11 functional Playwright; Fly.io at https://safelog-ai.fly.dev/; submission screenshots captured; local `bin/ci` + remote GHA green on `main` (2026-06-22). |
+| **10xArchitect** | M4 | **READY** | M4L2–L5 complete — repo map, flow research, ranked refactors, DDD distillation + invariant/ACL plans; [`architecture-report.md`](architecture-report.md) two-pager; readiness review + excerpt screenshots. |
 | **10xChampion** | M5 | **READY** | M5L2 review agent + M5L3 GHA AI review (PR #11 fail / #12 pass) + M5L4 `@szymoniwacz/ai-toolkit` on GitHub Packages ([PR #13](https://github.com/szymoniwacz/safelog-ai/pull/13), [run 27877220442](https://github.com/szymoniwacz/safelog-ai/actions/runs/27877220442)); readiness review + screenshots. |
 
 **Overall:** All three badges **ready to submit** — Builder, Architect, and Champion evidence populated below.
@@ -52,9 +52,9 @@ flowchart LR
 | Phase | Goal | Remaining before final submission |
 |-------|------|-----------------------------------|
 | **Builder** | Working MVP + context + tests + CI + deploy | None — ready; use Builder form in chosen [deadline round](submission-guide.md#submission-deadlines) |
-| **Architect** | Large-repo architecture literacy + evidence | None — M4L2–L5 done; M4L5 two-pager + [Baserow form](https://baserow.io/form/fwnBioduXc90QTli6lsCVL_YgRdTECPTCmwiVhu8d-E) |
+| **Architect** | Large-repo architecture literacy + evidence | None — M4L2–L5 done; [`architecture-report.md`](architecture-report.md) + [Baserow form](https://baserow.io/form/fwnBioduXc90QTli6lsCVL_YgRdTECPTCmwiVhu8d-E) |
 | **Champion** | AI-assisted team workflow + automation | None — M5L2–L4 done; screenshots in same round as Builder |
-| **Final package** | One submission round, up to three badges | Pick round (Jul 5 / Aug 10 / Sep 14); see [submission rules](submission-guide.md#submission-rules--plan-your-strategy) |
+| **Final package** | One submission round, up to three badges | None — use [`submission-checklist.md`](submission-checklist.md) for form copy-paste |
 
 ---
 
@@ -71,12 +71,12 @@ flowchart LR
 | CRUD — create, read (index/show), archive | **PASS** | Request specs; no edit/destroy (intentional MVP) |
 | Business logic — redaction, intake, correlation, analyze, export | **PASS** | `app/services/*`; service + request specs |
 | Context documents — PRD, roadmap, test-plan, infra, deploy-plan | **PASS** | `context/foundation/*` |
-| Tests — meaningful coverage | **PASS** | 135 RSpec + 7 system + 5 Playwright |
-| CI/CD — local gate | **PASS** | `mise exec -- bin/ci` green 2026-06-09 |
+| Tests — meaningful coverage | **PASS** | 181 RSpec + 8 system + 11 functional Playwright (15 total incl. 4 capture specs) |
+| CI/CD — local gate | **PASS** | `mise exec -- bin/ci` green 2026-06-22 |
 | CI/CD — GitHub Actions config | **PASS** | `.github/workflows/ci.yml` parity with `config/ci.rb` |
-| CI/CD — remote GHA on latest `main` | **PASS** | [Run 27228714749](https://github.com/szymoniwacz/safelog-ai/actions/runs/27228714749) on `3c92dcb` (2026-06-09); all four jobs green; 135 RSpec examples |
-| Public URL | **PASS** | https://safelog-ai.fly.dev/ — live; deploy verified 2026-06-09 |
-| Deployment evidence | **PASS** | `deploy-plan.md` § Deployment status + lessons learned; manual E2E verification (2026-06-09) |
+| CI/CD — remote GHA on latest `main` | **PASS** | [Run 27950236114](https://github.com/szymoniwacz/safelog-ai/actions/runs/27950236114) on `43f70df` (2026-06-22); all four jobs green; 181 RSpec examples |
+| Public URL | **PASS** | https://safelog-ai.fly.dev/ — redeploy verified 2026-06-22 |
+| Deployment evidence | **PASS** | `deploy-plan.md` § Deployment status + lessons learned; manual E2E verification |
 | Demo flow — local | **PASS** | README demo section; **Load demo case** + manual intake; system + Playwright specs |
 | Demo flow — public | **PASS** | Manual intake → analyze → archive on Fly (2026-06-09); **no load_demo** — see [Public demo vs local](#public-demo-vs-local-load_demo) |
 | Submission screenshots | **PASS** | [`context/certification/screenshots/builder/`](screenshots/builder/) — 7 PNGs from live Fly (2026-06-09) |
@@ -94,20 +94,21 @@ flowchart LR
 | Submission screenshots | [`context/certification/screenshots/builder/`](screenshots/builder/) |
 | Health check | [`context/foundation/health-check.md`](../foundation/health-check.md) |
 
-### Commands (verified 2026-06-09)
+### Commands (verified 2026-06-22)
 
 ```bash
-mise exec -- bin/ci                              # 135 examples — PASS
-mise exec -- bundle exec rspec spec/system       # 7 examples — PASS
-mise exec -- bin/e2e                             # 5 Playwright tests — PASS
+mise exec -- bin/ci                              # 181 examples — PASS
+mise exec -- bundle exec rspec spec/system       # 8 examples — PASS
+mise exec -- bin/e2e                             # 11 functional Playwright tests — PASS
 mise exec -- bin/dev                             # local demo
+curl -sf https://safelog-ai.fly.dev/up           # production health — PASS after redeploy
 ```
 
 ### CI evidence
 
 - Local: `config/ci.rb` — setup, RuboCop, bundler-audit, importmap audit, Brakeman, RSpec.
 - GHA: four jobs (`scan_ruby`, `scan_js`, `lint`, `test`); same tools.
-- Remote: latest `main` verified 2026-06-09 — [run 27228714749](https://github.com/szymoniwacz/safelog-ai/actions/runs/27228714749) (`3c92dcb`; lint, scan_ruby, scan_js, test all success).
+- Remote: latest `main` verified 2026-06-22 — [run 27950236114](https://github.com/szymoniwacz/safelog-ai/actions/runs/27950236114) (`43f70df`; lint, scan_ruby, scan_js, test all success).
 - Playwright: optional (`bin/e2e`); not in `bin/ci` (see `test-plan.md` §6.9).
 
 ---
@@ -147,6 +148,7 @@ Module 4 course prompts:
 | Refactoring exercises — documented exploration | **PASS** | M4L4 ranking + M4L5 plans; **implementation optional** post-MVP (see Known Gaps) |
 | Architecture evidence — diagrams / boundaries | **PASS** | Map artifacts + domain mermaid; `redaction ⊥ ai` in artifact-2 / repo-map |
 | Review artifacts — Architect readiness review | **PASS** | [`m4-architect-readiness-review.md`](../reviews/m4-architect-readiness-review.md) |
+| Architecture report (two-pager) | **PASS** | [`architecture-report.md`](architecture-report.md) · [`architecture-report.pdf`](architecture-report.pdf) — M4L5 submission synthesis |
 | Submission screenshots | **PASS** | [`screenshots/architect/`](screenshots/architect/) — 6 excerpt PNGs |
 
 ### Evidence
@@ -154,6 +156,7 @@ Module 4 course prompts:
 | Type | Location |
 |------|----------|
 | Readiness audit | [`context/reviews/m4-architect-readiness-review.md`](../reviews/m4-architect-readiness-review.md) |
+| Architecture report (two-pager) | [`architecture-report.md`](architecture-report.md) · [`architecture-report.pdf`](architecture-report.pdf) |
 | Repo map synthesis | [`context/map/repo-map.md`](../map/repo-map.md) |
 | Map artifacts | [`context/map/artifact-1-territory.md`](../map/artifact-1-territory.md), [`artifact-2-structure.md`](../map/artifact-2-structure.md), [`artifact-3-contributors.md`](../map/artifact-3-contributors.md) |
 | Flow research (M4L3) | [`context/changes/case-submission-flow-analysis/research.md`](../changes/case-submission-flow-analysis/research.md) |
@@ -227,13 +230,13 @@ Single **certification round** for **Builder + Architect + Champion** — all ba
 
 | Artifact | Builder | Architect | Champion |
 |----------|---------|-----------|----------|
-| Project summary | README + PRD | [`repo-map.md`](../map/repo-map.md) TL;DR + [`context/domain/`](../domain/) | [`m5-champion-readiness-review.md`](../reviews/m5-champion-readiness-review.md) executive summary |
-| Demo script | See [Demo flow](#demo-flow) | Walk `repo-map.md` → domain plans → optional `npm run depcruise:graph` | M5L3: PR AI review; M5L4: `npm install` → skill in `.cursor/skills/` |
+| Project summary | README + PRD | [`architecture-report.md`](architecture-report.md) + [`repo-map.md`](../map/repo-map.md) | [`m5-champion-readiness-review.md`](../reviews/m5-champion-readiness-review.md) executive summary |
+| Demo script | See [Demo flow](#demo-flow) | Walk `architecture-report.md` → domain plans → optional `npm run depcruise:graph` | M5L3: PR AI review; M5L4: `npm install` → skill in `.cursor/skills/` |
 | Screenshots | [`screenshots/builder/`](screenshots/builder/) (7 PNGs) | [`screenshots/architect/`](screenshots/architect/) (6 PNGs) | M5L3: [`screenshots/champion/m5l3/`](screenshots/champion/m5l3/) (6); M5L4: [`screenshots/champion/m5l4/`](screenshots/champion/m5l4/) (8) |
 | Deployment URL | https://safelog-ai.fly.dev/ | Same URL + architecture notes in repo-map | Same + automation proof |
 | Review documents | [`m1-m3-builder-readiness-review.md`](../reviews/m1-m3-builder-readiness-review.md) | [`m4-architect-readiness-review.md`](../reviews/m4-architect-readiness-review.md) | [`m5-champion-readiness-review.md`](../reviews/m5-champion-readiness-review.md) |
 | CI evidence | `bin/ci` + GHA config | `depcruise:validate` + map/structure artifacts | [AI code review](../../.github/workflows/ai-code-review.yml) + [publish toolkit](../../.github/workflows/publish-ai-toolkit.yml) |
-| Certification notes | This file | Architect section current (2026-06-20) | Champion section current (2026-06-20) |
+| Certification notes | This file | Architect section current (2026-06-22) | Champion section current (2026-06-20) |
 
 ### Demo flow (Builder — verified locally and on Fly)
 
@@ -325,12 +328,15 @@ PLAYWRIGHT_SKIP_WEBSERVER=1 PLAYWRIGHT_BASE_URL=https://safelog-ai.fly.dev \
 
 | File | Role |
 |------|------|
+| `context/certification/architecture-report.md` | M4L5 two-pager for Architect form upload |
+| `context/certification/architecture-report.pdf` | PDF export (`npm run cert:architecture-pdf`) |
 | `context/certification/submission-guide.md` | Official course deadlines, forms, submission rules, SafeLog mapping |
 | `context/reviews/m1-m3-builder-readiness-review.md` | Point-in-time Builder audit (2026-06-09) |
 | `context/reviews/m1-m3-final-impl-review.md` | Six-dimension Builder impl-review |
 | `context/reviews/m4-architect-readiness-review.md` | Point-in-time Architect audit (2026-06-20) |
 | `context/reviews/m5-champion-readiness-review.md` | Point-in-time Champion audit (2026-06-20) |
-| `context/reviews/builder-certification-submission-checklist.md` | **Superseded** — merged here; kept for link stability |
+| `context/certification/submission-checklist.md` | Copy-paste guide for all three forms |
+| `context/reviews/builder-certification-submission-checklist.md` | **Superseded** — use `submission-checklist.md` |
 | `context/domain/01-domain-distillation.md` | M4L5-1 — ubiquitous language, subdomains, MODEL vs CODE gaps |
 | `context/domain/02-invariant-aggregate-refactor.md` | M4L5-2 — INV-G1 aggregate guardian plan (plans only) |
 | `context/domain/03-anti-corruption-layer.md` | M4L5-3 — AI adapter ACL plan (plans only) |

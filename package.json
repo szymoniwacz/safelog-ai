@@ -8,7 +8,8 @@
     "test:e2e:install": "playwright install chromium",
     "depcruise": "depcruise e2e/helpers.ts e2e/*.spec.ts playwright.config.ts --config .dependency-cruiser.cjs",
     "depcruise:validate": "depcruise e2e/helpers.ts e2e/*.spec.ts playwright.config.ts --config .dependency-cruiser.cjs --output-type err",
-    "depcruise:graph": "node scripts/render-e2e-dep-graph.mjs"
+    "depcruise:graph": "node scripts/render-e2e-dep-graph.mjs",
+    "cert:architecture-pdf": "node scripts/render-architecture-report-pdf.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.15.0",

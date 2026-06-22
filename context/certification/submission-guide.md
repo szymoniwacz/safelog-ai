@@ -1,6 +1,6 @@
 ---
 project: SafeLog AI
-updated: 2026-06-20
+updated: 2026-06-22
 source: 10xDevs 3.0 — course email “module 5 / Architect + Champion submission form” (program week 5)
 scope: certification deadlines, rules, and forms (Builder, Architect, Champion)
 ---
@@ -88,6 +88,7 @@ Generate the report with the M4L5 lesson prompt. **The report must be yours** �
 | Feature research | [`context/changes/case-submission-flow-analysis/research.md`](../changes/case-submission-flow-analysis/research.md) |
 | Refactoring plan | [`context/changes/refactor-opportunities/research.md`](../changes/refactor-opportunities/research.md) + [`plan.md`](../changes/refactor-opportunities/plan.md) if present |
 | DDD / domain | [`context/domain/`](../domain/) |
+| Architecture report (two-pager) | [`architecture-report.md`](architecture-report.md) · [`architecture-report.pdf`](architecture-report.pdf) |
 | Readiness review | [`context/reviews/m4-architect-readiness-review.md`](../reviews/m4-architect-readiness-review.md) |
 | Screenshots (excerpt PNGs) | [`screenshots/architect/`](screenshots/architect/) |
 
@@ -133,21 +134,22 @@ Form fields and instructions — on the course platform (*Certyfikacja 10xBuilde
 | Live app | https://safelog-ai.fly.dev/ |
 | Readiness review | [`context/reviews/m1-m3-builder-readiness-review.md`](../reviews/m1-m3-builder-readiness-review.md) |
 | Screenshots | [`screenshots/builder/`](screenshots/builder/) |
-| CI | `bin/ci` + [GHA run 27228714749](https://github.com/szymoniwacz/safelog-ai/actions/runs/27228714749) |
+| CI | `bin/ci` + [GHA run 27950236114](https://github.com/szymoniwacz/safelog-ai/actions/runs/27950236114) |
 
 ---
 
 ## Recommended strategy for SafeLog AI
 
-Repo status (2026-06-20): **Builder, Architect, and Champion — READY** ([`certification-readiness.md`](certification-readiness.md)).
+Repo status (2026-06-22): **Builder, Architect, and Champion — READY** ([`certification-readiness.md`](certification-readiness.md)).
 
 Given “one round, one deadline, no add-ons”:
 
 1. **Pick a round** — distinctions / Demo Day → **5 July 2026**; otherwise a later round, but before **14 September 2026**.
 2. **In the same round**, submit the **Builder** form plus the **Architect/Champion** form (select both optional badges).
 3. **Builder:** screenshots + URL + CI evidence from [`screenshots/builder/`](screenshots/builder/).
-4. **Architect:** M4L5 report + links to artifacts (or PDF/export of the two-pager).
+4. **Architect:** upload [`architecture-report.pdf`](architecture-report.pdf) (or link [`architecture-report.md`](architecture-report.md)).
 5. **Champion:** screenshots from [`screenshots/champion/`](screenshots/champion/) — both paths (M5L3 + M5L4) already captured.
+6. **Copy-paste helper:** [`submission-checklist.md`](submission-checklist.md).
 
 ---
 
@@ -155,6 +157,8 @@ Given “one round, one deadline, no add-ons”:
 
 | File | Role |
 |------|------|
+| [`submission-checklist.md`](submission-checklist.md) | Copy-paste values for Builder + Architect/Champion forms |
+| [`architecture-report.pdf`](architecture-report.pdf) | M4L5 PDF for Architect form upload |
 | [`certification-readiness.md`](certification-readiness.md) | READY status, checklists, verification commands |
 | [`README.md`](README.md) | Certification folder index |
 | [`context/reviews/`](../../reviews/) | Per-badge readiness audits |

@@ -91,6 +91,12 @@
 
 **Submit for Builder certification: YES.**
 
-Full three-badge tracker: [`context/certification/certification-readiness.md`](../certification/certification-readiness.md). Architect and Champion sections remain **NOT STARTED**.
+Full three-badge tracker: [`context/certification/certification-readiness.md`](../certification/certification-readiness.md). All three badges **READY** as of 2026-06-22 (see addendum below).
 
 Distinction polish (optional, not blocking): run `bin/e2e` in submission notes as optional browser proof; `fly deploy` before submission if a live public URL is required.
+
+---
+
+## Addendum (2026-06-22)
+
+Architect and Champion badges are **READY** — see [`context/certification/certification-readiness.md`](../certification/certification-readiness.md) and [`context/certification/submission-checklist.md`](../certification/submission-checklist.md). Current gate: 181 RSpec examples; GHA [run 27950236114](https://github.com/szymoniwacz/safelog-ai/actions/runs/27950236114).

@@ -46,6 +46,9 @@
 /playwright/.cache/
 /e2e/.auth/
 
+# Generated certification PDF intermediate (PDF is committed).
+/context/certification/architecture-report.html
+
 # Cursor hook runtime state (per-conversation QA failures).
 /.cursor/hooks/state/
 
