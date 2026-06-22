@@ -354,19 +354,19 @@ None. Pure presentation + controller ivar change; no schema migration.
 
 #### Automated
 
-- [ ] 1.1 `bundle exec rspec spec/services/intake/case_submission_spec.rb`
-- [ ] 1.2 `bundle exec rspec spec/requests/debugging_cases_spec.rb`
+- [x] 1.1 `bundle exec rspec spec/services/intake/case_submission_spec.rb`
+- [x] 1.2 `bundle exec rspec spec/requests/debugging_cases_spec.rb`
 
 #### Manual
 
-- [ ] 1.3 None for this phase
+- [x] 1.3 None for this phase
 
 ### Phase 2: View helpers, template, and CSS
 
 #### Automated
 
-- [ ] 2.1 `bundle exec rspec spec/helpers/debugging_cases_helper_spec.rb`
-- [ ] 2.2 `bin/rubocop`
+- [x] 2.1 `bundle exec rspec spec/helpers/debugging_cases_helper_spec.rb`
+- [x] 2.2 `bin/rubocop`
 
 #### Manual
 
@@ -377,9 +377,9 @@ None. Pure presentation + controller ivar change; no schema migration.
 
 #### Automated
 
-- [ ] 3.1 `bin/ci`
-- [ ] 3.2 `bundle exec rspec spec/system/debugging_case_validation_spec.rb`
-- [ ] 3.3 `PORT=3010 CI=1 bin/e2e e2e/debugging-case-validation.spec.ts`
+- [x] 3.1 `bin/ci`
+- [x] 3.2 `bundle exec rspec spec/system/debugging_case_validation_spec.rb`
+- [x] 3.3 `PORT=3010 CI=1 bin/e2e e2e/debugging-case-validation.spec.ts`
 
 #### Manual
 

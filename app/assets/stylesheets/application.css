@@ -583,6 +583,30 @@ body.is-analyzing {
   margin-bottom: 0;
 }
 
+.form-field--invalid input,
+.form-field--invalid select,
+.form-field--invalid textarea {
+  border-color: var(--color-danger-text);
+  outline-color: var(--color-danger-text);
+}
+
+.fieldset--invalid {
+  border: 1px solid #f0c4c0;
+  border-radius: var(--radius);
+  padding: var(--space-md);
+}
+
+.fieldset--invalid legend {
+  color: var(--color-danger-text);
+}
+
+.field-error {
+  display: block;
+  margin-top: var(--space-xs);
+  color: var(--color-danger-text);
+  font-size: 0.875rem;
+}
+
 /* Auth */
 
 .auth-card {

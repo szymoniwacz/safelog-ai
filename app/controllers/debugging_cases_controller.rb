@@ -10,7 +10,7 @@ class DebuggingCasesController < AuthenticatedController
   end
 
   def new
-    @title = @description = @customer_reference = @environment = nil
+    assign_empty_form_state
   end
 
   def show
@@ -32,7 +32,7 @@ class DebuggingCasesController < AuthenticatedController
     if result.success?
       redirect_to debugging_case_path(result.debugging_case)
     else
-      assign_safe_metadata_for_form
+      assign_form_state_on_failure
       @errors = result.errors
       render :new, status: :unprocessable_entity
     end
@@ -103,13 +103,41 @@ class DebuggingCasesController < AuthenticatedController
     )
   end
 
-  # Re-populates case metadata only. Pasted log content is intentionally omitted on
-  # validation failure — raw logs must not be re-rendered in HTML (AGENTS.md).
-  def assign_safe_metadata_for_form
+  # Re-populates case metadata and safe source slot fields on validation failure.
+  # Pasted log content is intentionally omitted — raw logs must not be re-rendered
+  # in HTML (AGENTS.md).
+  def assign_form_state_on_failure
     permitted = case_submission_params
     @title = permitted[:title]
     @description = permitted[:description]
     @customer_reference = permitted[:customer_reference]
     @environment = permitted[:environment]
+    @source_slots = build_source_slots_for_form(permitted[:sources])
+    @paste_cleared_on_validation_failure = pasted_content_submitted?(permitted[:sources])
+  end
+
+  def assign_empty_form_state
+    @title = @description = @customer_reference = @environment = nil
+    @source_slots = empty_source_slots
+    @paste_cleared_on_validation_failure = false
+  end
+
+  def build_source_slots_for_form(raw_sources)
+    slots = Array(raw_sources).first(SOURCE_SLOT_COUNT).map do |source|
+      {
+        source_type: source[:source_type].presence,
+        name: source[:name].to_s.strip.presence
+      }
+    end
+
+    slots.fill({ source_type: nil, name: nil }, slots.length...SOURCE_SLOT_COUNT)
+  end
+
+  def empty_source_slots
+    Array.new(SOURCE_SLOT_COUNT) { { source_type: nil, name: nil } }
+  end
+
+  def pasted_content_submitted?(raw_sources)
+    Array(raw_sources).any? { |source| source[:pasted_content].to_s.strip.present? }
   end
 end

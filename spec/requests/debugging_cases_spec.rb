@@ -73,6 +73,8 @@ RSpec.describe "Debugging cases", type: :request do
       expect(response).to have_http_status(:unprocessable_content)
       expect(response.body).to include("New debugging case")
       expect(response.body).to include("Title can&#39;t be blank")
+      expect(response.body).to include('form-field--invalid')
+      expect(response.body).to include('aria-invalid="true"')
     end
 
     it "re-renders new with 422 when source type is invalid" do
@@ -88,6 +90,48 @@ RSpec.describe "Debugging cases", type: :request do
 
       expect(response).to have_http_status(:unprocessable_content)
       expect(response.body).to include("invalid source type")
+      expect(response.body).to include("fieldset--invalid")
+    end
+
+    it "reports source 2 in the error when only the second slot has an invalid type" do
+      sign_in user
+
+      post debugging_cases_path, params: {
+        debugging_case: {
+          title: "Slot numbering case",
+          sources: [
+            { source_type: "rails_log", pasted_content: "" },
+            { source_type: "invalid_type", pasted_content: "session_id=sess-slot-2" }
+          ]
+        }
+      }
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include("source 2 has an invalid source type")
+      expect(response.body).not_to include("session_id=sess-slot-2")
+    end
+
+    it "preserves source type and name without re-rendering pasted content on validation failure" do
+      sign_in user
+      pasted_secret = "paste-#{SecureRandom.hex(4)}@secret.example"
+
+      post debugging_cases_path, params: {
+        debugging_case: {
+          title: "Source metadata preserve case",
+          sources: [
+            {
+              source_type: "invalid_type",
+              name: "Rails",
+              pasted_content: pasted_secret
+            }
+          ]
+        }
+      }
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include('value="Rails"')
+      expect(response.body).to match(/value="invalid_type"[^>]*selected|selected[^>]*value="invalid_type"/)
+      expect(response.body).not_to include(pasted_secret)
     end
 
     it "preserves metadata fields on validation failure" do
@@ -127,6 +171,7 @@ RSpec.describe "Debugging cases", type: :request do
 
       expect(response).to have_http_status(:unprocessable_content)
       expect(response.body).not_to include(pasted_secret)
+      expect(response.body).to include('aria-invalid="true"')
     end
   end
 

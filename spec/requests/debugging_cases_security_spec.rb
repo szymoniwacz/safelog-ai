@@ -235,6 +235,7 @@ RSpec.describe "Debugging cases security (AGENTS.md guardrails)", type: :request
 
       expect(response).to have_http_status(:unprocessable_content)
       expect(response.body).not_to include(pasted_secret)
+      expect(response.body).to include('aria-invalid="true"')
     end
   end
 
