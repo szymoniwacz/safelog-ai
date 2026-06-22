@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+FLY_APP="${FLY_APP:-safelog-ai}"
+
+fly_bin() {
+  if command -v fly >/dev/null 2>&1; then
+    command -v fly
+  elif command -v flyctl >/dev/null 2>&1; then
+    command -v flyctl
+  else
+    echo "Error: fly/flyctl not found. Install with: brew install flyctl" >&2
+    exit 1
+  fi
+}
+
+FLY="$(fly_bin)"
+
+echo "== Syncing OPENAI_API_KEY from .env to Fly =="
+"$(dirname "$0")/fly-sync-openai"
+
+echo "== Deploying ${FLY_APP} on Fly.io =="
+"$FLY" deploy --app "$FLY_APP"
+
+echo "== Checking health =="
+curl -sf "https://${FLY_APP}.fly.dev/up" && echo " OK"

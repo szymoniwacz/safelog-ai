@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+FLY_APP="${FLY_APP:-safelog-ai}"
+ENV_FILE="${ENV_FILE:-.env}"
+
+fly_bin() {
+  if command -v fly >/dev/null 2>&1; then
+    command -v fly
+  elif command -v flyctl >/dev/null 2>&1; then
+    command -v flyctl
+  else
+    echo "Error: fly/flyctl not found. Install with: brew install flyctl" >&2
+    exit 1
+  fi
+}
+
+# Reads an uncommented KEY=value from .env without sourcing the file.
+read_env_value() {
+  local key="$1"
+  local file="$2"
+  local line value
+
+  [[ -f "$file" ]] || return 0
+
+  line="$(
+    grep -E "^[[:space:]]*(export[[:space:]]+)?${key}=" "$file" 2>/dev/null \
+      | grep -Ev '^[[:space:]]*#' \
+      | tail -1 \
+      || true
+  )"
+  [[ -n "$line" ]] || return 0
+
+  value="${line#*=}"
+  value="${value%%#*}"
+  value="${value%"${value##*[![:space:]]}"}"
+  value="${value#"${value%%[![:space:]]*}"}"
+
+  if [[ "$value" =~ ^\"(.*)\"$ ]]; then
+    value="${BASH_REMATCH[1]}"
+  elif [[ "$value" =~ ^\'(.*)\'$ ]]; then
+    value="${BASH_REMATCH[1]}"
+  fi
+
+  printf '%s' "$value"
+}
+
+FLY="$(fly_bin)"
+openai_key="$(read_env_value OPENAI_API_KEY "$ENV_FILE")"
+
+if [[ -n "$openai_key" ]]; then
+  echo "Setting OPENAI_API_KEY on Fly app ${FLY_APP} from ${ENV_FILE}..."
+  "$FLY" secrets set OPENAI_API_KEY="$openai_key" --app "$FLY_APP"
+else
+  echo "No OPENAI_API_KEY in ${ENV_FILE}; clearing it on Fly app ${FLY_APP}..."
+  if "$FLY" secrets list --app "$FLY_APP" 2>/dev/null | grep -q 'OPENAI_API_KEY'; then
+    "$FLY" secrets unset OPENAI_API_KEY --app "$FLY_APP"
+  else
+    echo "OPENAI_API_KEY is already unset on Fly."
+  fi
+fi
