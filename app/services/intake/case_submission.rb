@@ -41,7 +41,8 @@ module Intake
     end
 
     def source_types_are_valid
-      sources_with_content.each_with_index do |source, index|
+      sources.each_with_index do |source, index|
+        next if source.pasted_content.blank?
         next if LogSource.source_types.key?(source.source_type.to_s)
 
         errors.add(:sources, "source #{index + 1} has an invalid source type")

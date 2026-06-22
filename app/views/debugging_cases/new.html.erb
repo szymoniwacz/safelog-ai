@@ -18,9 +18,18 @@
   <fieldset>
     <legend>Case details</legend>
 
-    <div class="form-field">
+    <div class="<%= form_field_css_class("form-field", invalid: title_field_invalid?(@errors)) %>">
       <%= form.label :title, "Title" %>
-      <%= form.text_field :title, value: @title, required: true %>
+      <%= form.text_field :title,
+            value: @title,
+            required: true,
+            aria: {
+              invalid: title_field_invalid?(@errors),
+              describedby: (field_error_id("title") if title_field_invalid?(@errors))
+            } %>
+      <% if title_field_invalid?(@errors) %>
+        <span class="field-error" id="<%= field_error_id("title") %>"><%= @errors[:title].first %></span>
+      <% end %>
     </div>
 
     <div class="form-field">
@@ -39,31 +48,52 @@
     </div>
   </fieldset>
 
-  <% DebuggingCasesHelper::SOURCE_SLOT_COUNT.times do |index| %>
-    <fieldset>
-      <legend>Log source <%= index + 1 %></legend>
+  <% if @paste_cleared_on_validation_failure %>
+    <p class="callout callout--info"><em>Pasted log content was cleared for security. Re-paste your logs below to continue.</em></p>
+  <% end %>
 
-      <div class="form-field">
+  <% DebuggingCasesHelper::SOURCE_SLOT_COUNT.times do |index| %>
+    <% slot_number = index + 1 %>
+    <% slot = @source_slots[index] %>
+    <% slot_invalid = source_slot_invalid?(@errors, slot_number) %>
+    <fieldset class="<%= "fieldset--invalid" if slot_invalid %>">
+      <legend>Log source <%= slot_number %></legend>
+
+      <div class="<%= form_field_css_class("form-field", invalid: slot_invalid && invalid_source_slot_numbers(@errors).include?(slot_number)) %>">
         <label for="debugging_case_sources_<%= index %>_source_type">Source type</label>
         <%= select_tag "debugging_case[sources][][source_type]",
-              options_for_select(log_source_type_options),
+              log_source_type_options_for_select(slot[:source_type]),
               include_blank: "Select type",
-              id: "debugging_case_sources_#{index}_source_type" %>
+              id: "debugging_case_sources_#{index}_source_type",
+              aria: {
+                invalid: slot_invalid && invalid_source_slot_numbers(@errors).include?(slot_number),
+                describedby: (field_error_id("source_#{slot_number}_type") if slot_invalid && invalid_source_slot_numbers(@errors).include?(slot_number))
+              } %>
+        <% if slot_invalid && invalid_source_slot_numbers(@errors).include?(slot_number) %>
+          <span class="field-error" id="<%= field_error_id("source_#{slot_number}_type") %>"><%= sources_error_messages(@errors).find { |message| message.include?("source #{slot_number}") } %></span>
+        <% end %>
       </div>
 
       <div class="form-field">
         <label for="debugging_case_sources_<%= index %>_name">Name (optional)</label>
-        <%= text_field_tag "debugging_case[sources][][name]", nil,
+        <%= text_field_tag "debugging_case[sources][][name]", slot[:name],
               id: "debugging_case_sources_#{index}_name",
               placeholder: "e.g. Rails app log" %>
       </div>
 
-      <div class="form-field">
+      <div class="<%= form_field_css_class("form-field", invalid: slot_invalid) %>">
         <label for="debugging_case_sources_<%= index %>_pasted_content">Pasted content</label>
         <%= text_area_tag "debugging_case[sources][][pasted_content]", nil,
               id: "debugging_case_sources_#{index}_pasted_content",
               rows: 8,
-              placeholder: "Paste raw logs here. Processed once on submit." %>
+              placeholder: "Paste raw logs here. Processed once on submit.",
+              aria: {
+                invalid: slot_invalid,
+                describedby: (field_error_id("source_#{slot_number}_paste") if slot_invalid)
+              } %>
+        <% if slot_invalid && missing_sources_error?(@errors) %>
+          <span class="field-error" id="<%= field_error_id("source_#{slot_number}_paste") %>"><%= DebuggingCasesHelper::MISSING_SOURCES_MESSAGE %></span>
+        <% end %>
       </div>
     </fieldset>
   <% end %>
