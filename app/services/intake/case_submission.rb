@@ -26,15 +26,11 @@ module Intake
 
     def normalize_sources(raw_sources)
       Array(raw_sources).map do |source|
-        if source.is_a?(Source)
-          source
-        else
-          Source.new(
-            source_type: source[:source_type] || source["source_type"],
-            name: (source[:name] || source["name"]).to_s.strip.presence,
-            pasted_content: (source[:pasted_content] || source["pasted_content"]).to_s.strip
-          )
-        end
+        Source.new(
+          source_type: source[:source_type] || source["source_type"],
+          name: (source[:name] || source["name"]).to_s.strip.presence,
+          pasted_content: (source[:pasted_content] || source["pasted_content"]).to_s.strip
+        )
       end
     end
 

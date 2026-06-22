@@ -22,33 +22,30 @@ module Intake
 
       registry = Redaction::PlaceholderRegistry.new
 
-      debugging_case = nil
+      case_attributes = {
+        title: RedactMetadata.call(@submission.title, registry: registry),
+        description: RedactMetadata.call(@submission.description, registry: registry),
+        environment: RedactMetadata.call(@submission.environment, registry: registry),
+        customer_reference: RedactMetadata.call(@submission.customer_reference, registry: registry)
+      }
 
-      DebuggingCase.transaction do
-        debugging_case = @user.debugging_cases.create!(
-          title: redact_metadata(@submission.title, registry),
-          description: redact_metadata(@submission.description, registry),
-          environment: redact_metadata(@submission.environment, registry),
-          customer_reference: redact_metadata(@submission.customer_reference, registry)
+      sources = @submission.sources_with_content.each_with_index.map do |source, index|
+        result = Redaction::Engine.redact(source.pasted_content, registry: registry)
+
+        PersistRedactedCase::SourcePayload.new(
+          source_type: source.source_type,
+          name: RedactMetadata.call(source.name, registry: registry),
+          position: index,
+          sanitized_content: result.sanitized_text,
+          findings: result.findings
         )
-
-        @submission.sources_with_content.each_with_index do |source, index|
-          result = Redaction::Engine.redact(source.pasted_content, registry: registry)
-
-          log_source = debugging_case.log_sources.create!(
-            source_type: source.source_type,
-            name: redact_metadata(source.name, registry),
-            position: index,
-            sanitized_content: result.sanitized_text
-          )
-
-          result.findings.each do |finding|
-            log_source.redaction_findings.create!(
-              RedactionFinding.build_from_engine_finding(finding)
-            )
-          end
-        end
       end
+
+      debugging_case = PersistRedactedCase.call(
+        user: @user,
+        case_attributes: case_attributes,
+        sources: sources
+      )
 
       success(debugging_case)
     rescue ActiveRecord::RecordInvalid => error
@@ -56,12 +53,6 @@ module Intake
     end
 
     private
-
-    def redact_metadata(text, registry)
-      return if text.blank?
-
-      Redaction::Engine.redact(text, registry: registry).sanitized_text
-    end
 
     def success(debugging_case)
       Result.new(debugging_case: debugging_case, errors: nil)

@@ -327,9 +327,9 @@ No data migration. Deploy is code-only; behavior and persisted shape unchanged.
 
 #### Automated
 
-- [ ] 1.1 `mise exec -- bundle exec rspec spec/services/intake/redact_metadata_spec.rb`
-- [ ] 1.2 `mise exec -- bundle exec rspec spec/services/intake/process_case_submission_spec.rb`
-- [ ] 1.3 `mise exec -- bin/ci`
+- [x] 1.1 `mise exec -- bundle exec rspec spec/services/intake/redact_metadata_spec.rb`
+- [x] 1.2 `mise exec -- bundle exec rspec spec/services/intake/process_case_submission_spec.rb`
+- [x] 1.3 `mise exec -- bin/ci`
 
 #### Manual
 
@@ -339,10 +339,10 @@ No data migration. Deploy is code-only; behavior and persisted shape unchanged.
 
 #### Automated
 
-- [ ] 2.1 `mise exec -- bundle exec rspec spec/services/intake/persist_redacted_case_spec.rb`
-- [ ] 2.2 `mise exec -- bundle exec rspec spec/services/intake/process_case_submission_spec.rb`
-- [ ] 2.3 `mise exec -- bundle exec rspec spec/`
-- [ ] 2.4 `mise exec -- bin/ci`
+- [x] 2.1 `mise exec -- bundle exec rspec spec/services/intake/persist_redacted_case_spec.rb`
+- [x] 2.2 `mise exec -- bundle exec rspec spec/services/intake/process_case_submission_spec.rb`
+- [x] 2.3 `mise exec -- bundle exec rspec spec/`
+- [x] 2.4 `mise exec -- bin/ci`
 
 #### Manual
 
@@ -353,9 +353,9 @@ No data migration. Deploy is code-only; behavior and persisted shape unchanged.
 
 #### Automated
 
-- [ ] 3.1 `mise exec -- bundle exec rspec spec/services/intake/case_submission_spec.rb`
-- [ ] 3.2 `mise exec -- bundle exec rspec spec/services/intake/`
-- [ ] 3.3 `mise exec -- bin/ci`
+- [x] 3.1 `mise exec -- bundle exec rspec spec/services/intake/case_submission_spec.rb`
+- [x] 3.2 `mise exec -- bundle exec rspec spec/services/intake/`
+- [x] 3.3 `mise exec -- bin/ci`
 
 #### Manual
 
