@@ -15,33 +15,30 @@ module Ai
     HYPOTHESIS_REQUIRED_KEYS = %i[title description].freeze
 
     CANONICAL_STRUCTURED = {
-      summary: "Checkout timeout may be caused by downstream payment latency.",
+      summary: "Test case hypothesis report",
       hypotheses: [
         {
-          title: "Payment gateway timeout",
-          description: "Requests to [REQUEST_1] exceeded the configured timeout while waiting for authorization."
+          title: "Test case hypothesis",
+          description: "This is a test case hypothesis."
         }
       ],
       uncertainty_notes: [
         "This report is based on sanitized evidence only and does not confirm production root cause."
-      ],
-      correlation_highlights: [
-        "[REQUEST_1] appears in both application and gateway logs."
       ]
     }.freeze
 
     CANONICAL_MARKDOWN = <<~MARKDOWN.freeze
       ## Hypothesis report
 
-      Checkout timeout may be caused by downstream payment latency.
+      Test case hypothesis report
 
       ### Hypotheses
 
-      1. **Payment gateway timeout** — Requests to [REQUEST_1] exceeded the configured timeout while waiting for authorization.
+      1. **Test case hypothesis** — This is a test case hypothesis.
 
       ### Uncertainty
 
-      - This report is based on sanitized evidence only and does not confirm production root cause.
+      - This is a test case uncertainty note.
     MARKDOWN
 
     def self.canonical_structured

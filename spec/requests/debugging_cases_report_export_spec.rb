@@ -63,7 +63,7 @@ RSpec.describe "Debugging case report export", type: :request do
       expect(response.headers["Content-Disposition"]).to include("attachment")
       expect(response.headers["Content-Disposition"]).to include("checkout-timeout-report.md")
       expect(response.body).to include("## Hypothesis report")
-      expect(response.body).to include("[REQUEST_1]")
+      expect(response.body).to include("Test case hypothesis report")
       expect(response.body).not_to include("req-export-1")
     end
   end

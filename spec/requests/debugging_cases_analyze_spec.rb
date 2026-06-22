@@ -54,7 +54,8 @@ RSpec.describe "Debugging case analyze", type: :request do
       expect(response).to have_http_status(:ok)
       expect(flash[:notice]).to eq("Analysis complete.")
       expect(response.body).to include("Hypothesis report")
-      expect(response.body).to include("Checkout timeout may be caused by downstream payment latency.")
+      expect(response.body).to include("Test case hypothesis report")
+      expect(response.body).to include("Test case hypothesis")
       expect(response.body).to include("[REQUEST_1]")
       expect(response.body).not_to include("req-analyze-http-1")
       expect(response.body).to include("Markdown export")
@@ -82,7 +83,7 @@ RSpec.describe "Debugging case analyze", type: :request do
 
       expect(response).to have_http_status(:ok)
       expect(response.body).to include(Analysis::AnalyzeCase::FAILURE_MESSAGE)
-      expect(response.body).not_to include("Checkout timeout may be caused by downstream payment latency.")
+      expect(response.body).not_to include("Test case hypothesis report")
 
       ai_report = debugging_case.reload.ai_reports.order(:created_at).last
       expect(ai_report).to be_failed

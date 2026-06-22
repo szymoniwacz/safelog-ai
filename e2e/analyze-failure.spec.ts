@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 import { fillLogSourceSlot, signUp, uniqueEmail } from "./helpers";
 
 const FAILURE_MESSAGE = "Analysis could not be completed. Please try again later.";
-const FAKE_REPORT_SNIPPET = "Checkout timeout may be caused by downstream payment latency.";
+const FAKE_REPORT_SNIPPET = "Test case hypothesis report";
 
 test("surfaces safe analyze failure after invalid AI responses", async ({ page }) => {
   const email = uniqueEmail("pw-analyze-fail");

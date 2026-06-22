@@ -5,7 +5,7 @@ require "rails_helper"
 RSpec.describe "Debugging cases authorization", type: :request do
   let(:owner) { create(:user, email: "owner@example.com") }
   let(:other_user) { create(:user, email: "other@example.com") }
-  let(:generated_report_summary) { "Checkout timeout may be caused by downstream payment latency." }
+  let(:generated_report_summary) { "Test case hypothesis report" }
 
   let!(:debugging_case) do
     result = Intake::ProcessCaseSubmission.call(

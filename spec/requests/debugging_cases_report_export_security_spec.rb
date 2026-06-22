@@ -55,7 +55,7 @@ RSpec.describe "Debugging case report export security (AGENTS.md guardrails)", t
       get download_report_debugging_case_path(debugging_case)
 
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include("[REQUEST_1]")
+      expect(response.body).to include("Test case hypothesis report")
       expect(response.body).not_to include(secret_email)
       expect(response.body).not_to include(secret_token)
       expect(response.body).not_to include(shared_request_id)
@@ -69,7 +69,7 @@ RSpec.describe "Debugging case report export security (AGENTS.md guardrails)", t
       expect(response).to have_http_status(:ok)
       expect(response.body).to include("## Hypothesis report")
       expect(response.body).to include('aria-label="Report Markdown"')
-      expect(response.body).to include("[REQUEST_1]")
+      expect(response.body).to include("Test case hypothesis report")
       expect(response.body).not_to include(secret_email)
       expect(response.body).not_to include(secret_token)
       expect(response.body).not_to include(shared_request_id)

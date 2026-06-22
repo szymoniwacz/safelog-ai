@@ -27,6 +27,14 @@ RSpec.describe Ai::ResponseValidator do
 
       expect(described_class.call(structured)).to be_a(Ai::ResponseValidator::ValidationResult)
     end
+
+    it "accepts valid correlation_highlights when present" do
+      structured = valid_structured.merge(
+        correlation_highlights: [ "[REQUEST_1] appears in both application and gateway logs." ]
+      )
+
+      expect(described_class.call(structured)).to be_a(Ai::ResponseValidator::ValidationResult)
+    end
   end
 
   context "with invalid payloads" do
