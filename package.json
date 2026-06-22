@@ -11,6 +11,7 @@
     "depcruise:graph": "node scripts/render-e2e-dep-graph.mjs"
   },
   "devDependencies": {
+    "@types/node": "^22.15.0",
     "@playwright/mcp": "^0.0.75",
     "@playwright/test": "^1.50.0",
     "@szymoniwacz/ai-toolkit": "^0.1.0",

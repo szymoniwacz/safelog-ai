@@ -6,7 +6,13 @@
     "strict": true,
     "noEmit": true,
     "skipLibCheck": true,
-    "types": ["node", "@playwright/test"]
+    "types": [
+      "node",
+      "@playwright/test"
+    ]
   },
-  "include": ["e2e/**/*.ts", "playwright.config.ts"]
+  "include": [
+    "e2e/**/*.ts",
+    "playwright.config.ts"
+  ]
 }
