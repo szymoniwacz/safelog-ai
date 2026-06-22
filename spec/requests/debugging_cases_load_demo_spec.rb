@@ -56,5 +56,21 @@ RSpec.describe "Debugging case load demo", type: :request do
 
       expect(response).to have_http_status(:not_found)
     end
+
+    it "redirects with an alert when demo loading fails" do
+      sign_in user
+      failure = Intake::ProcessCaseSubmission::Result.new(
+        debugging_case: nil,
+        errors: [ "Demo fixture invalid" ]
+      )
+      allow(Demo::LoadCase).to receive(:call).and_return(failure)
+
+      expect {
+        post load_demo_debugging_cases_path
+      }.not_to change(DebuggingCase, :count)
+
+      expect(response).to redirect_to(debugging_cases_path)
+      expect(flash[:alert]).to eq("Could not load demo case.")
+    end
   end
 end

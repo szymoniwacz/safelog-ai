@@ -21,6 +21,12 @@ RSpec.describe Ai::ResponseValidator do
         Ai::ResponseValidator::ValidationResult
       )
     end
+
+    it "accepts structured payloads without correlation_highlights" do
+      structured = valid_structured.except(:correlation_highlights)
+
+      expect(described_class.call(structured)).to be_a(Ai::ResponseValidator::ValidationResult)
+    end
   end
 
   context "with invalid payloads" do
@@ -75,6 +81,62 @@ RSpec.describe Ai::ResponseValidator do
       expect { described_class.call(structured) }.to raise_error(
         Ai::InvalidResponseError,
         "correlation_highlights must be an array when present"
+      )
+    end
+
+    it "rejects non-hash structured payloads" do
+      expect { described_class.call("not-a-hash") }.to raise_error(
+        Ai::InvalidResponseError,
+        "structured response must be a hash"
+      )
+    end
+
+    it "rejects hypotheses that are not hashes" do
+      structured = valid_structured.merge(hypotheses: [ "not-a-hash" ])
+
+      expect { described_class.call(structured) }.to raise_error(
+        Ai::InvalidResponseError,
+        "each hypothesis must be a hash"
+      )
+    end
+
+    it "rejects non-string hypothesis confidence when present" do
+      structured = valid_structured.merge(
+        hypotheses: [
+          valid_structured[:hypotheses].first.merge(confidence: 0.9)
+        ]
+      )
+
+      expect { described_class.call(structured) }.to raise_error(
+        Ai::InvalidResponseError,
+        "hypothesis confidence must be a string when present"
+      )
+    end
+
+    it "rejects empty uncertainty_notes" do
+      structured = valid_structured.merge(uncertainty_notes: [])
+
+      expect { described_class.call(structured) }.to raise_error(
+        Ai::InvalidResponseError,
+        "uncertainty_notes must be a non-empty array"
+      )
+    end
+
+    it "rejects blank uncertainty notes" do
+      structured = valid_structured.merge(uncertainty_notes: [ "   " ])
+
+      expect { described_class.call(structured) }.to raise_error(
+        Ai::InvalidResponseError,
+        "each uncertainty note must be a non-empty string"
+      )
+    end
+
+    it "rejects blank correlation highlights" do
+      structured = valid_structured.merge(correlation_highlights: [ "   " ])
+
+      expect { described_class.call(structured) }.to raise_error(
+        Ai::InvalidResponseError,
+        "each correlation highlight must be a non-empty string"
       )
     end
   end

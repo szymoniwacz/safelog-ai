@@ -93,5 +93,23 @@ RSpec.describe "Debugging cases index", type: :request do
       expect(response).to have_http_status(:ok)
       expect(response.body).to include("Not analyzed")
     end
+
+    it "shows in progress and failed analysis statuses" do
+      in_progress_case = create_case(title: "In progress case")
+      in_progress_case.ai_reports.create!(status: :processing)
+
+      failed_case = create_case(title: "Failed analysis case")
+      failed_case.ai_reports.create!(status: :failed)
+
+      sign_in user
+
+      get debugging_cases_path
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("In progress")
+      expect(response.body).to include('class="status-badge status-badge--warning"')
+      expect(response.body).to include("Analysis failed")
+      expect(response.body).to include('class="status-badge status-badge--danger"')
+    end
   end
 end

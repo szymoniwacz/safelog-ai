@@ -20,6 +20,24 @@ RSpec.describe Ai::Request do
       end.to raise_error(ArgumentError, /non-empty array/)
     end
 
+    it "rejects non-array messages" do
+      expect do
+        described_class.new(messages: "not-an-array")
+      end.to raise_error(ArgumentError, /non-empty array/)
+    end
+
+    it "rejects non-hash messages" do
+      expect do
+        described_class.new(messages: [ "not-a-hash" ])
+      end.to raise_error(ArgumentError, /string role and content/)
+    end
+
+    it "rejects non-string message roles" do
+      expect do
+        described_class.new(messages: [ { role: :user, content: "Sanitized evidence only." } ])
+      end.to raise_error(ArgumentError, /string role and content/)
+    end
+
     it "rejects non-string message content" do
       expect do
         described_class.new(messages: [ { role: "user", content: 123 } ])
@@ -33,6 +51,24 @@ RSpec.describe Ai::Request do
           metadata: { raw_content: "secret" }
         )
       end.to raise_error(ArgumentError, /not allowed/)
+    end
+
+    it "rejects metadata keys matching original or mapping patterns" do
+      expect do
+        described_class.new(
+          messages: [ { role: "user", content: "Sanitized evidence only." } ],
+          metadata: { original_payload: "secret", placeholder_mapping: "secret" }
+        )
+      end.to raise_error(ArgumentError, /not allowed/)
+    end
+
+    it "accepts allowed metadata keys" do
+      request = described_class.new(
+        messages: [ { role: "user", content: "Sanitized evidence only." } ],
+        metadata: { case_id: "42" }
+      )
+
+      expect(request.messages).to eq([ { role: "user", content: "Sanitized evidence only." } ])
     end
   end
 end

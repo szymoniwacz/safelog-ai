@@ -109,5 +109,34 @@ RSpec.describe Analysis::AnalyzeCase do
       expect(result.user_message).to eq(Analysis::AnalyzeCase::FAILURE_MESSAGE)
       expect(result.ai_report).to be_failed
     end
+
+    it "reports unsuccessful when the result has no user message and no generated report" do
+      result = described_class::Result.new(ai_report: nil, user_message: nil)
+
+      expect(result).not_to be_success
+    end
+
+    it "returns failure without updating a report when creation never succeeds" do
+      debugging_case = create_case_from_submission(
+        title: "Create failure",
+        sources: [
+          { source_type: "rails_log", pasted_content: "request_id=req-create-fail-1" }
+        ]
+      )
+      allow(debugging_case.ai_reports).to receive(:create!).and_raise(Faraday::Error, "connection failed")
+
+      result = described_class.call(debugging_case: debugging_case, client: Ai::FakeClient.new)
+
+      expect(result).not_to be_success
+      expect(result.user_message).to eq(Analysis::AnalyzeCase::FAILURE_MESSAGE)
+      expect(result.ai_report).to be_nil
+      expect(debugging_case.ai_reports.count).to eq(0)
+    end
+
+    it "treats a nil ai_report as not successful" do
+      result = described_class::Result.new(ai_report: nil, user_message: nil)
+
+      expect(result.success?).to be_falsy
+    end
   end
 end

@@ -55,6 +55,73 @@ RSpec.describe Ai::OpenAiClient do
       expect(result.structured).to eq(structured)
       expect(result.markdown).to eq(markdown)
     end
+
+    it "rejects an empty assistant response" do
+      allow(openai_client).to receive(:chat).and_return(
+        "choices" => [ { "message" => { "content" => "" } } ]
+      )
+
+      expect { client.complete(request) }.to raise_error(
+        Ai::InvalidResponseError,
+        "assistant response was empty"
+      )
+    end
+
+    it "rejects invalid JSON in the assistant response" do
+      allow(openai_client).to receive(:chat).and_return(
+        "choices" => [ { "message" => { "content" => "not-json" } } ]
+      )
+
+      expect { client.complete(request) }.to raise_error(
+        Ai::InvalidResponseError,
+        "assistant response was not valid JSON"
+      )
+    end
+
+    it "rejects assistant JSON missing structured or markdown keys" do
+      allow(openai_client).to receive(:chat).and_return(
+        "choices" => [ { "message" => { "content" => { "summary" => "only" }.to_json } } ]
+      )
+
+      expect { client.complete(request) }.to raise_error(
+        Ai::InvalidResponseError,
+        "assistant response must include structured and markdown"
+      )
+    end
+
+    it "rejects empty markdown in the assistant response" do
+      allow(openai_client).to receive(:chat).and_return(
+        "choices" => [
+          {
+            "message" => {
+              "content" => { structured: structured, markdown: "   " }.to_json
+            }
+          }
+        ]
+      )
+
+      expect { client.complete(request) }.to raise_error(
+        Ai::InvalidResponseError,
+        "markdown must be a non-empty string"
+      )
+    end
+
+    it "rejects non-string markdown in the assistant response" do
+      allow(openai_client).to receive(:chat).and_return(
+        "choices" => [
+          {
+            "message" => {
+              "content" => { structured: structured, markdown: 123 }.to_json
+            }
+          }
+        ]
+      )
+
+      expect { client.complete(request) }.to raise_error(
+        Ai::InvalidResponseError,
+        "markdown must be a non-empty string"
+      )
+    end
   end
 
   describe "HTTP integration", :openai_http do

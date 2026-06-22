@@ -60,6 +60,13 @@ RSpec.describe DebuggingCase, type: :model do
       expect(debugging_case.analysis_status).to eq(:failed)
     end
 
+    it "returns in_progress when the latest report is still processing" do
+      debugging_case = create_case
+      debugging_case.ai_reports.create!(status: :processing)
+
+      expect(debugging_case.analysis_status).to eq(:in_progress)
+    end
+
     it "uses the most recent report when multiple exist" do
       debugging_case = create_case
       debugging_case.ai_reports.create!(status: :generated, created_at: 2.hours.ago, markdown_body: "# Old")

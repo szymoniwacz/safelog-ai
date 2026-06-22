@@ -34,6 +34,15 @@ RSpec.describe "Debugging case report export", type: :request do
       expect(response).to have_http_status(:not_found)
     end
 
+    it "returns not found when the generated report has blank markdown" do
+      sign_in owner
+      debugging_case.ai_reports.create!(status: :generated, markdown_body: "")
+
+      get download_report_debugging_case_path(debugging_case)
+
+      expect(response).to have_http_status(:not_found)
+    end
+
     it "returns not found for another user's case" do
       sign_in other_user
 

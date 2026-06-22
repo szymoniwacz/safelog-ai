@@ -94,5 +94,41 @@ RSpec.describe "Debugging case analyze", type: :request do
 
       expect(response).to have_http_status(:not_found)
     end
+
+    it "does not read the E2E AI client header outside the test environment" do
+      allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new("development"))
+      allow(Ai::ClientResolver).to receive(:current).and_return(Ai::FakeClient.new)
+
+      sign_in owner
+
+      post analyze_debugging_case_path(debugging_case), headers: { "X-E2E-AI-Client" => "invalid" }
+
+      expect(response).to redirect_to(debugging_case_path(debugging_case))
+      expect(flash[:notice]).to eq("Analysis complete.")
+      expect(Ai::E2eContext.client_mode).to be_nil
+    end
+
+    it "uses the E2E AI client mode header in test" do
+      sign_in owner
+
+      post analyze_debugging_case_path(debugging_case), headers: { "X-E2E-AI-Client" => "invalid" }
+
+      expect(response).to redirect_to(debugging_case_path(debugging_case))
+      expect(flash[:alert]).to eq(Analysis::AnalyzeCase::FAILURE_MESSAGE)
+      expect(Ai::E2eContext.client_mode).to be_nil
+    end
+
+    it "ignores the E2E AI client mode header outside test" do
+      sign_in owner
+      allow(Rails.env).to receive(:test?).and_return(false)
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with("OPENAI_API_KEY").and_return(nil)
+
+      post analyze_debugging_case_path(debugging_case), headers: { "X-E2E-AI-Client" => "invalid" }
+
+      expect(response).to redirect_to(debugging_case_path(debugging_case))
+      expect(flash[:notice]).to eq("Analysis complete.")
+      expect(Ai::E2eContext.client_mode).to be_nil
+    end
   end
 end
