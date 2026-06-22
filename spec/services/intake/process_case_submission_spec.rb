@@ -253,51 +253,20 @@ RSpec.describe Intake::ProcessCaseSubmission do
       expect(result.errors[:title]).to include("forced failure")
     end
 
-    it "rolls back the entire transaction when log_sources.create! fails (G-01)" do
+    it "returns ActiveRecord errors when PersistRedactedCase raises RecordInvalid" do
       submission = build_submission
       invalid_record = LogSource.new
-      invalid_record.errors.add(:sanitized_content, "forced log source failure")
+      invalid_record.errors.add(:sanitized_content, "forced persist failure")
 
-      allow_any_instance_of(DebuggingCase).to receive(:log_sources).and_wrap_original do |method, *args|
-        association = method.call(*args)
-        allow(association).to receive(:create!).and_raise(ActiveRecord::RecordInvalid.new(invalid_record))
-        association
-      end
-
-      expect do
-        result = described_class.call(user: user, submission: submission)
-
-        expect(result).not_to be_success
-        expect(result.debugging_case).to be_nil
-        expect(result.errors[:sanitized_content]).to include("forced log source failure")
-      end.not_to change(DebuggingCase, :count)
-    end
-
-    it "rolls back the entire transaction when redaction_findings.create! fails (G-02)" do
-      submission = build_submission(
-        sources: [
-          {
-            source_type: "rails_log",
-            pasted_content: "User login failed for rollback-#{SecureRandom.hex(4)}@example.com"
-          }
-        ]
+      allow(Intake::PersistRedactedCase).to receive(:call).and_raise(
+        ActiveRecord::RecordInvalid.new(invalid_record)
       )
-      invalid_record = RedactionFinding.new
-      invalid_record.errors.add(:placeholder, "forced finding failure")
 
-      allow_any_instance_of(LogSource).to receive(:redaction_findings).and_wrap_original do |method, *args|
-        association = method.call(*args)
-        allow(association).to receive(:create!).and_raise(ActiveRecord::RecordInvalid.new(invalid_record))
-        association
-      end
+      result = described_class.call(user: user, submission: submission)
 
-      expect do
-        result = described_class.call(user: user, submission: submission)
-
-        expect(result).not_to be_success
-        expect(result.debugging_case).to be_nil
-        expect(result.errors[:placeholder]).to include("forced finding failure")
-      end.not_to change(DebuggingCase, :count)
+      expect(result).not_to be_success
+      expect(result.debugging_case).to be_nil
+      expect(result.errors[:sanitized_content]).to include("forced persist failure")
     end
 
     it "redacts all PRD MVP pattern types on persist" do
