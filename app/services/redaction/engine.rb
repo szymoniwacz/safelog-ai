@@ -12,7 +12,8 @@ module Redaction
 
     def redact(text)
       findings = []
-      sanitized_lines = text.to_s.split(/\n/, -1).each_with_index.map do |line, index|
+      normalized = text.to_s.gsub(/\r\n?/, "\n")
+      sanitized_lines = normalized.split(/\n/, -1).each_with_index.map do |line, index|
         redact_line(line, index + 1, findings)
       end
 

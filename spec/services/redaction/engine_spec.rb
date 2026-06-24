@@ -42,6 +42,18 @@ RSpec.describe Redaction::Engine do
       end
     end
 
+    it "normalizes Windows CRLF line endings before redaction" do
+      raw = "User login failed for user@example.com\r\nAuthorization: Bearer sk-test-token-abcdef123456"
+
+      result = described_class.redact(raw)
+
+      expect(result.sanitized_text).not_to include("\r")
+      expect(result.sanitized_text).to eq(<<~SANITIZED.chomp)
+        User login failed for [EMAIL_1]
+        [AUTH_1]
+      SANITIZED
+    end
+
     it "records line numbers from the original text" do
       raw = <<~LOG.strip
         ok line
