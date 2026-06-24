@@ -1,6 +1,6 @@
 ---
 project: SafeLog AI
-updated: 2026-06-22
+updated: 2026-06-24
 scope: 10xDevs Builder + Architect + Champion
 ---
 
@@ -30,7 +30,7 @@ Full rules, SafeLog artifact mapping, and recommended strategy: [`submission-gui
 
 | Badge | Modules | Verdict | Summary |
 |-------|---------|---------|---------|
-| **10xBuilder** | M1–M3 | **READY** | MVP shipped; 228 RSpec + 9 system + 11 functional Playwright; Fly.io at https://safelog-ai.fly.dev/; submission screenshots captured; local `bin/ci` + remote GHA green on `main` (2026-06-22). |
+| **10xBuilder** | M1–M3 | **READY** | MVP shipped; 240 RSpec + 9 system + 13 functional Playwright; Fly.io at https://safelog-ai.fly.dev/; submission screenshots captured; local `bin/ci` + remote GHA green on `main` (re-verify GHA after latest push). |
 | **10xArchitect** | M4 | **READY** | M4L2–L5 complete — repo map, flow research, ranked refactors, DDD distillation + invariant/ACL plans; [`architecture-report.md`](architecture-report.md) two-pager; readiness review + excerpt screenshots. |
 | **10xChampion** | M5 | **READY** | M5L2 review agent + M5L3 GHA AI review (PR #11 fail / #12 pass) + M5L4 `@szymoniwacz/ai-toolkit` on GitHub Packages ([PR #13](https://github.com/szymoniwacz/safelog-ai/pull/13), [run 27877220442](https://github.com/szymoniwacz/safelog-ai/actions/runs/27877220442)); readiness review + screenshots. |
 
@@ -71,10 +71,10 @@ flowchart LR
 | CRUD — create, read (index/show), archive | **PASS** | Request specs; no edit/destroy (intentional MVP) |
 | Business logic — redaction, intake, correlation, analyze, export | **PASS** | `app/services/*`; service + request specs |
 | Context documents — PRD, roadmap, test-plan, infra, deploy-plan | **PASS** | `context/foundation/*` |
-| Tests — meaningful coverage | **PASS** | 228 RSpec + 9 system + 11 functional Playwright (15 total incl. 4 capture specs) |
-| CI/CD — local gate | **PASS** | `mise exec -- bin/ci` green 2026-06-22 |
+| Tests — meaningful coverage | **PASS** | 240 RSpec + 9 system + 13 functional Playwright (17 total incl. 4 capture specs); SimpleCov 100% line + branch in full suite |
+| CI/CD — local gate | **PASS** | `mise exec -- bin/ci` green 2026-06-24 (240 examples) |
 | CI/CD — GitHub Actions config | **PASS** | `.github/workflows/ci.yml` parity with `config/ci.rb` |
-| CI/CD — remote GHA on latest `main` | **PASS** | [Run 27970702328](https://github.com/szymoniwacz/safelog-ai/actions/runs/27970702328) on `2ecea64` (2026-06-22); all four jobs green; 228 RSpec examples |
+| CI/CD — remote GHA on latest `main` | **PASS** | Re-run GHA after push; prior green [Run 27970702328](https://github.com/szymoniwacz/safelog-ai/actions/runs/27970702328) on `2ecea64` (2026-06-22) |
 | Public URL | **PASS** | https://safelog-ai.fly.dev/ — redeploy verified 2026-06-22 |
 | Deployment evidence | **PASS** | `deploy-plan.md` § Deployment status + lessons learned; manual E2E verification |
 | Demo flow — local | **PASS** | README demo section; **Load demo case** + manual intake; system + Playwright specs |
@@ -94,14 +94,14 @@ flowchart LR
 | Submission screenshots | [`context/certification/screenshots/builder/`](screenshots/builder/) |
 | Health check | [`context/foundation/health-check.md`](../foundation/health-check.md) |
 
-### Commands (verified 2026-06-22)
+### Commands (verified 2026-06-24)
 
 ```bash
-mise exec -- bin/ci                              # 228 examples — PASS
+mise exec -- bin/ci                              # 240 examples — PASS
 mise exec -- bundle exec rspec spec/system       # 9 examples — PASS
-mise exec -- bin/e2e                             # 11 functional Playwright tests — PASS
+mise exec -- bin/e2e                             # 13 functional Playwright tests — PASS
 mise exec -- bin/dev                             # local demo
-curl -sf https://safelog-ai.fly.dev/up           # production health — PASS after redeploy
+curl -sf https://safelog-ai.fly.dev/up           # production health — verify before demo
 ```
 
 ### CI evidence
@@ -128,7 +128,7 @@ Module 4 course prompts:
 | `.cursor/prompts/m4l3-2-ast-grep-verification.md` | AST-grep verification in same research doc | **PASS** |
 | `.cursor/prompts/m4l4-1-new-change-intention.md` | `context/changes/refactor-opportunities/change.md` | **PASS** |
 | `.cursor/prompts/m4l4-2-refactor-opportunities-research.md` | `context/changes/refactor-opportunities/research.md` | **PASS** |
-| `.cursor/prompts/m4l4-3-ranking-ast-grep-verification.md` | § Weryfikacja twierdzeń in same research doc | **PASS** |
+| `.cursor/prompts/m4l4-3-ranking-ast-grep-verification.md` | § Claim verification in same research doc | **PASS** |
 | `.cursor/prompts/m4l5-1-domain-distillation.md` | `context/domain/01-domain-distillation.md` | **PASS** |
 | `.cursor/prompts/m4l5-2-invariant-aggregate-refactor.md` | `context/domain/02-invariant-aggregate-refactor.md` | **PASS** |
 | `.cursor/prompts/m4l5-3-anti-corruption-layer.md` | `context/domain/03-anti-corruption-layer.md` | **PASS** |

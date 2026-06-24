@@ -128,9 +128,11 @@ Manual deploy via `fly deploy --app safelog-ai` (see `context/deployment/deploy-
 
 | Layer | Command | Covers |
 |-------|---------|--------|
-| **RSpec (full)** | `mise exec -- bundle exec rspec spec/` | Services, request specs, models — including security oracles (DB persistence, AI prompts, log guard, authorization matrix) |
-| **Capybara system** | `mise exec -- bundle exec rspec spec/system` | Server-rendered user flows via rack_test (in `bin/ci`) |
-| **Playwright E2E** | `mise exec -- bin/e2e` | Real Chromium browser flows (`e2e/`); optional before release — not in `bin/ci` |
+| **RSpec (full)** | `mise exec -- bundle exec rspec spec/` | 240 examples — services, request specs, models, system; 100% line + branch coverage in full suite / CI |
+| **Capybara system** | `mise exec -- bundle exec rspec spec/system` | 9 examples — server-rendered user flows via rack_test (in `bin/ci`) |
+| **Playwright E2E** | `mise exec -- bin/e2e` | 13 functional + 4 opt-in capture specs in real Chromium; optional before release — not in `bin/ci` |
+
+Partial `rspec` runs (single file or subdirectory) skip the SimpleCov minimum threshold; `bin/ci` and CI enforce 100% line + branch coverage on the full suite.
 
 Playwright boots a **test** Rails server (`bin/e2e-server`) with the same CI encryption env vars as GitHub Actions.
 
@@ -153,6 +155,8 @@ mise exec -- bin/ci
 ```
 
 Tests use a fake AI client and assert that raw log values never persist or reach AI prompts.
+
+**Dependency audit:** `Gemfile` pins transitive gems with known CVEs (`faraday`, `concurrent-ruby`); `bin/bundler-audit` runs in `bin/ci`.
 
 ## MVP limitations
 

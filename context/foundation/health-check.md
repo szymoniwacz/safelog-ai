@@ -1,6 +1,6 @@
 ---
 project: safelog-ai
-checked_at: 2026-06-09T15:39:00Z
+checked_at: 2026-06-24T19:00:00Z
 health_status: healthy
 context_type: brownfield
 language_family: ruby
@@ -48,8 +48,8 @@ Packages with major version gaps: not enumerated (outdated-deps scan skipped for
 ## Test Suite
 
 Test runner: RSpec
-Tests found: 127 examples (from `bin/ci` run 2026-06-09)
-Test execution: passing
+Tests found: 240 examples (from `bin/ci` run 2026-06-24)
+Test execution: passing (100% line + branch coverage via SimpleCov in full suite)
 
 Configuration: `spec/`, `config/ci.rb`
 Framework: RSpec (Rails 8.1)
@@ -67,7 +67,7 @@ Configuration: `.github/workflows/ci.yml`
 | Type check | ✗      | Not applicable (Ruby, no static types)     |
 | Security   | ✓      | bundler-audit, importmap audit, Brakeman   |
 
-Local gate parity: `bin/ci` green on 2026-06-09 (127 examples, 0 failures).
+Local gate parity: `bin/ci` green on 2026-06-24 (240 examples, 0 failures).
 
 ## Configuration
 
@@ -103,8 +103,8 @@ None required for this readiness pass. CI, `AGENTS.md`, and deployment artifacts
 
 Health status: **healthy**
 
-SafeLog AI has a reproducible Ruby lockfile, clean gem audit, a working RSpec suite (127 examples passing), and a GitHub Actions workflow aligned with local `bin/ci`. No Category A gaps block agent-assisted development on this codebase.
+SafeLog AI has a reproducible Ruby lockfile, clean gem audit (`concurrent-ruby` >= 1.3.7, `faraday` >= 2.14.3 pinned in `Gemfile`), a working RSpec suite (240 examples passing), and a GitHub Actions workflow aligned with local `bin/ci`. No Category A gaps block agent-assisted development on this codebase.
 
-**Production:** Fly.io deploy at https://safelog-ai.fly.dev/ verified 2026-06-09 (`/up` health check passing when running). App may be **intentionally suspended** when not needed — run `fly deploy` before demo. See `context/deployment/deploy-plan.md`.
+**Production:** Fly.io deploy at https://safelog-ai.fly.dev/ — verify `/up` before demo (`fly deploy` if suspended). See `context/deployment/deploy-plan.md`.
 
-Next step: All three badges **READY** (2026-06-22) — submit via [`context/certification/submission-checklist.md`](../certification/submission-checklist.md).
+Next step: All three badges **READY** (2026-06-24) — submit via [`context/certification/submission-checklist.md`](../certification/submission-checklist.md).

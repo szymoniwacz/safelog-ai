@@ -6,7 +6,7 @@
 >
 > Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
 >
-> Last updated: 2026-06-09
+> Last updated: 2026-06-24
 
 ## 1. Strategy
 
@@ -79,7 +79,7 @@ The classic test base for this project. AI-native tools (if any) carry a
 
 | Layer | Tool | Version | Notes |
 |-------|------|---------|-------|
-| unit + integration | RSpec | 3.x (via rspec-rails) | Primary layer; 228 examples across services, requests, models, system |
+| unit + integration | RSpec | 3.x (via rspec-rails) | Primary layer; 240 examples across services, requests, models, system; SimpleCov 100% line + branch in full suite / CI |
 | HTTP integration | RSpec request specs | — | Security, authorization matrix, persistence oracles |
 | user flows | Capybara system specs (`spec/system`) | 3.40 (rack_test) | Browser-visible happy paths; same-thread driver for speed + transactional fixtures |
 | browser E2E | Playwright (`e2e/`, `@playwright/test`) | 1.50+ | Real Chromium journeys; optional gate via `bin/e2e` |
@@ -105,7 +105,7 @@ The full set of gates that must pass before a change reaches production.
 | bundler-audit | `bin/ci`, GHA `scan_ruby` | required | vulnerable gems |
 | importmap audit | `bin/ci`, GHA `scan_js` | required | JS dependency CVEs |
 | Brakeman | `bin/ci`, GHA `scan_ruby` | required | Rails security patterns |
-| RSpec (228) | `bin/ci`, GHA `test` | required | logic, security, and system-flow regressions |
+| RSpec (240) | `bin/ci`, GHA `test` | required | logic, security, and system-flow regressions |
 | Full `bin/ci` locally before push | developer workflow | required (AGENTS.md) | combined gate failures |
 | Capybara system specs (`spec/system`) | `bin/ci` (via full RSpec) | required | user-visible flows (auth, intake, analyze, archive) |
 | Playwright E2E (`e2e/`) | `mise exec -- bin/e2e` | optional | real Chromium regression; not in `bin/ci` (see §6.9) |
@@ -358,25 +358,31 @@ scope with `within(find("fieldset", text: "Log source 1"))` for repeated fields.
 Capybara `rack_test` cannot exercise (real layout, download events, flash UX).
 Keep **security oracles** in RSpec request specs — Playwright asserts UI only.
 
-**Coverage map (2026-06-09):**
+**Coverage map (2026-06-24):**
 
 | File | Browser paths |
 |------|---------------|
-| `authentication.spec.ts` | guest redirect, sign up, sign in, sign out |
-| `debugging-case-flow.spec.ts` | multi-source create → sanitized UI → redaction summary → analyze → report → markdown download → archive → archived filter |
+| `authentication.spec.ts` | guest redirect, sign up, sign in, sign out, invalid password |
+| `seed.spec.ts` | minimal create + redaction summary |
+| `single-source-minimum.spec.ts` | happy path with one log source only |
+| `debugging-case-flow.spec.ts` | multi-source create → sanitized UI → redaction summary → analyze → report → markdown download → archive → archived filter (F7 clipboard intentionally not automated — see comment in spec) |
+| `debugging-case-validation.spec.ts` | empty sources 422, metadata preserve on failure, invalid source type + paste-cleared hint |
+| `analyze-failure.spec.ts` | safe analyze failure UX (invalid AI via `X-E2E-AI-Client` header) |
 | `demo-case.spec.ts` | Load demo case (test server) |
+| `user-isolation.spec.ts` | cross-user show returns 404 / no case content |
+| `capture-*.spec.ts` (4) | certification screenshots only — skipped unless `PLAYWRIGHT_CAPTURE_SCREENSHOTS=1` |
 
 **Commands:**
 
 ```bash
-mise exec -- bin/e2e                  # prepare DB + test Rails server + 11 functional Playwright tests
+mise exec -- bin/e2e                  # prepare DB + test Rails server + 13 functional Playwright tests
 mise exec -- npm run test:e2e:install # Chromium only (first run)
 PLAYWRIGHT_SKIP_WEBSERVER=1 mise exec -- bin/e2e   # reuse running server on :3000
 ```
 
 **CI policy:** Playwright is **not** wired into `bin/ci` or GHA `test` job —
 adds Node + Chromium install, separate Rails boot, and ~30–60s latency on top
-of 228 RSpec examples. Capybara system specs already guard user flows in CI.
+of 240 RSpec examples. Capybara system specs already guard user flows in CI.
 Run `bin/e2e` locally before Demo Day or after UI changes.
 
 **Selectors:** `getByRole`, `getByLabel`, scoped `section.card` + `legend` for
@@ -402,9 +408,9 @@ production service example, §6.2 cookbook). Files touched:
 `spec/requests/debugging_cases_authorization_spec.rb`,
 `spec/requests/debugging_cases_analyze_spec.rb`,
 `spec/services/demo/load_case_spec.rb`, `spec/services/analysis/analyze_case_spec.rb`
-(client extraction). **Deferred:** dedup of cross-user examples in
-per-feature request specs; OpenAI invalid-JSON parse specs; correlation
-persisted-on-failure service assertion.
+(client extraction). **Deferred (partially closed Phase 7):** dedup of cross-user
+examples in per-feature request specs (IDOR pointer added); OpenAI invalid-JSON
+parse specs; correlation persisted-on-failure service assertion.
 
 **Phase 3 — Quality gates alignment** (`testing-quality-gates-alignment`,
 2026-06-01): Documented local `bin/ci` ↔ GHA parity; aligned Brakeman flags in
@@ -433,6 +439,23 @@ Files touched: `Gemfile`, `spec/support/capybara.rb`,
 `playwright.config.ts`, `bin/e2e`, `bin/e2e-server`. Optional gate — not in
 `bin/ci`. RSpec count unchanged (135).
 
+**Phase 7 — Gap-fill coverage + SimpleCov policy** (2026-06-24): Closed
+documented test gaps from refactor-opportunities / case-submission-flow research
+and partial Phase 2 deferrals. Baseline grew 228 → 240 examples (+CRLF
+normalization, `patterns_spec` standalone `sk-` gap, `CaseSubmission` nil
+sources, mass-assignment request spec, multi invalid source slots, engine
+multi-match/nil/empty, log source position assertion, plaintext metadata
+encryption baseline, OpenAI malformed JSON, correlation on analyze failure).
+Playwright grew 11 → 13 functional tests (+`single-source-minimum`,
+validation/analyze-failure/user-isolation expansions; F7 clipboard documented
+as intentionally skipped). SimpleCov 100% threshold applies only to full suite
+and CI (partial `rspec` runs skip minimum). Transitive gem pins: `concurrent-ruby`
+>= 1.3.7 (CVE-2026-54904–54906). Files touched: `app/services/redaction/engine.rb`,
+`spec/services/redaction/*`, `spec/services/intake/*`, `spec/requests/debugging_cases*.rb`,
+`spec/models/encryption_at_rest_spec.rb`, `spec/services/ai/open_ai_client_spec.rb`,
+`spec/services/analysis/analyze_case_spec.rb`, `spec/support/simplecov.rb`,
+`e2e/*`, `AGENTS.md`, `Gemfile`.
+
 ## 7. What We Deliberately Don't Test
 
 Exclusions agreed during the rollout (Phase 2 interview, Q5). Future
@@ -440,6 +463,7 @@ contributors should respect these unless the underlying assumption changes.
 
 - **Selenium / headless Chrome system specs** — MVP forms are server-rendered (`local: true`); Capybara `rack_test` covers user flows in CI without browser install cost. Re-evaluate if Turbo/JS-only interactions become critical. (Source: 2026-06-09 system-spec rollout.)
 - **Playwright in `bin/ci` / GHA** — `e2e/` specs run via optional `bin/e2e`; CI keeps Capybara + request security oracles. Re-evaluate if GHA Chromium install becomes acceptable latency.
+- **Copy Markdown / clipboard in Playwright** — export/download covered in `debugging-case-flow.spec.ts`; clipboard API omitted per §7 (comment in spec). Re-evaluate if a stable copy button ships.
 - **UI snapshot tests** — brittle for server-rendered Rails views; low regression signal for PRD guardrails. Re-evaluate if a rich client ships. (Source: user /10x-test-plan input.)
 - **View cosmetic / CSS-only changes** — no automated test budget; prioritize raw-log, AI-boundary, encryption, and authorization specs. (Source: user /10x-test-plan input.)
 - **AI-native vision or multimodal review** — security regressions are deterministic; FakeClient + prompt inspection suffices. Re-evaluate if UI-only leaks become a top risk. (Source: Phase 2 interview Q5.)
@@ -449,8 +473,8 @@ contributors should respect these unless the underlying assumption changes.
 
 ## 8. Freshness Ledger
 
-- Strategy (§1–§5) last reviewed: 2026-06-09
-- Stack versions last verified: 2026-06-09
+- Strategy (§1–§5) last reviewed: 2026-06-24
+- Stack versions last verified: 2026-06-24
 - AI-native tool references last verified: 2026-05-29
 
 Refresh (`/10x-test-plan --refresh`) when:

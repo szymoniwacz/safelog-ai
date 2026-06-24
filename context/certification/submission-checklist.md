@@ -1,6 +1,6 @@
 ---
 project: SafeLog AI
-updated: 2026-06-22
+updated: 2026-06-24
 scope: Copy-paste guide for all three 10xDevs certification forms
 ---
 
@@ -16,7 +16,7 @@ scope: Copy-paste guide for all three 10xDevs certification forms
 
 | Step | Command / action | Expected |
 |------|------------------|----------|
-| Local CI | `mise exec -- bin/ci` | 228 examples, 0 failures |
+| Local CI | `mise exec -- bin/ci` | 240 examples, 0 failures |
 | Production health | `curl -sf https://safelog-ai.fly.dev/up` | HTTP 200 |
 | Fly redeploy (if down) | `fly deploy --app safelog-ai` | `/up` returns 200 |
 | Architect PDF | `npm run cert:architecture-pdf` | `architecture-report.pdf` exists |
@@ -25,7 +25,7 @@ scope: Copy-paste guide for all three 10xDevs certification forms
 
 ## Form 1 — 10xBuilder (M1–M3)
 
-Platform post: *Certyfikacja 10xBuilder: Formularz zgłoszeniowy i kluczowe zasady*.
+Platform post (course, PL title): *Certyfikacja 10xBuilder: Formularz zgłoszeniowy i kluczowe zasady* — *10xBuilder certification: submission form and key rules*.
 
 ### Copy-paste values
 
@@ -37,9 +37,9 @@ Platform post: *Certyfikacja 10xBuilder: Formularz zgłoszeniowy i kluczowe zasa
 | **Stack** | Rails 8.1, SQLite, Devise, server-rendered ERB, Fly.io |
 | **CI evidence** | https://github.com/szymoniwacz/safelog-ai/actions/runs/27970702328 |
 
-### Project summary (PL)
+### Project summary
 
-SafeLog AI to aplikacja Rails do bezpiecznego debugowania incydentów produkcyjnych z wielu źródeł logów. Surowe logi są redagowane **w pamięci** przed zapisem i przed wysłaniem do AI — persystowane są wyłącznie sanityzowane dowody (szyfrowane w SQLite). Użytkownik tworzy case z wielu wklejonych źródeł, widzi podsumowanie redakcji, uruchamia analizę AI (raport hipotez, nie werdykt), eksportuje Markdown i archiwizuje case. Auth: Devise; izolacja per-user (404 cross-user). Testy: 228 RSpec + 9 system + 11 Playwright E2E; fake AI w CI.
+SafeLog AI is a Rails app for safe multi-source production incident debugging. Raw logs are redacted **in memory** before persistence and before any AI call — only sanitized evidence is stored (encrypted in SQLite). The user creates a case from multiple pasted log sources, reviews the redaction summary, runs AI analysis (hypothesis-framed report, not a verdict), exports Markdown, and archives the case. Auth: Devise; per-user isolation (404 cross-user). Tests: 240 RSpec + 9 system + 13 functional Playwright E2E; fake AI in CI.
 
 ### Screenshots to attach
 
@@ -112,7 +112,7 @@ Course requires **one** of two paths; SafeLog covers **both**.
 | Toolkit PR | https://github.com/szymoniwacz/safelog-ai/pull/13 |
 | Screenshots | [`screenshots/champion/m5l4/`](screenshots/champion/m5l4/) (8 PNGs) |
 
-**Champion summary (PL):** Pipeline code review (TypeScript agent + GHA na PR do `main`, scenariusze fail/pass) oraz dystrybucja team AI toolkit przez GitHub Packages z postinstall do Cursor skills/rules.
+**Champion summary:** Code review pipeline (TypeScript agent + GHA on PRs to `main`, fail/pass scenarios) and team AI toolkit distribution via GitHub Packages with postinstall into Cursor skills/rules.
 
 ### Readiness review
 
@@ -132,16 +132,16 @@ Local alternative: `mise exec -- bin/dev` → **Load demo case** (dev/test only)
 
 ---
 
-## Verification log (2026-06-22)
+## Verification log (2026-06-24)
 
 | Check | Result |
 |-------|--------|
-| `bin/ci` | 228 examples, 0 failures |
-| `bin/e2e --grep-invert capture` | 11 passed |
+| `bin/ci` | 240 examples, 0 failures; 100% line + branch coverage |
+| `bin/e2e --grep-invert capture` | 13 passed |
 | `npm run depcruise:validate` | 0 violations |
 | `packages/ai-toolkit` smoke | passed |
 | Fly `/up` | 200 |
-| GHA `main` | [run 27970702328](https://github.com/szymoniwacz/safelog-ai/actions/runs/27970702328) success |
+| GHA `main` | Re-run after push (prior green: [run 27970702328](https://github.com/szymoniwacz/safelog-ai/actions/runs/27970702328) on `2ecea64`, 2026-06-22) |
 
 ---
 

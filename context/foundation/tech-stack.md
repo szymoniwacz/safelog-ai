@@ -28,7 +28,7 @@ hints:
 | Database | SQLite | `storage/*.sqlite3`; Active Record Encryption on diagnostic text |
 | Auth | Devise | `database_authenticatable`, `registerable`, `validatable` only |
 | AI | Provider-agnostic adapter | `Ai::FakeClient` in test/CI; OpenAI optional via `OPENAI_API_KEY` |
-| Tests | RSpec | Request, service, and model specs (127 examples; `bin/ci`) |
+| Tests | RSpec | 240 examples + SimpleCov 100% line/branch in `bin/ci`; 13 functional Playwright via `bin/e2e` |
 | CI | GitHub Actions + `bin/ci` | Lint, security audits, RSpec — **no auto-deploy** (manual `fly deploy`) |
 | Hosting | Fly.io + Docker | Deployed at https://safelog-ai.fly.dev/ (verified 2026-06-09; suspended when idle); SQLite on Fly volume |
 
