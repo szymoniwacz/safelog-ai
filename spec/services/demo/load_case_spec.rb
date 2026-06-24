@@ -29,6 +29,14 @@ RSpec.describe Demo::LoadCase do
 
       expect(described_class.available?).to be(true)
     end
+
+    it "is false when the environment is neither development, test, nor production" do
+      allow(Rails.env).to receive(:development?).and_return(false)
+      allow(Rails.env).to receive(:test?).and_return(false)
+      allow(Rails.env).to receive(:production?).and_return(false)
+
+      expect(described_class.available?).to be(false)
+    end
   end
 
   describe ".call" do
