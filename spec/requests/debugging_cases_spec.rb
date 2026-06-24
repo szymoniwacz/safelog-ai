@@ -63,6 +63,29 @@ RSpec.describe "Debugging cases", type: :request do
       expect(response.body).not_to include(secret_email)
     end
 
+    it "rejects mass-assignment of user_id, archived_at, and id on create" do
+      other_user = create(:user, email: "other-#{SecureRandom.hex(4)}@example.com")
+      sign_in user
+
+      expect {
+        post debugging_cases_path, params: submission_params.deep_merge(
+          debugging_case: {
+            user_id: other_user.id,
+            archived_at: Time.current,
+            id: 999
+          }
+        )
+      }.to change(DebuggingCase, :count).by(1)
+
+      created_case = DebuggingCase.last
+
+      expect(response).to redirect_to(debugging_case_path(created_case))
+      expect(created_case.user).to eq(user)
+      expect(created_case.user_id).not_to eq(other_user.id)
+      expect(created_case.archived_at).to be_nil
+      expect(created_case).not_to be_archived
+    end
+
     it "re-renders new with 422 when title is blank" do
       sign_in user
 
