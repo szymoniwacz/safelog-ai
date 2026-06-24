@@ -30,6 +30,7 @@ SafeLog AI is a Rails 8.1 + SQLite app for safe multi-source log debugging (MVP 
 - `mise exec -- bin/ci` — RuboCop, bundler-audit, importmap audit, Brakeman (`@config/ci.rb`, `@.github/workflows/ci.yml`)
 - `mise exec -- bin/rubocop` / `bin/brakeman` / `bin/bundler-audit` — individual gates
 - `mise exec -- bundle exec rspec spec/` — full RSpec suite (228 examples; `bin/ci` runs this gate)
+- Partial `rspec` runs (single files or subdirs) skip the SimpleCov 100% threshold; full suite and CI enforce it.
 - `mise exec -- bundle exec rspec spec/system` — Capybara user-flow specs (9 examples, rack_test driver)
 - `mise exec -- bin/e2e` — Playwright Chromium E2E (`e2e/`; 11 functional + 4 capture specs); optional local gate, not in `bin/ci` or GHA
 
