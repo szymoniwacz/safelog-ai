@@ -84,5 +84,20 @@ RSpec.describe Intake::CaseSubmission do
       expect(submission).not_to be_valid
       expect(submission.errors[:sources].first).to include("source 2 has an invalid source type")
     end
+
+    it "reports each UI slot number when multiple sources have invalid types" do
+      submission = described_class.new(
+        title: "Checkout timeout",
+        sources: [
+          { source_type: "invalid_type", pasted_content: "session_id=sess-1" },
+          { source_type: "rails_log", pasted_content: "request_id=req-1" },
+          { source_type: "bad_type", pasted_content: "console error" }
+        ]
+      )
+
+      expect(submission).not_to be_valid
+      expect(submission.errors[:sources]).to include("source 1 has an invalid source type")
+      expect(submission.errors[:sources]).to include("source 3 has an invalid source type")
+    end
   end
 end
