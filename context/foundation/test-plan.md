@@ -470,6 +470,7 @@ contributors should respect these unless the underlying assumption changes.
 - **Exhaustive redaction regex catalog** — heuristic gaps are documented in code comments; tests cover representative patterns, not every edge token shape. Re-evaluate if new pattern classes ship. (Source: Phase 2 interview Q5; AGENTS.md guardrails.)
 - **Real OpenAI API in CI or local default** — violates AGENTS.md; WebMock + FakeClient only. Re-evaluate never for CI; production uses optional `OPENAI_API_KEY`. (Source: AGENTS.md.)
 - **Rate limiting / abuse flood scenarios** — solo course MVP with flat user ownership; low blast radius. Re-evaluate if multi-tenant or public signup scales. (Source: Phase 2 interview Q5.)
+- **Unarchive / restore archived cases** — MVP is archive-only per PRD FR-010; no route, UI, or `unarchive!` on `DebuggingCase`. Archive and Archived-filter flows are covered; clearing `archived_at` is deliberately out of scope (see `roadmap.md` Parked). Re-evaluate post-MVP if mis-archive recovery becomes a top user pain.
 
 ## 8. Freshness Ledger
 

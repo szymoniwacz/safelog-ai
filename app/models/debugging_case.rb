@@ -17,6 +17,7 @@ class DebuggingCase < ApplicationRecord
     archived_at.present?
   end
 
+  # MVP is archive-only (no unarchive); see context/foundation/roadmap.md Parked / PRD FR-010.
   def archive!
     return if archived?
 

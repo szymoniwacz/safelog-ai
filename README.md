@@ -66,7 +66,9 @@ The demo loader is unavailable in production (`POST /debugging_cases/load_demo` 
 | `development` / `production` | unset | `Ai::FakeClient` (deterministic canned report) |
 | `development` / `production` | set | `Ai::OpenAiClient` (OpenAI Chat Completions) |
 
-When the fake client is active outside test, the case page shows a **Demo AI client active** notice. Set `OPENAI_API_KEY` locally or in Fly secrets for real AI output.
+When the fake client is active outside test, the dashboard and case page show a short **demo AI** notice. Analyze still runs end-to-end but returns deterministic sample hypotheses — not live OpenAI output.
+
+**Fly reviewers:** https://safelog-ai.fly.dev/ ships without `OPENAI_API_KEY` by design. Sign in, create a case, click **Analyze case**, and expect the notice plus canned report text. That is the intended certification demo; set `OPENAI_API_KEY` in Fly secrets only when you want real provider output (`fly secrets set OPENAI_API_KEY="..." --app safelog-ai`).
 
 Copy `.env.example` to `.env` at the repo root. In **development** and **test**, `dotenv-rails` loads `.env` on boot. Restart the server after changing keys.
 
@@ -164,7 +166,7 @@ Tests use a fake AI client and assert that raw log values never persist or reach
 - **Create-time intake** — log sources are submitted with the case; no adding sources after create.
 - **Synchronous analyze** — no background jobs; analysis runs in the request.
 - **SQLite** — single-node MVP store; PostgreSQL is a future scale option.
-- **Archive only** — cases can be archived but not unarchived.
+- **Archive only** — cases can be archived but not unarchived (conscious post-MVP scope; see `context/foundation/roadmap.md` Parked and `test-plan.md` §7).
 - **Server-rendered UI** — no React/Vite front end.
 
 ## Architecture (brief)

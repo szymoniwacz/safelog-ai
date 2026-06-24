@@ -68,7 +68,7 @@ flowchart LR
 |------|--------|----------|
 | Access control — Devise auth, gated routes | **PASS** | `AuthenticatedController`; `spec/requests/devise/*` |
 | Access control — per-user isolation | **PASS** | `debugging_cases_authorization_spec.rb` |
-| CRUD — create, read (index/show), archive | **PASS** | Request specs; no edit/destroy (intentional MVP) |
+| CRUD — create, read (index/show), archive | **PASS** | Request specs; no edit/destroy (intentional MVP); **archive only** — no unarchive (post-MVP parked; `roadmap.md` Parked, `test-plan.md` §7) |
 | Business logic — redaction, intake, correlation, analyze, export | **PASS** | `app/services/*`; service + request specs |
 | Context documents — PRD, roadmap, test-plan, infra, deploy-plan | **PASS** | `context/foundation/*` |
 | Tests — meaningful coverage | **PASS** | 240 RSpec + 9 system + 13 functional Playwright (17 total incl. 4 capture specs); SimpleCov 100% line + branch in full suite |
@@ -261,10 +261,10 @@ Reviewers and course staff often compare the README demo (which mentions **Load 
 | **Load demo case** | **Yes** — dashboard button; one-click checkout-timeout fixture (`Demo::LoadCase`) | **No** — button hidden; `POST /debugging_cases/load_demo` returns **404** (by design) |
 | **How to start a case** | **Load demo case** *or* **New case** + manual paste | **New case** only — paste ≥2 log sources (Rails, CloudWatch, browser console, etc.) |
 | **Redaction / analyze / export / archive** | Same services and UI | Same services and UI |
-| **AI output** | Fake client if `OPENAI_API_KEY` unset (notice on case page) | Same |
+| **AI output** | `Ai::FakeClient` if `OPENAI_API_KEY` unset — dashboard + case show **demo AI** callout | Same (Fly default; not a deploy bug) |
 | **Submission screenshots** | N/A | Captured via manual intake on Fly — see [`screenshots/builder/04-new-case-intake.png`](screenshots/builder/04-new-case-intake.png) |
 
-**Why production has no load_demo:** `Demo::LoadCase.available?` is true only in development and test (`app/services/demo/load_case.rb`). Production keeps the demo surface minimal and avoids a dev-only shortcut on a public URL.
+**Why production hides load_demo by default:** `Demo::LoadCase.available?` is true in development and test, and in production only when `SAFELOG_ENABLE_DEMO_LOADER` is truthy (`app/services/demo/load_case.rb`). Default production keeps the demo surface minimal on a public URL.
 
 **Reviewer checklist (Fly, after `fly deploy`):**
 
@@ -275,7 +275,7 @@ Reviewers and course staff often compare the README demo (which mentions **Load 
 5. **Analyze case** → hypothesis report — [`builder/06-hypothesis-report.png`](screenshots/builder/06-hypothesis-report.png)
 6. Optional: download report, archive, **Archived** tab — [`builder/07-archived-cases.png`](screenshots/builder/07-archived-cases.png)
 
-Do **not** expect a **Load demo case** button on Fly; that is not a deploy bug.
+Do **not** expect a **Load demo case** button on Fly unless `SAFELOG_ENABLE_DEMO_LOADER` is set — absence is default, not a deploy bug.
 
 ### Commands reference
 
@@ -307,7 +307,8 @@ PLAYWRIGHT_SKIP_WEBSERVER=1 PLAYWRIGHT_BASE_URL=https://safelog-ai.fly.dev \
 
 | Gap | Severity | Action |
 |-----|----------|--------|
-| Fake AI default without `OPENAI_API_KEY` | Accepted | Document in demo; optional Fly secret |
+| Fake AI default without `OPENAI_API_KEY` | Accepted | Documented — demo AI callout on dashboard + case show; optional Fly secret |
+| Unarchive / restore archived case | Accepted | Archive-only MVP per PRD FR-010; parked post-MVP — reviewers should not expect a restore action |
 
 ### Architect
 

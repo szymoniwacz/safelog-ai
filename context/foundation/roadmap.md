@@ -186,6 +186,7 @@ _Resolved: MVP uses server-rendered Rails views per PRD Non-Goals (2026-05-28)._
 
 ## Parked
 
+- **Unarchive debugging case** — Why parked: PRD FR-010 and S-05 deliver archive-only lifecycle (set `archived_at`, hide from default list, show via Archived filter); no restore path in MVP. Conscious scope cut — avoids undo semantics, accidental re-surfacing in the active list, and extra authorization/index UX under the ~3-week budget. Revisit post-MVP if users mis-archive cases often.
 - **Real observability API integrations** — Why parked: PRD §Non-Goals; manual paste only in MVP.
 - **Log management / incident-command platform scope** — Why parked: PRD §Non-Goals.
 - **Raw log retention in any form** — Why parked: PRD §Non-Goals and guardrails.
