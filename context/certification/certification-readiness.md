@@ -240,10 +240,10 @@ Single **certification round** for **Builder + Architect + Champion** — all ba
 
 ### Demo flow (Builder — verified locally and on Fly)
 
-**For reviewers opening https://safelog-ai.fly.dev/:** see [Public demo vs local `load_demo`](#public-demo-vs-local-load_demo) below — the Fly URL does **not** offer **Load demo case**.
+**For reviewers opening https://safelog-ai.fly.dev/:** see [Public demo vs local `load_demo`](#public-demo-vs-local-load_demo) below — **Load demo case** is off by default; optional via `SAFELOG_ENABLE_DEMO_LOADER`.
 
 1. Register or sign in at `/` (local or https://safelog-ai.fly.dev/).
-2. **New case** with multiple pasted sources (fake secrets). On Fly, use manual intake — **Load demo case** is dev/test only.
+2. **New case** with multiple pasted sources (fake secrets). On Fly, use manual intake by default — or enable **Load demo case** with `SAFELOG_ENABLE_DEMO_LOADER=true` for reviewer convenience.
 3. Confirm placeholders on show — raw paste not visible; **Redaction summary** visible.
 4. **Analyze case** → hypothesis report + correlation signals.
 5. **Download** Markdown report.
@@ -258,8 +258,8 @@ Reviewers and course staff often compare the README demo (which mentions **Load 
 | | **Local** (`mise exec -- bin/dev`) | **Public Fly** (`https://safelog-ai.fly.dev/`) |
 |---|-----------------------------------|------------------------------------------------|
 | **Environment** | `development` | `production` |
-| **Load demo case** | **Yes** — dashboard button; one-click checkout-timeout fixture (`Demo::LoadCase`) | **No** — button hidden; `POST /debugging_cases/load_demo` returns **404** (by design) |
-| **How to start a case** | **Load demo case** *or* **New case** + manual paste | **New case** only — paste ≥2 log sources (Rails, CloudWatch, browser console, etc.) |
+| **Load demo case** | **Yes** — dashboard button; one-click checkout-timeout fixture (`Demo::LoadCase`) | **Off by default** — button hidden; `POST /debugging_cases/load_demo` returns **404**. Set Fly secret `SAFELOG_ENABLE_DEMO_LOADER=true` (`1` / `yes` also work) to enable for reviewers |
+| **How to start a case** | **Load demo case** *or* **New case** + manual paste | **New case** + manual paste by default — or **Load demo case** when the secret is set |
 | **Redaction / analyze / export / archive** | Same services and UI | Same services and UI |
 | **AI output** | `Ai::FakeClient` if `OPENAI_API_KEY` unset — dashboard + case show **demo AI** callout | Same (Fly default; not a deploy bug) |
 | **Submission screenshots** | N/A | Captured via manual intake on Fly — see [`screenshots/builder/04-new-case-intake.png`](screenshots/builder/04-new-case-intake.png) |

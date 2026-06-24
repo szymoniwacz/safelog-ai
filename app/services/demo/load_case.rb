@@ -5,7 +5,14 @@ module Demo
     UnavailableError = Class.new(StandardError)
 
     def self.available?
-      Rails.env.development? || Rails.env.test?
+      return true if Rails.env.development? || Rails.env.test?
+      return demo_loader_enabled? if Rails.env.production?
+
+      false
+    end
+
+    def self.demo_loader_enabled?
+      %w[1 true yes].include?(ENV["SAFELOG_ENABLE_DEMO_LOADER"]&.downcase)
     end
 
     def self.call(user:)

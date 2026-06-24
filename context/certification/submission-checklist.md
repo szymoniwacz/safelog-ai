@@ -53,7 +53,7 @@ Upload all 7 PNGs from [`screenshots/builder/`](screenshots/builder/):
 6. `06-hypothesis-report.png`
 7. `07-archived-cases.png`
 
-**Note for reviewers:** Fly production has **no Load demo case** button — use **New case** + manual paste. See [`certification-readiness.md`](certification-readiness.md) § Public demo vs local `load_demo`.
+**Note for reviewers:** Fly production hides **Load demo case** by default — use **New case** + manual paste, or ask the deployer to set `SAFELOG_ENABLE_DEMO_LOADER=true` on Fly for the one-click fixture. See [`certification-readiness.md`](certification-readiness.md) § Public demo vs local `load_demo`.
 
 ### Supporting docs (links if form allows)
 

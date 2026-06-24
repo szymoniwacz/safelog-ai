@@ -38,6 +38,20 @@ RSpec.describe "Dashboard", type: :request do
       expect(response.body).not_to include("Load demo case")
     end
 
+    it "shows a reviewer callout when the demo loader is available in production" do
+      sign_in user
+      allow(Rails.env).to receive(:development?).and_return(false)
+      allow(Rails.env).to receive(:test?).and_return(false)
+      allow(Rails.env).to receive(:production?).and_return(true)
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with("SAFELOG_ENABLE_DEMO_LOADER").and_return("true")
+
+      get root_path
+
+      expect(response.body).to include("Load demo case")
+      expect(response.body).to include("reviewer convenience only")
+    end
+
     it "shows a demo AI notice when the fake client is active outside test" do
       sign_in user
       allow(Ai::ClientResolver).to receive(:fake_client_active?).and_return(true)

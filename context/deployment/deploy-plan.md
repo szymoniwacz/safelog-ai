@@ -164,6 +164,14 @@ fly secrets set OPENAI_API_KEY="..." --app safelog-ai
 
 CI and `RAILS_ENV=test` always use `FakeClient` regardless of this secret.
 
+#### Optional — Load demo case for certification reviewers (default off)
+
+```bash
+fly secrets set SAFELOG_ENABLE_DEMO_LOADER=true --app safelog-ai
+```
+
+Shows the dashboard **Load demo case** button on production only while this secret is set. Remove or unset for default public behavior.
+
 #### Previously shell-only (now superseded)
 
 ```bash

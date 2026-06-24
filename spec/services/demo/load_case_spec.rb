@@ -10,12 +10,24 @@ RSpec.describe Demo::LoadCase do
       expect(described_class.available?).to be(true)
     end
 
-    it "is false when production is the active environment" do
+    it "is false in production when SAFELOG_ENABLE_DEMO_LOADER is unset" do
       allow(Rails.env).to receive(:development?).and_return(false)
       allow(Rails.env).to receive(:test?).and_return(false)
       allow(Rails.env).to receive(:production?).and_return(true)
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with("SAFELOG_ENABLE_DEMO_LOADER").and_return(nil)
 
       expect(described_class.available?).to be(false)
+    end
+
+    it "is true in production when SAFELOG_ENABLE_DEMO_LOADER is truthy" do
+      allow(Rails.env).to receive(:development?).and_return(false)
+      allow(Rails.env).to receive(:test?).and_return(false)
+      allow(Rails.env).to receive(:production?).and_return(true)
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with("SAFELOG_ENABLE_DEMO_LOADER").and_return("true")
+
+      expect(described_class.available?).to be(true)
     end
   end
 

@@ -49,14 +49,14 @@ Register or sign in (Devise). All case flows require authentication.
 ## Demo flow
 
 1. Open the dashboard at `/`.
-2. **Load demo case** (development and test only) — one-click checkout/payment-timeout fixture with three sources (Rails, CloudWatch, browser console). Same intake pipeline as manual submission; raw fixture values are redacted before persistence.
+2. **Load demo case** (development and test by default; optional on production via `SAFELOG_ENABLE_DEMO_LOADER`) — one-click checkout/payment-timeout fixture with three sources (Rails, CloudWatch, browser console). Same intake pipeline as manual submission; raw fixture values are redacted before persistence.
 3. Or choose **New debugging case** and paste multiple log sources manually.
 4. On the case page, review sanitized sources, redaction findings, and correlation signals.
 5. Click **Analyze case** to run correlation extraction and AI analysis.
 6. Copy or **download** the Markdown report when analysis succeeds.
 7. **Archive** cases you no longer need; view archived cases from the index filter.
 
-The demo loader is unavailable in production (`POST /debugging_cases/load_demo` returns 404). See `context/certification/certification-readiness.md` § **Public demo vs local load_demo** for reviewer guidance on https://safelog-ai.fly.dev/.
+The demo loader is off in production by default (`POST /debugging_cases/load_demo` returns 404). Certification reviewers can enable it on Fly with `fly secrets set SAFELOG_ENABLE_DEMO_LOADER=true --app safelog-ai`. See `context/certification/certification-readiness.md` § **Public demo vs local load_demo** for reviewer guidance on https://safelog-ai.fly.dev/.
 
 ## AI client
 
@@ -122,7 +122,7 @@ Requirements: `context/changes/ci-cd-code-review/requirements.md`.
 
 Manual deploy via `fly deploy --app safelog-ai` (see `context/deployment/deploy-plan.md`). SQLite persists on a Fly volume at `/rails/storage`. Health check: `GET /up` (200).
 
-**Public demo (reviewers):** sign up or sign in, then use **New debugging case** and paste multiple log sources manually. There is **no Load demo case** button on Fly — that shortcut exists only in local development and test. After case creation, redaction, analyze, export, and archive behave the same as locally. Full comparison: `context/certification/certification-readiness.md` § Public demo vs local `load_demo`.
+**Public demo (reviewers):** sign up or sign in, then use **New debugging case** and paste multiple log sources manually. **Load demo case** is off on Fly by default; set `SAFELOG_ENABLE_DEMO_LOADER=true` as a Fly secret to show the one-click fixture for certification review. After case creation, redaction, analyze, export, and archive behave the same as locally. Full comparison: `context/certification/certification-readiness.md` § Public demo vs local `load_demo`.
 
 ## Quality gates
 
@@ -132,7 +132,8 @@ Manual deploy via `fly deploy --app safelog-ai` (see `context/deployment/deploy-
 |-------|---------|--------|
 | **RSpec (full)** | `mise exec -- bundle exec rspec spec/` | 240 examples — services, request specs, models, system; 100% line + branch coverage in full suite / CI |
 | **Capybara system** | `mise exec -- bundle exec rspec spec/system` | 9 examples — server-rendered user flows via rack_test (in `bin/ci`) |
-| **Playwright E2E** | `mise exec -- bin/e2e` | 13 functional + 4 opt-in capture specs in real Chromium; optional before release — not in `bin/ci` |
+| **Playwright E2E** | `mise exec -- bin/e2e` | 15 functional + 4 opt-in capture specs in real Chromium; optional before release — not in `bin/ci` |
+| **Playwright a11y** | `mise exec -- bin/e2e e2e/accessibility.spec.ts` | axe WCAG A/AA spot-check (serious/critical) on dashboard and new-case form; optional |
 
 Partial `rspec` runs (single file or subdirectory) skip the SimpleCov minimum threshold; `bin/ci` and CI enforce 100% line + branch coverage on the full suite.
 
