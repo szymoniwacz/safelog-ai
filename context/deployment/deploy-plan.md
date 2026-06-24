@@ -135,7 +135,17 @@ Rails 8 derives `SECRET_KEY_BASE` from credentials via `RAILS_MASTER_KEY` — no
 
 #### Required for GitHub Actions auto-deploy
 
-Set the repository secret `FLY_API_TOKEN` in GitHub so `.github/workflows/fly-deploy.yml` can deploy on `main`.
+Set the repository secret `FLYCTL_ACCESS_TOKEN` in GitHub so `.github/workflows/fly-deploy.yml` can deploy on `main`.
+
+If you already have `FLY_API_TOKEN` configured, the workflow will also accept that secret as an alias.
+
+Create a long-lived Fly token with:
+
+```bash
+flyctl auth token create --name "github-actions" --expires-in 720h
+```
+
+Then set that token as the repository secret `FLYCTL_ACCESS_TOKEN`.
 
 #### Required before first MVP deploy (not just `/up`)
 
