@@ -79,6 +79,7 @@ RSpec.describe Intake::ProcessCaseSubmission do
       debugging_case = result.debugging_case.reload
       sanitized_bodies = debugging_case.log_sources.order(:position).map(&:sanitized_content)
 
+      expect(debugging_case.log_sources.order(:position).pluck(:position)).to eq([0, 1])
       expect(sanitized_bodies).to all(include("[REQUEST_1]"))
       expect(debugging_case.customer_reference).to include("[REQUEST_1]")
       expect(debugging_case.customer_reference).not_to include("req-shared-999")
