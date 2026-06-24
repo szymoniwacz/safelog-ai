@@ -68,6 +68,32 @@ RSpec.describe Redaction::Engine do
       SANITIZED
     end
 
+    it "redacts multiple patterns on a single line" do
+      raw = "User user@example.com failed token=supersecretkey12345678"
+
+      result = described_class.redact(raw)
+
+      expect(result.sanitized_text).to include("[EMAIL_1]")
+      expect(result.sanitized_text).to include("[TOKEN_1]")
+      expect(result.sanitized_text).not_to include("user@example.com")
+      expect(result.sanitized_text).not_to include("supersecretkey12345678")
+
+      expect(result.findings).to contain_exactly(
+        have_attributes(
+          finding_type: "email",
+          line_number: 1,
+          placeholder: "[EMAIL_1]",
+          risk_level: "high"
+        ),
+        have_attributes(
+          finding_type: "token",
+          line_number: 1,
+          placeholder: "[TOKEN_1]",
+          risk_level: "high"
+        )
+      )
+    end
+
     it "records line numbers from the original text" do
       raw = <<~LOG.strip
         ok line
