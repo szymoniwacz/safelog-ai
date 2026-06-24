@@ -163,7 +163,8 @@ Tests use a fake AI client and assert that raw log values never persist or reach
 
 ## MVP limitations
 
-- **Paste only** — no file uploads or external log integrations (CloudWatch, New Relic, etc.).
+- **Paste only** — no file uploads or external log integrations (CloudWatch, New Relic, etc.); source-type dropdown values are labels for pasted text only.
+- **No production observability stack** — Rails default logging and `/up` health check only; Sentry/metrics/OTel parked in `roadmap.md`.
 - **Create-time intake** — log sources are submitted with the case; no adding sources after create.
 - **Synchronous analyze** — no background jobs; analysis runs in the request.
 - **SQLite** — single-node MVP store; PostgreSQL is a future scale option.

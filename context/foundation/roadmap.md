@@ -191,7 +191,7 @@ _Resolved: MVP uses server-rendered Rails views per PRD Non-Goals (2026-05-28)._
 - **Log management / incident-command platform scope** — Why parked: PRD §Non-Goals.
 - **Raw log retention in any form** — Why parked: PRD §Non-Goals and guardrails.
 - **Adding log sources after case creation** — Why parked: PRD §Non-Goals and S-02 intake model — all pasted sources must be submitted in the single create request; no append/edit-after-create routes or UI. Keeps the sanitized-evidence snapshot immutable and avoids re-opening the redaction pipeline mid-lifecycle. Revisit post-MVP via `/10x-new` if users need incremental intake.
-- **Background jobs for analysis** — Why parked: PRD §Non-Goals; synchronous Analyze only.
+- **Background jobs for analysis** — Why parked: PRD §Non-Goals and NFR synchronous Analyze; `POST analyze` runs correlation + AI in the request thread. Post-MVP async boundary would enqueue by case id, preserve sanitized-evidence guardrails, and add progress UI — not in MVP scope.
 - **Multi-tenancy and role models** — Why parked: PRD §Non-Goals.
 - **Container packaging as MVP gate** — Why parked: PRD §Non-Goals; Fly deploy completed 2026-06-09 without blocking feature work.
 - **Separate rich client UI framework** — Why parked: PRD §Non-Goals for MVP (pending Open Roadmap Question above).

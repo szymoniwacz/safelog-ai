@@ -474,6 +474,7 @@ contributors should respect these unless the underlying assumption changes.
 - **Unarchive / restore archived cases** — MVP is archive-only per PRD FR-010; no route, UI, or `unarchive!` on `DebuggingCase`. Archive and Archived-filter flows are covered; clearing `archived_at` is deliberately out of scope (see `roadmap.md` Parked). Re-evaluate post-MVP if mis-archive recovery becomes a top user pain.
 - **Post-create log source intake** — no request/system/Playwright coverage for append-or-edit flows after case create; PRD Non-Goals and `roadmap.md` Parked. Re-evaluate when incremental intake ships.
 - **File upload and external log-source APIs** — no specs for multipart upload, S3 ingest, or live CloudWatch/New Relic connectors; paste-only MVP per PRD and `roadmap.md` Parked.
+- **Background jobs / async Analyze** — no job enqueue, polling, or progress-channel tests; synchronous `POST analyze` only per PRD NFR and `roadmap.md` Parked. Re-evaluate when async boundary ships.
 
 ## 8. Freshness Ledger
 
