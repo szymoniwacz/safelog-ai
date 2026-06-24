@@ -25,7 +25,7 @@ scope: Copy-paste guide for all three 10xDevs certification forms
 
 ## Form 1 — 10xBuilder (M1–M3)
 
-Platform post (course, PL title): *Certyfikacja 10xBuilder: Formularz zgłoszeniowy i kluczowe zasady* — *10xBuilder certification: submission form and key rules*.
+Platform post (course): *10xBuilder certification: submission form and key rules* (official title on the course platform is in Polish).
 
 ### Copy-paste values
 

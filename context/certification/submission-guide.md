@@ -53,7 +53,7 @@ Same rules as Builder; especially important for optional badges:
 
 | Badge | Form |
 |-------|------|
-| **10xBuilder** (M1–M3) | Separate form — platform post (PL title): *Certyfikacja 10xBuilder: Formularz zgłoszeniowy i kluczowe zasady* (*10xBuilder certification: submission form and key rules*) |
+| **10xBuilder** (M1–M3) | Separate form — platform post: *10xBuilder certification: submission form and key rules* (official title on course platform is in Polish) |
 | **10xArchitect** + **10xChampion** (M4–M5) | **One shared form** — choose Architect, Champion, or both; fields appear dynamically |
 
 **Architect + Champion form:**  
@@ -63,7 +63,7 @@ https://baserow.io/form/fwnBioduXc90QTli6lsCVL_YgRdTECPTCmwiVhu8d-E
 
 Basic details, badge selection, and matching artifacts: **report** (Architect) or **screenshots** (Champion). Upload fields appear **dynamically** based on your choices.
 
-Full course instructions (Circle, PL): *🏆 Wszystko o projekcie zaliczeniowym i certyfikacji 10XDevs 3.0* — *Everything about the capstone project and 10xDevs 3.0 certification*.
+Full course instructions (Circle): *Everything about the capstone project and 10xDevs 3.0 certification* (official title on course platform is in Polish).
 
 ---
 
@@ -127,7 +127,7 @@ SafeLog covers **both** Champion paths (review pipeline + package registry).
 
 ## What to prepare — 10xBuilder (M1–M3)
 
-Form fields and instructions — on the course platform (*Certyfikacja 10xBuilder*). Local evidence checklist:
+Form fields and instructions — on the course platform (*10xBuilder certification*; Polish title on platform). Local evidence checklist:
 
 | Type | Location |
 |------|----------|

@@ -165,7 +165,7 @@ Contributor map (artifact 3) will be thin; territory analysis still valid for so
 2. **Runtime core for Deep Focus candidates:** `app/services/{intake,redaction,analysis,ai}`, `app/controllers/debugging_cases_controller.rb`, `spec/requests/*_security_spec.rb`.
 3. **Highest co-change corridor:** HTTP slice (`routes` → `controller` → `views/debugging_cases` → `spec/requests`) + analyze/AI services + their specs.
 4. **June shift:** certification/deploy paths (`context/certification/`, `e2e/`, `fly.toml`) are active but peripheral to product logic.
-5. **Limitation:** 3-week history — trends are directional, not statistically robust. State this in `repo-map.md` § Ograniczenia.
+5. **Limitation:** 3-week history — trends are directional, not statistically robust. State this in `repo-map.md` § Limitations.
 
 ---
 

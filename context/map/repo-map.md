@@ -1,19 +1,19 @@
 # SafeLog AI — Repo map (onboarding)
 
 **Synthesized from:** [artifact-1-territory](artifact-1-territory.md) · [artifact-2-structure](artifact-2-structure.md) · [artifact-3-contributors](artifact-3-contributors.md)  
-**Updated:** 2026-06-09 · **Map window:** git/structure analysis over requested 12 months (actual repo age ~3 weeks)
+**Updated:** 2026-06-24 · **Map window:** git/structure analysis over requested 12 months (actual repo age ~3 weeks)
 
 ---
 
 ## 1. TL;DR
 
-SafeLog AI to **Rails 8 monolith** (SQLite, Devise, server-rendered ERB): użytkownik wkleja logi, backend **redaguje w pamięci**, zapisuje tylko sanityzowane dowody, potem generuje **hipotezyczny** raport AI — surowe logi nigdy nie trafiają do DB ani do modelu. To **młody solo MVP** (~3 tygodnie historii), nie legacy monolith — mapa opisuje kierunek pracy, nie wieloletnią specjalizację zespołu.
+SafeLog AI is a **Rails 8 monolith** (SQLite, Devise, server-rendered ERB): the user pastes logs, the backend **redacts in memory**, persists only sanitized evidence, then produces a **hypothesis-framed** AI report — raw logs never reach the DB or the model. This is a **young solo MVP** (~3 weeks of history), not a legacy monolith — the map describes direction of work, not years of team specialization.
 
-**Gdzie żyje praca (runtime):** `app/services/*` (pipeline), cienki HTTP w `app/controllers`, UI w `app/views/debugging_cases/`, oracles w `spec/requests` i `spec/services`. **Gdzie git jest głośny, a produkt nie:** `context/changes/` i `context/archive/` — dokumentacja slice'ów 10x, nie kod deployowalny.
+**Where work lives (runtime):** `app/services/*` (pipeline), thin HTTP in `app/controllers`, UI in `app/views/debugging_cases/`, oracles in `spec/requests` and `spec/services`. **High git activity, not product runtime:** `context/changes/` and `context/archive/` — 10x slice documentation, not deployable code.
 
-**Gdzie boli:** orchestrator `Analysis::AnalyzeCase`, korytarz HTTP (`routes → controller → views → request specs`), security oracles, hub E2E `e2e/helpers.ts`. **Brak cykli** w serwisach Ruby; granica **`redaction ⊥ ai`** utrzymana.
+**Pain points:** orchestrator `Analysis::AnalyzeCase`, HTTP corridor (`routes → controller → views → request specs`), security oracles, E2E hub `e2e/helpers.ts`. **No cycles** in Ruby services; **`redaction ⊥ ai`** boundary holds.
 
-**Kontrybutorzy:** jeden maintainer (Szymon Iwacz) — mapa „kogo zapytać” to routing tematyczny + fallback do `context/foundation/`.
+**Contributors:** single maintainer (Szymon Iwacz) — “who to ask” map is topic routing + fallback to `context/foundation/`.
 
 ```mermaid
 flowchart TB
@@ -28,7 +28,7 @@ flowchart TB
     Analysis --> Correlation
     Analysis --> Ai
   end
-  subgraph outer [Peryferia / docs — high git, non-runtime]
+  subgraph outer [Periphery / docs — high git, non-runtime]
     CtxChanges[context/changes]
     CtxArch[context/archive]
   end
@@ -42,111 +42,111 @@ flowchart TB
 
 ---
 
-## 2. Teren
+## 2. Territory
 
-### Duża odpowiedzialność vs peryferia
+### High responsibility vs periphery
 
-| Strefa | Głębokość | Git activity | Runtime? |
-|--------|-----------|--------------|----------|
-| **Pipeline serwisów** (`intake`, `redaction`, `correlation`, `analysis`, `ai`) | Głęboka — logika produktu, guardrails PRD | Średnia (33 touches w `app/services/`) | **Tak** |
-| **HTTP slice** (controller, views, routes) | Średnia — orchestracja + UI | Wysoka (views #3, controller #8) | **Tak** |
-| **Security oracles** (`spec/requests/*_security*`) | Głęboka — kontrakt bezpieczeństwa | Najwyższa runtime (#1: 32 touches) | **Tak (testy)** |
-| **`context/changes/`** | Płytko w sensie deploy — plany slice'ów | **Najwyższa w repo (#1: 146)** | **Nie** — wygląda jak moduł, nim nie jest |
-| **Deploy / cert / E2E** | Płytsza warstwa operacyjna | Wzrost w czerwcu 2026 | Częściowo (Fly, Playwright) |
-| **Devise / dashboard** | Płytkie — auth scaffold | Niskie vs debugging_cases | Tak, peryferia produktu |
+| Zone | Depth | Git activity | Runtime? |
+|------|-------|--------------|----------|
+| **Service pipeline** (`intake`, `redaction`, `correlation`, `analysis`, `ai`) | Deep — product logic, PRD guardrails | Medium (33 touches in `app/services/`) | **Yes** |
+| **HTTP slice** (controller, views, routes) | Medium — orchestration + UI | High (views #3, controller #8) | **Yes** |
+| **Security oracles** (`spec/requests/*_security*`) | Deep — security contract | Highest runtime (#1: 32 touches) | **Yes (tests)** |
+| **`context/changes/`** | Shallow for deploy — slice plans | **Highest in repo (#1: 146)** | **No** — looks like a module, but is not |
+| **Deploy / cert / E2E** | Lighter operational layer | Growth in June 2026 | Partial (Fly, Playwright) |
+| **Devise / dashboard** | Shallow — auth scaffold | Low vs debugging_cases | Yes, product periphery |
 
-**Iluzja katalogowa:** pierwszy w rankingu git folder to `context/changes/` — to **workflow dokumentacyjny**, nie bounded context runtime. Ukończone slice'y → `context/archive/`. Aktywny `context/changes/` to dziś praktycznie tylko `README.md`.
+**Catalog illusion:** the top git-ranked folder is `context/changes/` — a **documentation workflow**, not a runtime bounded context. Completed slices → `context/archive/`. Active `context/changes/` today is practically only `README.md`.
 
-### Aktywność w czasie
+### Activity over time
 
-- **Maj 2026:** feature verticals (intake, redaction, analyze, AI, encryption) + archiwizacja slice'ów.
-- **Czerwiec 2026:** certification, deploy, Playwright, foundation/reviews.
+- **May 2026:** feature verticals (intake, redaction, analyze, AI, encryption) + slice archival.
+- **June 2026:** certification, deploy, Playwright, foundation/reviews.
 
-Trend: planowe slice'y, bez „hotspotu naprawczego” w jednym pliku (artifact-1).
-
----
-
-## 3. Realne powiązania
-
-Couplingi z **źródłem dowodu** — nie mylić braku grafu z brakiem powiązań.
-
-| Powiązanie | Typ | Źródło | Koszt zmiany |
-|------------|-----|--------|--------------|
-| `routes` ↔ `controller` ↔ `spec/requests` | Ręczna edycja, vertical slice | **Git co-change** (6 commitów runtime) | Wysoki — dotykasz HTTP + oracle |
-| `controller` ↔ `views/debugging_cases` | Ręczna edycja | **Git co-change** (7 commitów) | Średni — UI + request/system specs |
-| `app/services` ↔ `spec/services` | Ręczna edycja (TDD slice) | **Git co-change** (13 commitów) | Średni — domain + unit tests |
-| `intake` → `redaction` | Jednokierunkowy DAG | **Ruby constant scan** (artifact-2); brak depcruise dla Ruby | Wysoki — cały sanitized content |
-| `analysis` → `correlation` + `ai` | Orchestracja | **Ruby constant scan** | Bardzo wysoki — `AnalyzeCase` |
-| `redaction` ⊥ `ai` | Granica bezpieczeństwa (brak importów) | **Ruby constant scan** | Naruszenie = krytyczne |
-| `context/changes` ↔ `spec/requests` | Workflow 10x (plan + spec w 1 commicie) | **Git co-change** (19) | Niski dla runtime — docs + kod |
-| `e2e/*.spec.ts` → `helpers.ts` → Playwright | Hub testowy | **dependency-cruiser** (fan-in 4, 0 violations) | Średni — zmiana helpera = cały E2E |
-| Ruby + E2E service graph | **Brak cykli** (DAG / star) | **Ruby constant scan** + **dependency-cruiser** (artifact-2) | Niski — brak pętli do rozpisywania przy refaktorze |
-| `spec/*` + CI ↔ `Ai::FakeClient` | **Mock / stub** (nie ręczna integracja OpenAI) | Konwencja test-plan + `ClientResolver` w `test` | Niski w CI — real API tylko gdy `OPENAI_API_KEY` poza testami |
-| `db/schema.rb` | **Regeneracja** (`db:migrate`) | Git (wykluczone jako szum w artifact-1) | Tańszy niż ręczna edycja — nie traktować jak hotspot |
-| Ruby service graph (pełny autoload) | — | **unknown** — static scan ≠ runtime autoload; ~25 plików serwisów | Uznaj couplingi Ruby za potwierdzone scanem, nie za kompletne |
-
-Najcięższy orchestrator: `Analysis::AnalyzeCase`.
+Trend: planned slices, no single-file “firefighting hotspot” (artifact-1).
 
 ---
 
-## 4. Strefy ryzyka
+## 3. Real couplings
 
-| # | Strefa | Dlaczego |
-|---|--------|----------|
-| 1 | **Security oracles** (`spec/requests/*_security_spec.rb`) | Jedyny trwały kontrakt „raw logs never persist / never reach AI” — regresja łamie narrację produktu |
-| 2 | **`Analysis::AnalyzeCase`** | Fan-out: Correlation + Ai + AR + retry; najwyższy koszt testów i refaktoru (artifact-2) |
-| 3 | **HTTP slice** (`debugging_cases_controller`, views, routes) | Najciasniejsze co-change w runtime; każda akcja HTTP ciągnie request specs |
-| 4 | **`Intake::ProcessCaseSubmission` + `Redaction::Engine`** | Jedyny moment kontaktu z surowym paste; błąd = wyciek przed redakcją |
-| 5 | **`e2e/helpers.ts`** | Fan-in 4 — jedna zmiana locatorów kładzie cały Playwright (depcruise) |
-| 6 | **Public Fly vs local demo** | `load_demo` tylko dev/test; reviewerzy Fly używają manual intake — łatwo pomylić z bugiem deployu |
+Couplings with **evidence source** — do not confuse missing graph tooling with missing dependencies.
+
+| Coupling | Type | Source | Change cost |
+|----------|------|--------|-------------|
+| `routes` ↔ `controller` ↔ `spec/requests` | Manual edit, vertical slice | **Git co-change** (6 runtime commits) | High — touches HTTP + oracle |
+| `controller` ↔ `views/debugging_cases` | Manual edit | **Git co-change** (7 commits) | Medium — UI + request/system specs |
+| `app/services` ↔ `spec/services` | Manual edit (TDD slice) | **Git co-change** (13 commits) | Medium — domain + unit tests |
+| `intake` → `redaction` | One-way DAG | **Ruby constant scan** (artifact-2); no depcruise for Ruby | High — all sanitized content |
+| `analysis` → `correlation` + `ai` | Orchestration | **Ruby constant scan** | Very high — `AnalyzeCase` |
+| `redaction` ⊥ `ai` | Security boundary (no imports) | **Ruby constant scan** | Violation = critical |
+| `context/changes` ↔ `spec/requests` | 10x workflow (plan + spec in one commit) | **Git co-change** (19) | Low for runtime — docs + code |
+| `e2e/*.spec.ts` → `helpers.ts` → Playwright | Test hub | **dependency-cruiser** (fan-in 4, 0 violations) | Medium — helper change breaks all E2E |
+| Ruby + E2E service graph | **No cycles** (DAG / star) | **Ruby constant scan** + **dependency-cruiser** (artifact-2) | Low — no loops to unwind on refactor |
+| `spec/*` + CI ↔ `Ai::FakeClient` | **Mock / stub** (not manual OpenAI integration) | test-plan convention + `ClientResolver` in `test` | Low in CI — real API only when `OPENAI_API_KEY` outside test |
+| `db/schema.rb` | **Regeneration** (`db:migrate`) | Git (excluded as noise in artifact-1) | Cheaper than manual edit — not a hotspot |
+| Ruby service graph (full autoload) | — | **unknown** — static scan ≠ runtime autoload; ~25 service files | Treat Ruby couplings as scan-confirmed, not complete |
+
+Heaviest orchestrator: `Analysis::AnalyzeCase`.
 
 ---
 
-## 5. Kogo zapytać
+## 4. Risk zones
 
-Solo MVP — **jeden kontakt**, bez fikcyjnego RACI. Fallback gdy maintainer niedostępny.
+| # | Zone | Why |
+|---|------|-----|
+| 1 | **Security oracles** (`spec/requests/*_security_spec.rb`) | Only durable contract for “raw logs never persist / never reach AI” — regression breaks product narrative |
+| 2 | **`Analysis::AnalyzeCase`** | Fan-out: Correlation + Ai + AR + retry; highest test and refactor cost (artifact-2) |
+| 3 | **HTTP slice** (`debugging_cases_controller`, views, routes) | Tightest runtime co-change; every HTTP action pulls request specs |
+| 4 | **`Intake::ProcessCaseSubmission` + `Redaction::Engine`** | Only contact with raw paste; bug = leak before redaction |
+| 5 | **`e2e/helpers.ts`** | Fan-in 4 — one locator change breaks all Playwright (depcruise) |
+| 6 | **Public Fly vs local demo** | `load_demo` dev/test only; Fly reviewers use manual intake — easy to mistake for deploy bug |
 
-| Strefa ryzyka | Kontakt | Fallback |
-|---------------|---------|----------|
+---
+
+## 5. Who to ask
+
+Solo MVP — **one contact**, no fictional RACI. Fallback when maintainer unavailable.
+
+| Risk zone | Contact | Fallback |
+|-----------|---------|----------|
 | Security oracles | Szymon Iwacz | `context/foundation/test-plan.md`, `spec/requests/debugging_cases_security_spec.rb` |
 | Analyze + AI | Szymon Iwacz | `app/services/analysis/analyze_case.rb`, `context/archive/…/analyze-hypothesis-report/` |
 | HTTP slice | Szymon Iwacz | `config/routes.rb`, `spec/requests/debugging_cases_*` |
 | Intake / redaction | Szymon Iwacz | `context/foundation/prd.md`, `spec/services/redaction/` |
 | Deploy / E2E / cert | Szymon Iwacz | `context/deployment/deploy-plan.md`, `context/certification/certification-readiness.md` |
-| Dokumentacja slice / historia decyzji | Szymon Iwacz | `context/archive/` (nie aktywny `context/changes/`) |
+| Slice docs / decision history | Szymon Iwacz | `context/archive/` (not active `context/changes/`) |
 
 ---
 
-## 6. Pierwszy dzień — co czytać (kolejność ~15 min)
+## 6. First day — reading order (~15 min)
 
-1. **`context/foundation/prd.md`** + **`context/foundation/shape-notes.md`** — guardrails produktu: redaction before AI, brak raw persistence.
-2. **`app/controllers/debugging_cases_controller.rb`** — wejście HTTP; widać które serwisy woła.
-3. **`app/services/intake/process_case_submission.rb`** — intake + redaction w transakcji.
+1. **`context/foundation/prd.md`** + **`context/foundation/shape-notes.md`** — product guardrails: redaction before AI, no raw persistence.
+2. **`app/controllers/debugging_cases_controller.rb`** — HTTP entry; see which services it calls.
+3. **`app/services/intake/process_case_submission.rb`** — intake + redaction in a transaction.
 4. **`app/services/redaction/engine.rb`** — placeholder engine (pure domain).
-5. **`app/services/analysis/analyze_case.rb`** — orchestrator analyze (największe ryzyko).
-6. **`app/services/ai/client_resolver.rb`** + **`fake_client.rb`** — granica AI / testy bez real API.
-7. **`spec/requests/debugging_cases_security_spec.rb`** — oracle bezpieczeństwa (must-not-break).
-8. **`AGENTS.md`** — twarde reguły dla agentów i contributorów.
+5. **`app/services/analysis/analyze_case.rb`** — analyze orchestrator (highest risk).
+6. **`app/services/ai/client_resolver.rb`** + **`fake_client.rb`** — AI boundary / tests without real API.
+7. **`spec/requests/debugging_cases_security_spec.rb`** — security oracle (must-not-break).
+8. **`AGENTS.md`** — hard rules for agents and contributors.
 
-Opcjonalnie po pierwszym flow: `context/map/artifact-1-territory.md` (gdzie git żyje) i `artifact-2-structure.md` (DAG + granice).
+Optional after first flow: `context/map/artifact-1-territory.md` (where git activity lives) and `artifact-2-structure.md` (DAG + boundaries).
 
 ---
 
-## 7. Ograniczenia
+## 7. Limitations
 
-**Okno i metoda**
+**Window and method**
 
-- Analiza git: requested 12 months, **faktycznie ~3 tygodnie** (2026-05-18 → 2026-06-09, ~116 commitów). Trendy są kierunkowe, nie statystycznie robust.
-- **Territory / co-change:** `git log` + filtr szumu (artifact-1).
-- **Struktura Ruby:** static `Module::Class` scan — **nie** pełny graf autoload (oznaczone jako **unknown** tam, gdzie depcruise nie obejmuje Ruby).
-- **Struktura E2E:** dependency-cruiser tylko na ~7 plikach TS (`e2e/`, Playwright).
-- **Kontrybutorzy:** 1 autor; brak botów w historii; assist AI niewidoczny w metadanych git.
+- Git analysis: requested 12 months, **actually ~3 weeks** (2026-05-18 → 2026-06-09, ~116 commits). Trends are directional, not statistically robust.
+- **Territory / co-change:** `git log` + noise filter (artifact-1).
+- **Ruby structure:** static `Module::Class` scan — **not** full autoload graph (marked **unknown** where depcruise does not cover Ruby).
+- **E2E structure:** dependency-cruiser on ~7 TS files only (`e2e/`, Playwright).
+- **Contributors:** 1 author; no bots in history; AI assist invisible in git metadata.
 
-**Czego mapa NIE mówi**
+**What this map does NOT say**
 
-- Nie rankuje `context/changes/` jako modułu deployowalnego mimo wysokiego git churn.
-- Nie zastępuje `context/foundation/test-plan.md` ani procedur CI — wskazuje gdzie te procedury „przyklejone” do kodu.
-- Nie obiecuje mapy zespołu — bus factor = 1.
-- Nie obejmuje roadmapy post-MVP (Postgres, observability) — parked w foundation/roadmap.
+- Does not rank `context/changes/` as a deployable module despite high git churn.
+- Does not replace `context/foundation/test-plan.md` or CI procedures — points to where those procedures attach to code.
+- Does not promise a team map — bus factor = 1.
+- Does not cover post-MVP roadmap (Postgres, observability) — parked in foundation/roadmap.
 
-**Artefakty źródłowe (szczegóły):** [artifact-1](artifact-1-territory.md) · [artifact-2](artifact-2-structure.md) · [artifact-3](artifact-3-contributors.md) · [E2E graph](diagrams/e2e-helper-hub.svg)
+**Source artifacts (detail):** [artifact-1](artifact-1-territory.md) · [artifact-2](artifact-2-structure.md) · [artifact-3](artifact-3-contributors.md) · [E2E graph](diagrams/e2e-helper-hub.svg)

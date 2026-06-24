@@ -6,41 +6,41 @@ type: domain-distillation
 
 # Domain Distillation — SafeLog AI
 
-Artefakt destylacji domeny z dokumentów foundation, README, AGENTS.md oraz kodu runtime (`app/models/`, `app/services/`, `app/controllers/`). Weryfikacja linii: commit roboczy z 2026-06-10.
+Domain distillation artifact from foundation documents, README, AGENTS.md, and runtime code (`app/models/`, `app/services/`, `app/controllers/`). Line verification: working commit from 2026-06-10.
 
 ---
 
-## KROK 0 — Kontekst projektu
+## STEP 0 — Project context
 
-### Źródła wymagań
+### Requirements sources
 
-| Dokument | Rola |
+| Document | Role |
 |----------|------|
-| `context/foundation/prd.md` | PRD aktywny (v1, updated 2026-06-09) — wizja, FR-001–FR-011, guardrails |
-| `context/foundation/shape-notes.md` | Shape session — decyzje domenowe, non-goals |
-| `context/foundation/tech-stack.md` | Stack MVP (Rails 8.1, SQLite, Devise, AR Encryption) |
-| `README.md` | Operacyjny opis flow, security principles, architektura serwisów |
-| `AGENTS.md` | Twarde reguły agentów (no raw persistence, encrypt diagnostic text) |
-| `context/map/repo-map.md` | Mapa repo — gdzie żyje logika biznesowa |
-| `context/changes/case-submission-flow-analysis/research.md` | Analiza intake→redaction→persist |
-| `context/changes/refactor-opportunities/research.md` | Kandydaci refaktoru strukturalnego |
+| `context/foundation/prd.md` | Active PRD (v1, updated 2026-06-09) — vision, FR-001–FR-011, guardrails |
+| `context/foundation/shape-notes.md` | Shape session — domain decisions, non-goals |
+| `context/foundation/tech-stack.md` | MVP stack (Rails 8.1, SQLite, Devise, AR Encryption) |
+| `README.md` | Operational flow description, security principles, service architecture |
+| `AGENTS.md` | Hard agent rules (no raw persistence, encrypt diagnostic text) |
+| `context/map/repo-map.md` | Repo map — where business logic lives |
+| `context/changes/case-submission-flow-analysis/research.md` | Intake→redaction→persist analysis |
+| `context/changes/refactor-opportunities/research.md` | Structural refactor candidates |
 
-**Ograniczenie:** brak osobnego dokumentu wymagań poza foundation — oprarto się na PRD + shape-notes + kod. Historia slice'ów w `context/archive/` użyta jako materiał uzupełniający (np. S-02 intake plan).
+**Constraint:** no separate requirements document beyond foundation — based on PRD + shape-notes + code. Slice history in `context/archive/` used as supplementary material (e.g. S-02 intake plan).
 
-### Stack i struktura repo
+### Stack and repo structure
 
-| Warstwa | Lokalizacja | Rola |
+| Layer | Location | Role |
 |---------|-------------|------|
-| HTTP / API | `app/controllers/` | Cienka orchestracja — params, auth, redirect/render |
-| Logika biznesowa | `app/services/{intake,redaction,correlation,analysis,ai,demo}/` | Pipeline domenowy (PRD guardrails) |
-| Persystencja | `app/models/` + `db/schema.rb` | Active Record, encryption, asocjacje |
+| HTTP / API | `app/controllers/` | Thin orchestration — params, auth, redirect/render |
+| Business logic | `app/services/{intake,redaction,correlation,analysis,ai,demo}/` | Domain pipeline (PRD guardrails) |
+| Persistence | `app/models/` + `db/schema.rb` | Active Record, encryption, associations |
 | UI | `app/views/debugging_cases/` | Server-rendered ERB |
-| Oracles bezpieczeństwa | `spec/requests/*_security_spec.rb`, `spec/services/` | Kontrakt „raw never persists / never reaches AI” |
+| Security oracles | `spec/requests/*_security_spec.rb`, `spec/services/` | Contract „raw never persists / never reaches AI" |
 
-**Przepływ runtime (DAG):**
+**Runtime flow (DAG):**
 
 ```
-POST create → Intake::CaseSubmission (walidacja)
+POST create → Intake::CaseSubmission (validation)
            → Intake::ProcessCaseSubmission (txn + Redaction::Engine)
            → show (sanitized evidence + redaction summary)
 
@@ -50,180 +50,180 @@ POST analyze → Analysis::AnalyzeCase
             → Ai::ResponseValidator → persist AiReport
 ```
 
-Granica bezpieczeństwa: `Redaction::` nie importuje `Ai::` (repo-map, artifact-2).
+Security boundary: `Redaction::` does not import `Ai::` (repo-map, artifact-2).
 
 ---
 
-## KROK 1 — Ubiquitous Language
+## STEP 1 — Ubiquitous Language
 
-### Pojęcia rdzeniowe (produkt)
+### Core concepts (product)
 
-| Pojęcie | Definicja | Cytat źródłowy | W kodzie |
+| Concept | Definition | Source quote | In code |
 |---------|-----------|----------------|----------|
-| **Debugging case** | Kontener incydentu debugowania: tytuł, opis, customer_reference, environment; agreguje źródła logów i wyniki analizy | `context/foundation/prd.md:42` — „User creates a debugging case (title, short description, customer_reference, environment)" | `app/models/debugging_case.rb:2–24` |
-| **Log source** | Pojedyncze źródło logów w ramach case (typ, opcjonalna nazwa, sanityzowana treść) | `context/foundation/prd.md:43` — „multiple log sources in one request (source type, optional name, pasted raw text)" | `app/models/log_source.rb:1–16` |
-| **Source type** | Enum typu źródła: rails_log, aws_cloudwatch, new_relic, browser_console, customer_report, other | `context/foundation/prd.md:43` | `app/models/log_source.rb:8–15` |
-| **Pasted raw text / pasted content** | Surowy tekst wklejony przez użytkownika — istnieje tylko tranzyjnie w request | `context/foundation/prd.md:44` — „processes raw input in memory only" | `app/services/intake/case_submission.rb:8` (`pasted_content`); brak kolumny w DB (`db/schema.rb:44–53`) |
-| **Redaction / sanitization** | Deterministyczne wykrycie wrażliwych wzorców i zamiana na placeholdery w pamięci | `context/foundation/prd.md:139` — „deterministically redacts and pseudonymizes all log input in memory" | `app/services/redaction/engine.rb:13–23` |
-| **Case-local placeholder** | Pseudonimizowany token (np. `[REQUEST_1]`) unikalny w obrębie jednego submission; ten sam raw value → ten sam placeholder cross-source | `context/foundation/prd.md:33` — „correlated by case-local placeholders (e.g. `[REQUEST_1]`)" | `app/services/redaction/placeholder_registry.rb:11–20` |
-| **PlaceholderRegistry** | Rejestr in-memory mapujący (type, normalized_value) → placeholder; nigdy nie persystowany | `AGENTS.md:10` — „Raw-to-placeholder mappings must stay in memory only" | `app/services/redaction/placeholder_registry.rb:4–28` |
-| **Sanitized content / sanitized evidence** | Treść logu po redakcji — jedyna forma logów zapisywana i widoczna w UI | `context/foundation/prd.md:44` — „persists sanitized content and redaction findings" | `app/models/log_source.rb:6` (`encrypts :sanitized_content`); `app/services/intake/process_case_submission.rb:42` |
-| **Redaction finding** | Metadane pojedynczego dopasowania: finding_type, line_number, placeholder, risk_level — bez oryginalnej wartości | `context/foundation/prd.md:144` — „persist findings as type, line number, placeholder, risk level — never original values" | `app/models/redaction_finding.rb:1–5`; `app/services/redaction/engine.rb:36–41` |
-| **Redaction / security summary** | Podsumowanie liczby findings wg typu i poziomu ryzyka | `context/foundation/prd.md:45` — „redaction/security summary (counts by type and risk level)" | `app/services/redaction/summary_counts.rb:13–18`; `app/controllers/debugging_cases_controller.rb:24` |
-| **Correlation signal** | Wyekstrahowany sygnał łączący placeholdery między źródłami (typy, source_types, occurrence_count) | `context/foundation/prd.md:46` — „extracts correlation signals from sanitized content" | `app/services/correlation/extract_signals.rb:22–31`; `app/models/correlation_signal.rb:1–5` |
-| **Analyze case** | Akcja użytkownika: ekstrakcja sygnałów korelacji + generacja raportu AI z sanityzowanych dowodów | `context/foundation/prd.md:46` | `app/controllers/debugging_cases_controller.rb:41–49`; `app/services/analysis/analyze_case.rb:22–44` |
-| **AI debugging report / AI report** | Strukturyzowany raport (JSON + Markdown) z hipotezami, nie pewnością | `context/foundation/prd.md:47,60` — „hypothesis-framed AI report"; „hypotheses only — no false certainty" | `app/models/ai_report.rb:1–12`; `app/services/ai/report_schema.rb:4–15` |
-| **Hypothesis-framed report** | Raport opisujący prawdopodobne przyczyny jako hipotezy z uncertainty_notes | `context/foundation/prd.md:134` — „describe likely issues and suspected causes as hypotheses" | `app/services/ai/response_validator.rb:38–40,73–82`; `app/services/analysis/prompt_builder.rb:30–32` |
-| **Case submission** | Jednorazowe złożenie metadanych case + wielu źródeł w jednym request | `context/foundation/prd.md:50` — „All log sources for a case must be added in the initial submission" | `app/services/intake/case_submission.rb:4–54`; `app/services/intake/process_case_submission.rb:4–71` |
+| **Debugging case** | Container for a debugging incident: title, description, customer_reference, environment; aggregates log sources and analysis results | `context/foundation/prd.md:42` — „User creates a debugging case (title, short description, customer_reference, environment)" | `app/models/debugging_case.rb:2–24` |
+| **Log source** | Single log source within a case (type, optional name, sanitized content) | `context/foundation/prd.md:43` — „multiple log sources in one request (source type, optional name, pasted raw text)" | `app/models/log_source.rb:1–16` |
+| **Source type** | Source type enum: rails_log, aws_cloudwatch, new_relic, browser_console, customer_report, other | `context/foundation/prd.md:43` | `app/models/log_source.rb:8–15` |
+| **Pasted raw text / pasted content** | Raw text pasted by the user — exists only transiently in the request | `context/foundation/prd.md:44` — „processes raw input in memory only" | `app/services/intake/case_submission.rb:8` (`pasted_content`); no column in DB (`db/schema.rb:44–53`) |
+| **Redaction / sanitization** | Deterministic detection of sensitive patterns and replacement with placeholders in memory | `context/foundation/prd.md:139` — „deterministically redacts and pseudonymizes all log input in memory" | `app/services/redaction/engine.rb:13–23` |
+| **Case-local placeholder** | Pseudonymized token (e.g. `[REQUEST_1]`) unique within one submission; same raw value → same placeholder cross-source | `context/foundation/prd.md:33` — „correlated by case-local placeholders (e.g. `[REQUEST_1]`)" | `app/services/redaction/placeholder_registry.rb:11–20` |
+| **PlaceholderRegistry** | In-memory registry mapping (type, normalized_value) → placeholder; never persisted | `AGENTS.md:10` — „Raw-to-placeholder mappings must stay in memory only" | `app/services/redaction/placeholder_registry.rb:4–28` |
+| **Sanitized content / sanitized evidence** | Log content after redaction — the only form of logs stored and shown in UI | `context/foundation/prd.md:44` — „persists sanitized content and redaction findings" | `app/models/log_source.rb:6` (`encrypts :sanitized_content`); `app/services/intake/process_case_submission.rb:42` |
+| **Redaction finding** | Metadata for a single match: finding_type, line_number, placeholder, risk_level — without the original value | `context/foundation/prd.md:144` — „persist findings as type, line number, placeholder, risk level — never original values" | `app/models/redaction_finding.rb:1–5`; `app/services/redaction/engine.rb:36–41` |
+| **Redaction / security summary** | Summary of finding counts by type and risk level | `context/foundation/prd.md:45` — „redaction/security summary (counts by type and risk level)" | `app/services/redaction/summary_counts.rb:13–18`; `app/controllers/debugging_cases_controller.rb:24` |
+| **Correlation signal** | Extracted signal linking placeholders across sources (types, source_types, occurrence_count) | `context/foundation/prd.md:46` — „extracts correlation signals from sanitized content" | `app/services/correlation/extract_signals.rb:22–31`; `app/models/correlation_signal.rb:1–5` |
+| **Analyze case** | User action: correlation signal extraction + AI report generation from sanitized evidence | `context/foundation/prd.md:46` | `app/controllers/debugging_cases_controller.rb:41–49`; `app/services/analysis/analyze_case.rb:22–44` |
+| **AI debugging report / AI report** | Structured report (JSON + Markdown) with hypotheses, not certainty | `context/foundation/prd.md:47,60` — „hypothesis-framed AI report"; „hypotheses only — no false certainty" | `app/models/ai_report.rb:1–12`; `app/services/ai/report_schema.rb:4–15` |
+| **Hypothesis-framed report** | Report describing likely causes as hypotheses with uncertainty_notes | `context/foundation/prd.md:134` — „describe likely issues and suspected causes as hypotheses" | `app/services/ai/response_validator.rb:38–40,73–82`; `app/services/analysis/prompt_builder.rb:30–32` |
+| **Case submission** | One-time submission of case metadata + multiple sources in a single request | `context/foundation/prd.md:50` — „All log sources for a case must be added in the initial submission" | `app/services/intake/case_submission.rb:4–54`; `app/services/intake/process_case_submission.rb:4–71` |
 
-### Pojęcia wspierające
+### Supporting concepts
 
-| Pojęcie | Definicja | Cytat źródłowy | W kodzie |
+| Concept | Definition | Source quote | In code |
 |---------|-----------|----------------|----------|
-| **Archive (case)** | Ukrycie case z domyślnej listy; widoczne przez filtr Archived | `context/foundation/prd.md:48` | `app/models/debugging_case.rb:13–24`; `app/controllers/debugging_cases_controller.rb:67–72` |
-| **Load demo case** | Predefiniowany scenariusz checkout-timeout; tylko dev/test | `context/foundation/prd.md:54` | `app/services/demo/load_case.rb:7–24`; `app/controllers/debugging_cases_controller.rb:74–87` |
-| **Markdown export** | Pobranie raportu jako `.md` | `context/foundation/prd.md:47` | `app/controllers/debugging_cases_controller.rb:52–65` |
-| **Finding type** | Kategoria wykrytego wzorca (email, token, request_id, …) | `context/foundation/prd.md:144` | `app/services/redaction/patterns.rb:11–66`; `db/schema.rb:57` |
-| **Risk level** | Poziom ryzyka finding (high/medium) | `context/foundation/prd.md:144` | `app/services/redaction/patterns.rb:15,22,…`; `db/schema.rb:61` |
+| **Archive (case)** | Hide case from default list; visible via Archived filter | `context/foundation/prd.md:48` | `app/models/debugging_case.rb:13–24`; `app/controllers/debugging_cases_controller.rb:67–72` |
+| **Load demo case** | Predefined checkout-timeout scenario; dev/test only | `context/foundation/prd.md:54` | `app/services/demo/load_case.rb:7–24`; `app/controllers/debugging_cases_controller.rb:74–87` |
+| **Markdown export** | Download report as `.md` | `context/foundation/prd.md:47` | `app/controllers/debugging_cases_controller.rb:52–65` |
+| **Finding type** | Category of detected pattern (email, token, request_id, …) | `context/foundation/prd.md:144` | `app/services/redaction/patterns.rb:11–66`; `db/schema.rb:57` |
+| **Risk level** | Finding risk level (high/medium) | `context/foundation/prd.md:144` | `app/services/redaction/patterns.rb:15,22,…`; `db/schema.rb:61` |
 | **AI report status** | pending → processing → generated / failed | `context/foundation/prd.md:82` — „report status is `failed`" | `app/models/ai_report.rb:6–11`; `app/services/analysis/analyze_case.rb:23,34–42` |
-| **Retry (AI validation)** | Jedna ponowna próba przy invalid structured response | `context/foundation/prd.md:46,82` | `app/services/analysis/analyze_case.rb:55–67` |
-| **Fake AI client** | Deterministyczny stub w test/CI; bez real API | `AGENTS.md:14` | `app/services/ai/client_resolver.rb:5–9`; `app/services/ai/fake_client.rb` |
+| **Retry (AI validation)** | One retry on invalid structured response | `context/foundation/prd.md:46,82` | `app/services/analysis/analyze_case.rb:55–67` |
+| **Fake AI client** | Deterministic stub in test/CI; no real API | `AGENTS.md:14` | `app/services/ai/client_resolver.rb:5–9`; `app/services/ai/fake_client.rb` |
 
-### Pojęcia generyczne
+### Generic concepts
 
-| Pojęcie | Definicja | Cytat źródłowy | W kodzie |
+| Concept | Definition | Source quote | In code |
 |---------|-----------|----------------|----------|
-| **User** | Konto email+hasło (Devise minimal modules) | `context/foundation/prd.md:41,150` | `app/models/user.rb:1–5` |
-| **Per-user ownership** | Użytkownik widzi tylko własne cases | `context/foundation/prd.md:61,151` | `app/controllers/debugging_cases_controller.rb:8,17,42` (`current_user.debugging_cases`) |
-| **Encryption at rest** | Diagnostic text nieczytelny bez kluczy AR Encryption | `context/foundation/prd.md:59,133` | `encrypts` w modelach — patrz KROK 4 (rozjazd zakresu) |
-| **Dashboard** | Strona główna po zalogowaniu | `README.md:51` | `config/routes.rb:25`; `app/controllers/dashboard_controller.rb` |
+| **User** | Email+password account (Devise minimal modules) | `context/foundation/prd.md:41,150` | `app/models/user.rb:1–5` |
+| **Per-user ownership** | User sees only their own cases | `context/foundation/prd.md:61,151` | `app/controllers/debugging_cases_controller.rb:8,17,42` (`current_user.debugging_cases`) |
+| **Encryption at rest** | Diagnostic text unreadable without AR Encryption keys | `context/foundation/prd.md:59,133` | `encrypts` in models — see STEP 4 (scope drift) |
+| **Dashboard** | Home page after login | `README.md:51` | `config/routes.rb:25`; `app/controllers/dashboard_controller.rb` |
 
-### Terminy z PRD bez osobnej encji w kodzie
+### PRD terms without a separate entity in code
 
-| Pojęcie | Cytat | Status w kodzie |
+| Concept | Quote | Status in code |
 |---------|-------|-----------------|
-| **Incident** | `context/foundation/prd.md:33` — „multi-source incident" | **BRAK** — metafora; implementacja = DebuggingCase |
-| **DLP / exhaustive detection** | Non-goal implicit w `patterns.rb:5` — „heuristic regexes, not exhaustive DLP" | **BRAK** jako pojęcie — świadoma luka MVP |
-| **Background job** | `context/foundation/prd.md:160` — non-goal MVP | **BRAK** — `app/jobs/application_job.rb` to scaffold |
+| **Incident** | `context/foundation/prd.md:33` — „multi-source incident" | **MISSING** — metaphor; implementation = DebuggingCase |
+| **DLP / exhaustive detection** | Non-goal implicit in `patterns.rb:5` — „heuristic regexes, not exhaustive DLP" | **MISSING** as concept — deliberate MVP gap |
+| **Background job** | `context/foundation/prd.md:160` — non-goal MVP | **MISSING** — `app/jobs/application_job.rb` is scaffold |
 
 ---
 
-## KROK 2 — Klasyfikacja subdomen
+## STEP 2 — Subdomain classification
 
-| Obszar / pojęcie | Klasyfikacja | Uzasadnienie (cel produktu) |
+| Area / concept | Classification | Rationale (product goal) |
 |------------------|--------------|----------------------------|
-| In-memory redaction + placeholder correlation | **Core** | Rdzeń insightu produktu: „deterministic redaction must gate AI" (`shape-notes.md:14`, `prd.md:27–27`) |
-| Sanitized evidence persistence | **Core** | Bez tego nie ma bezpiecznego audytu po intake (`prd.md:44`) |
-| Cross-source correlation signals | **Core** | Rozwiązuje „correlating signals across sources is manual and slow" (`prd.md:25`) |
-| Hypothesis-framed AI analysis | **Core** | Wyróżnik vs „paste into ChatGPT" — AI tylko na sanityzowanych dowodach (`roadmap.md:20`, `prd.md:60`) |
-| Redaction findings + security summary | **Core** | Transparentność redakcji — FR-005, trust w produkt |
-| Case submission (multi-source, create-time only) | **Core** | Enkapsuluje regułę MVP „all sources at initial submission" (`prd.md:50,159`) |
-| Archive case | **Supporting** | Organizacja pracy użytkownika; nie definiuje przewagi produktu (`prd.md:48`) |
-| Demo case loader | **Supporting** | Prezentacja kursowa / README (`prd.md:54,126–128`) |
-| Markdown export | **Supporting** | Udostępnianie raportu (`FR-009`); nie zmienia logiki redakcji |
-| Authentication (Devise) | **Generic** | Standardowy scaffold; flat ownership wystarczy (`prd.md:150–152`) |
-| Active Record Encryption | **Generic** | Infrastruktura bezpieczeństwa; wymóg NFR, nie logika domenowa |
-| Health check `/up` | **Generic** | Operacje Fly.io (`config/routes.rb:7`) |
-| Dashboard | **Generic** | Nawigacja; brak logiki incydentu |
+| In-memory redaction + placeholder correlation | **Core** | Product insight core: „deterministic redaction must gate AI" (`shape-notes.md:14`, `prd.md:27–27`) |
+| Sanitized evidence persistence | **Core** | Without this there is no safe audit trail after intake (`prd.md:44`) |
+| Cross-source correlation signals | **Core** | Solves „correlating signals across sources is manual and slow" (`prd.md:25`) |
+| Hypothesis-framed AI analysis | **Core** | Differentiator vs „paste into ChatGPT" — AI only on sanitized evidence (`roadmap.md:20`, `prd.md:60`) |
+| Redaction findings + security summary | **Core** | Redaction transparency — FR-005, product trust |
+| Case submission (multi-source, create-time only) | **Core** | Encapsulates MVP rule „all sources at initial submission" (`prd.md:50,159`) |
+| Archive case | **Supporting** | User workflow organization; does not define product advantage (`prd.md:48`) |
+| Demo case loader | **Supporting** | Course demo / README (`prd.md:54,126–128`) |
+| Markdown export | **Supporting** | Report sharing (`FR-009`); does not change redaction logic |
+| Authentication (Devise) | **Generic** | Standard scaffold; flat ownership sufficient (`prd.md:150–152`) |
+| Active Record Encryption | **Generic** | Security infrastructure; NFR requirement, not domain logic |
+| Health check `/up` | **Generic** | Fly.io operations (`config/routes.rb:7`) |
+| Dashboard | **Generic** | Navigation; no incident logic |
 
 ---
 
-## KROK 3 — Kandydaci na agregaty i niezmienniki
+## STEP 3 — Aggregate and invariant candidates
 
-### 1. DebuggingCase (korzeń agregatu incydentu)
+### 1. DebuggingCase (incident aggregate root)
 
-| Niezmiennik | Cytat źródłowy | Status w kodzie |
+| Invariant | Source quote | Status in code |
 |-------------|----------------|-----------------|
-| Case należy do dokładnie jednego User | `context/foundation/prd.md:151` — „logged-in user can see and modify only their own debugging cases" | **Egzekwuje** — `belongs_to :user` (`debugging_case.rb:3`); scope w kontrolerze (`debugging_cases_controller.rb:8,17`) |
-| Tytuł wymagany | `context/foundation/prd.md:42` | **Egzekwuje** — `validates :title, presence: true` (`debugging_case.rb:11`); walidacja submission (`case_submission.rb:12`) |
-| Wszystkie log sources dodawane przy tworzeniu (MVP) | `context/foundation/prd.md:50,159` | **Deklaruje (brak route)** — brak akcji add-source; egzekwowane przez brak API, nie przez model |
-| Archived case ma `archived_at` | `context/foundation/prd.md:48` | **Egzekwuje** — `archive!` (`debugging_case.rb:20–23`); scopes `active`/`archived` (`:13–14`) |
+| Case belongs to exactly one User | `context/foundation/prd.md:151` — „logged-in user can see and modify only their own debugging cases" | **Enforced** — `belongs_to :user` (`debugging_case.rb:3`); scope in controller (`debugging_cases_controller.rb:8,17`) |
+| Title required | `context/foundation/prd.md:42` | **Enforced** — `validates :title, presence: true` (`debugging_case.rb:11`); submission validation (`case_submission.rb:12`) |
+| All log sources added at creation (MVP) | `context/foundation/prd.md:50,159` | **Declared (no route)** — no add-source action; enforced by lack of API, not by model |
+| Archived case has `archived_at` | `context/foundation/prd.md:48` | **Enforced** — `archive!` (`debugging_case.rb:20–23`); scopes `active`/`archived` (`:13–14`) |
 
-**Encje wewnętrzne (obecnie osobne AR, bez jawnego aggregate root API):** LogSource, RedactionFinding (przez LogSource), CorrelationSignal, AiReport.
+**Internal entities (currently separate AR, without explicit aggregate root API):** LogSource, RedactionFinding (via LogSource), CorrelationSignal, AiReport.
 
 ### 2. SanitizedEvidence (LogSource + RedactionFinding)
 
-| Niezmiennik | Cytat źródłowy | Status w kodzie |
+| Invariant | Source quote | Status in code |
 |-------------|----------------|-----------------|
-| Tylko sanitized_content persystowane; raw nigdy | `context/foundation/prd.md:44,158` | **Egzekwuje** — brak kolumn raw (`schema.rb`); oracle specs |
-| Findings bez oryginalnych wartości | `context/foundation/prd.md:144` | **Egzekwuje** — hash keys bez raw (`engine.rb:36–41`); kolumny DB (`schema.rb:55–63`) |
-| Placeholdery spójne cross-source w jednym submission | `context/foundation/prd.md:33,144` | **Egzekwuje** — wspólny registry per submission (`process_case_submission.rb:23,36`) |
-| Sanitized content encrypted at rest | `context/foundation/prd.md:59` | **Egzekwuje** — `encrypts :sanitized_content` (`log_source.rb:6`) |
-| Co najmniej jedno źródło z treścią | `context/foundation/prd.md:43` (implicit multi-source) | **Egzekwuje** — `at_least_one_source_with_content` (`case_submission.rb:41–45`) |
+| Only sanitized_content persisted; raw never | `context/foundation/prd.md:44,158` | **Enforced** — no raw columns (`schema.rb`); oracle specs |
+| Findings without original values | `context/foundation/prd.md:144` | **Enforced** — hash keys without raw (`engine.rb:36–41`); DB columns (`schema.rb:55–63`) |
+| Placeholders consistent cross-source in one submission | `context/foundation/prd.md:33,144` | **Enforced** — shared registry per submission (`process_case_submission.rb:23,36`) |
+| Sanitized content encrypted at rest | `context/foundation/prd.md:59` | **Enforced** — `encrypts :sanitized_content` (`log_source.rb:6`) |
+| At least one source with content | `context/foundation/prd.md:43` (implicit multi-source) | **Enforced** — `at_least_one_source_with_content` (`case_submission.rb:41–45`) |
 
-### 3. RedactionSession (PlaceholderRegistry — obiekt wartości, nie encja DB)
+### 3. RedactionSession (PlaceholderRegistry — value object, not DB entity)
 
-| Niezmiennik | Cytat źródłowy | Status w kodzie |
+| Invariant | Source quote | Status in code |
 |-------------|----------------|-----------------|
-| Registry tylko in-memory; nigdy persystowany/logowany | `AGENTS.md:10`; `prd.md:58` | **Egzekwuje** — klasa bez AR (`placeholder_registry.rb:4–5`); brak serializacji |
-| Redaction przed jakimkolwiek zapisem do DB | `context/foundation/prd.md:139` | **Egzekwuje** — `Engine.redact` przed `create!` (`process_case_submission.rb:36–46`) |
-| Redaction przed AI | `context/foundation/prd.md:139` | **Egzekwuje** — `PromptBuilder` czyta tylko persisted sanitized (`prompt_builder.rb:4–5,46–48`) |
+| Registry in-memory only; never persisted/logged | `AGENTS.md:10`; `prd.md:58` | **Enforced** — class without AR (`placeholder_registry.rb:4–5`); no serialization |
+| Redaction before any DB write | `context/foundation/prd.md:139` | **Enforced** — `Engine.redact` before `create!` (`process_case_submission.rb:36–46`) |
+| Redaction before AI | `context/foundation/prd.md:139` | **Enforced** — `PromptBuilder` reads only persisted sanitized (`prompt_builder.rb:4–5,46–48`) |
 
 ### 4. AnalysisRun (CorrelationSignal + AiReport)
 
-| Niezmiennik | Cytat źródłowy | Status w kodzie |
+| Invariant | Source quote | Status in code |
 |-------------|----------------|-----------------|
-| AI otrzymuje tylko sanitized evidence | `context/foundation/prd.md:46,116` | **Egzekwuje** — `PromptBuilder` + security specs analyze |
-| Raport musi być hypothesis-framed ze uncertainty | `context/foundation/prd.md:60,134` | **Egzekwuje (warstwa walidacji)** — `ResponseValidator` (`response_validator.rb:38–40`); nie w modelu AiReport |
-| Invalid response → retry once → failed | `context/foundation/prd.md:46,82` | **Egzekwuje** — `complete_with_retry` max 2 attempts (`analyze_case.rb:55–67`) |
-| Analyze synchroniczny w sesji (MVP) | `context/foundation/prd.md:135` | **Egzekwuje** — brak jobów; POST analyze w kontrolerze |
-| Correlation payload encrypted at rest | `context/foundation/prd.md:59` | **Egzekwuje** — `encrypts :payload` (`correlation_signal.rb:4`) |
+| AI receives only sanitized evidence | `context/foundation/prd.md:46,116` | **Enforced** — `PromptBuilder` + security specs analyze |
+| Report must be hypothesis-framed with uncertainty | `context/foundation/prd.md:60,134` | **Enforced (validation layer)** — `ResponseValidator` (`response_validator.rb:38–40`); not in AiReport model |
+| Invalid response → retry once → failed | `context/foundation/prd.md:46,82` | **Enforced** — `complete_with_retry` max 2 attempts (`analyze_case.rb:55–67`) |
+| Analyze synchronous in session (MVP) | `context/foundation/prd.md:135` | **Enforced** — no jobs; POST analyze in controller |
+| Correlation payload encrypted at rest | `context/foundation/prd.md:59` | **Enforced** — `encrypts :payload` (`correlation_signal.rb:4`) |
 
 ### 5. CaseSubmission (anti-corruption / intake boundary)
 
-| Niezmiennik | Cytat źródłowy | Status w kodzie |
+| Invariant | Source quote | Status in code |
 |-------------|----------------|-----------------|
-| Walidacja przed alokacją registry i transakcją | Implied guardrail — nie redact invalid | **Egzekwuje** — early return (`process_case_submission.rb:21`) |
-| Raw pasted content nie re-renderowany po błędzie walidacji | `AGENTS.md:7`; controller comment | **Egzekwuje** — `assign_safe_metadata_for_form` pomija pasted_content (`debugging_cases_controller.rb:101–108`) |
-| Source type z dozwolonego enum | `context/foundation/prd.md:43` | **Egzekwuje** — `source_types_are_valid` (`case_submission.rb:47–52`) |
+| Validation before registry allocation and transaction | Implied guardrail — do not redact invalid | **Enforced** — early return (`process_case_submission.rb:21`) |
+| Raw pasted content not re-rendered after validation error | `AGENTS.md:7`; controller comment | **Enforced** — `assign_safe_metadata_for_form` skips pasted_content (`debugging_cases_controller.rb:101–108`) |
+| Source type from allowed enum | `context/foundation/prd.md:43` | **Enforced** — `source_types_are_valid` (`case_submission.rb:47–52`) |
 
 ---
 
-## KROK 4 — Rozjazdy MODEL (dokumenty) vs KOD
+## STEP 4 — MODEL (documents) vs CODE drift
 
-| # | Dokument mówi (X) | Kod robi (Y) | Dowód | Severity |
+| # | Document says (X) | Code does (Y) | Evidence | Severity |
 |---|-------------------|--------------|-------|----------|
-| R-01 | „Diagnostic text remains unreadable at rest" — lista: sanitized logs, customer_reference, correlation signals, AI report fields (`prd.md:59`) | `encrypts` tylko na `customer_reference`; **title, description, environment** w plaintext | `debugging_case.rb:5` (tylko customer_reference); kolumny `schema.rb:35–38` bez encryption | Średni — metadata może zawierać wrażliwe dane po redakcji, ale nie jest szyfrowane |
-| R-02 | AGENTS: „Encrypt diagnostic text fields at rest" (`AGENTS.md:15`) | Jak R-01 — partial encryption | `grep encrypts` — brak na title/description/environment | Średni |
-| R-03 | Redaction findings persisted for all redacted content (`prd.md:144`) | Metadata case/source redagowane przez `redact_metadata`, które **odrzuca findings** (tylko `sanitized_text`) | `process_case_submission.rb:58–61` vs persist loop `:45–47` | Niski — findings z logów OK; metadata findings niewidoczne w summary |
-| R-04 | Spójne line numbers dla pasted content | Engine splituje tylko `\n`, nie normalizuje `\r\n` | `engine.rb:15` (`split(/\n/, -1)`) | Niski–średni — błędne line_number dla Windows paste (TD-5 w refactor research) |
-| R-05 | Wykrywanie tokenów/API keys (PRD lista: „API tokens") | Standalone `sk-…` bez label nie matchuje — documented gap | `patterns.rb:7–10` | Niski — świadoma luka MVP |
-| R-06 | Brak raw-to-placeholder maps w storage (`prd.md:58`) | Brak kolumn/map — OK, ale brak **jawnego aggregate API** egzekwującego granice | Logika rozproszona w `ProcessCaseSubmission` + modele AR | Niski (architektura) — brak DDD aggregate root |
-| R-07 | Findings jako typed contract | Hash `{ finding_type, line_number, placeholder, risk_level }` jako implicit DB contract | `engine.rb:36–41`; `process_case_submission.rb:46` | Niski — runtime coupling (TD-2) |
-| R-08 | Hypothesis framing jako reguła domenowa | Egzekwowane wyłącznie w `Ai::ResponseValidator`, nie w `AiReport` model | `ai_report.rb:1–12` — brak walidacji treści; `response_validator.rb:27–42` | Niski — poprawne dla MVP, słaby domain model |
-| R-09 | Analyze case jako krok po intake | UI ukrywa Archive dla archived, ale **Analyze zawsze dostępny**; brak guard w `analyze` action | `show.html.erb:9–20`; `debugging_cases_controller.rb:41–43` — brak `archived?` check | Niski — niespójność UX/reguł lifecycle |
-| R-10 | Jeden spójny raport na case (flow implikuje) | Każde Analyze tworzy **nowy** AiReport; show bierze `.last` | `analyze_case.rb:23`; `debugging_cases_controller.rb:22` | Niski — wielokrotna analiza dozwolona, niedokumentowana |
-| R-11 | „Adding sources after initial submission" — non-goal (`prd.md:159`) | Brak route/action — OK | `config/routes.rb:13` — tylko create, brak update sources | **Zgodne** (brak rozjazdu) |
-| R-12 | Raw logs never in application logs | Filter params + oracles | `filter_parameter_logging.rb`; `debugging_cases_security_spec.rb:70–78` | **Zgodne** |
+| R-01 | „Diagnostic text remains unreadable at rest" — list: sanitized logs, customer_reference, correlation signals, AI report fields (`prd.md:59`) | `encrypts` only on `customer_reference`; **title, description, environment** in plaintext | `debugging_case.rb:5` (customer_reference only); columns `schema.rb:35–38` without encryption | Medium — metadata may contain sensitive data after redaction, but is not encrypted |
+| R-02 | AGENTS: „Encrypt diagnostic text fields at rest" (`AGENTS.md:15`) | Same as R-01 — partial encryption | `grep encrypts` — none on title/description/environment | Medium |
+| R-03 | Redaction findings persisted for all redacted content (`prd.md:144`) | Case/source metadata redacted via `redact_metadata`, which **discards findings** (only `sanitized_text`) | `process_case_submission.rb:58–61` vs persist loop `:45–47` | Low — log findings OK; metadata findings invisible in summary |
+| R-04 | Consistent line numbers for pasted content | Engine splits only `\n`, does not normalize `\r\n` | `engine.rb:15` (`split(/\n/, -1)`) | Low–medium — wrong line_number for Windows paste (TD-5 in refactor research) |
+| R-05 | Token/API key detection (PRD list: „API tokens") | Standalone `sk-…` without label does not match — documented gap | `patterns.rb:7–10` | Low — deliberate MVP gap |
+| R-06 | No raw-to-placeholder maps in storage (`prd.md:58`) | No columns/map — OK, but no **explicit aggregate API** enforcing boundaries | Logic spread across `ProcessCaseSubmission` + AR models | Low (architecture) — no DDD aggregate root |
+| R-07 | Findings as typed contract | Hash `{ finding_type, line_number, placeholder, risk_level }` as implicit DB contract | `engine.rb:36–41`; `process_case_submission.rb:46` | Low — runtime coupling (TD-2) |
+| R-08 | Hypothesis framing as domain rule | Enforced only in `Ai::ResponseValidator`, not in `AiReport` model | `ai_report.rb:1–12` — no content validation; `response_validator.rb:27–42` | Low — correct for MVP, weak domain model |
+| R-09 | Analyze case as step after intake | UI hides Archive for archived, but **Analyze always available**; no guard in `analyze` action | `show.html.erb:9–20`; `debugging_cases_controller.rb:41–43` — no `archived?` check | Low — UX/lifecycle rule inconsistency |
+| R-10 | One consistent report per case (flow implies) | Each Analyze creates **new** AiReport; show takes `.last` | `analyze_case.rb:23`; `debugging_cases_controller.rb:22` | Low — multiple analyses allowed, undocumented |
+| R-11 | „Adding sources after initial submission" — non-goal (`prd.md:159`) | No route/action — OK | `config/routes.rb:13` — create only, no update sources | **Aligned** (no drift) |
+| R-12 | Raw logs never in application logs | Filter params + oracles | `filter_parameter_logging.rb`; `debugging_cases_security_spec.rb:70–78` | **Aligned** |
 
 ---
 
-## KROK 5 — Ranking refaktoru (agregaty / niezmienniki)
+## STEP 5 — Refactor ranking (aggregates / invariants)
 
-Ocena: **wartość rdzeniowa** (jak blisko core insight) × **ryzyko słabej egzekucji** (jak łatwo złamać niezmiennik dziś).
+Score: **core value** (how close to core insight) × **weak enforcement risk** (how easy to break invariant today).
 
-| Rank | Kandydat agregatu / seam | Wartość rdzeniowa | Ryzyko dziś | Priorytet |
+| Rank | Aggregate / seam candidate | Core value | Risk today | Priority |
 |------|--------------------------|-------------------|-------------|-----------|
-| **#1** | **RedactionSession + SanitizedEvidence** (`ProcessCaseSubmission` → explicit aggregate) | Najwyższa — „redaction gates everything" | Wysoki — jedyny moment kontaktu z raw paste; mixed responsibilities (IMPL-1); implicit findings contract (TD-2) | **Refaktor #1** |
-| **#2** | **DebuggingCase** jako jawny aggregate root (ownership, archive, lifecycle analyze) | Wysoka — granice case i auth | Średni — ownership OK w HTTP, brak domain API; analyze na archived (R-09) | #2 |
-| **#3** | **AnalysisRun** (AiReport + CorrelationSignal jako jednostka) | Wysoka — hypothesis + sanitized-only AI | Średni — walidacja poza modelem (R-08); brak txn jak w intake | #3 |
-| **#4** | **Redaction::Engine** normalization (`\r\n`) | Średnia — poprawność line_number/findings | Niski–średni — real-world paste edge case | #4 (TD-5, niski koszt) |
-| **#5** | Encryption scope alignment (title/description/environment) | Średnia — NFR compliance | Niski runtime — dane już redagowane; product decision (TD-7) | #5 — wymaga decyzji produktowej |
+| **#1** | **RedactionSession + SanitizedEvidence** (`ProcessCaseSubmission` → explicit aggregate) | Highest — „redaction gates everything" | High — only moment of contact with raw paste; mixed responsibilities (IMPL-1); implicit findings contract (TD-2) | **Refactor #1** |
+| **#2** | **DebuggingCase** as explicit aggregate root (ownership, archive, analyze lifecycle) | High — case boundaries and auth | Medium — ownership OK in HTTP, no domain API; analyze on archived (R-09) | #2 |
+| **#3** | **AnalysisRun** (AiReport + CorrelationSignal as one unit) | High — hypothesis + sanitized-only AI | Medium — validation outside model (R-08); no txn like intake | #3 |
+| **#4** | **Redaction::Engine** normalization (`\r\n`) | Medium — line_number/findings correctness | Low–medium — real-world paste edge case | #4 (TD-5, low cost) |
+| **#5** | Encryption scope alignment (title/description/environment) | Medium — NFR compliance | Low runtime — data already redacted; product decision (TD-7) | #5 — requires product decision |
 
-### Rekomendacja #1: RedactionSession / SanitizedEvidence boundary
+### Recommendation #1: RedactionSession / SanitizedEvidence boundary
 
-**Dlaczego:** Jedyny punkt, gdzie surowe logi istnieją w systemie (`case_submission.rb:35` → `engine.rb:13`). PRD guardrail „before any AI reasoning runs, redact in memory" (`prd.md:139`) jest tu najbardziej narażony na regresję. `ProcessCaseSubmission` łączy walidację, lifecycle registry, transakcję, redakcję metadata, persist AR i mapowanie findings (`process_case_submission.rb:20–62`) — brak jawnej granicy agregatu utrudnia egzekwowanie niezmienników i testowanie rollbacku (G-01, G-02 w case-submission research).
+**Why:** The only point where raw logs exist in the system (`case_submission.rb:35` → `engine.rb:13`). PRD guardrail „before any AI reasoning runs, redact in memory" (`prd.md:139`) is most exposed to regression here. `ProcessCaseSubmission` combines validation, registry lifecycle, transaction, metadata redaction, AR persist, and findings mapping (`process_case_submission.rb:20–62`) — lack of explicit aggregate boundary makes invariant enforcement and rollback testing hard (G-01, G-02 in case-submission research).
 
-**Kierunek refaktoru (bez kodu — z refactor-opportunities):**
-1. Wydzielić persist boundary dla findings (TD-2)
-2. Rozdzielić orchestrację od `redact_metadata` + persist object (IMPL-1)
-3. Opcjonalnie `\r\n` w Engine (TD-5)
+**Refactor direction (no code — from refactor-opportunities):**
+1. Extract persist boundary for findings (TD-2)
+2. Separate orchestration from `redact_metadata` + persist object (IMPL-1)
+3. Optionally `\r\n` in Engine (TD-5)
 
-**Co NIE refaktorować najpierw:** Auth (Generic), demo loader (Supporting), encryption metadata columns (TD-7 — decyzja produktowa).
+**What NOT to refactor first:** Auth (Generic), demo loader (Supporting), encryption metadata columns (TD-7 — product decision).
 
 ---
 
-## Diagram kontekstu (bounded contexts — logiczne)
+## Context diagram (bounded contexts — logical)
 
 ```mermaid
 flowchart TB
@@ -260,8 +260,8 @@ flowchart TB
 
 ---
 
-## Metadane artefaktu
+## Artifact metadata
 
-- **Metoda:** discovery (docs + code) → analysis (language, invariants) → classification (Core/Supporting/Generic)
-- **Pliki runtime przeczytane:** modele (6), serwisy intake/redaction/correlation/analysis/ai/demo (kluczowe), controller debugging_cases, schema.rb, routes.rb
-- **Nie weryfikowano:** pełny suite spec line-by-line, widoki ERB poza fragmentem show, migracje historyczne
+- **Method:** discovery (docs + code) → analysis (language, invariants) → classification (Core/Supporting/Generic)
+- **Runtime files read:** models (6), intake/redaction/correlation/analysis/ai/demo services (key ones), debugging_cases controller, schema.rb, routes.rb
+- **Not verified:** full spec suite line-by-line, ERB views beyond show fragment, historical migrations

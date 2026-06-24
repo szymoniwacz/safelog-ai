@@ -6,17 +6,17 @@ focus: app/services/ai/
 source_distillation: context/domain/01-domain-distillation.md
 ---
 
-# Anti-Corruption Layer — granica adaptera AI
+# Anti-Corruption Layer — AI adapter boundary
 
-Plan refaktoru DDD (bez implementacji kodu produkcyjnego). Skupienie: **provider-agnostic AI adapter** zadeklarowany w PRD/shape-notes vs rzeczywiste przecieki `Ai::` do warstwy Analysis i HTTP.
+DDD refactor plan (no production code implementation). Focus: **provider-agnostic AI adapter** declared in PRD/shape-notes vs actual `Ai::` leaks into Analysis layer and HTTP.
 
 ---
 
-## KROK 0 — Kontekst
+## STEP 0 — Context
 
-### Deklaracje wymienialności (intencja)
+### Swappability declarations (intent)
 
-| Dokument | Cytat | Plik:linia |
+| Document | Quote | File:line |
 |----------|-------|------------|
 | Shape notes | „Provider-agnostic AI adapter; OpenAI as first real provider" | `context/foundation/shape-notes.md:187` |
 | Tech stack | „Provider-agnostic adapter \| `Ai::FakeClient` in test/CI; OpenAI optional via `OPENAI_API_KEY`" | `context/foundation/tech-stack.md:30` |
@@ -26,160 +26,160 @@ Plan refaktoru DDD (bez implementacji kodu produkcyjnego). Skupienie: **provider
 | PRD guardrail | AI reports hypotheses only; analyze from sanitized evidence (`FR-007`, `FR-008`) | `context/foundation/prd.md:60,115–118` |
 | AGENTS | Tests must use fake AI client; CI never calls real providers | `AGENTS.md:14` |
 
-### Stack i zależności zewnętrzne
+### Stack and external dependencies
 
-| Warstwa | Technologia | Manifest |
+| Layer | Technology | Manifest |
 |---------|-------------|----------|
 | Framework | Rails 8.1, server-rendered ERB | `Gemfile` |
 | AI SDK | **`ruby-openai` 8.3.0** → `OpenAI::Client` | `Gemfile:24`, `Gemfile.lock:355` |
 | Test HTTP stub | WebMock | `context/foundation/test-plan.md:86` |
-| Warstwy kodu | HTTP → `Analysis::` → `Ai::` → HTTP OpenAI | `README.md:122–131` |
+| Code layers | HTTP → `Analysis::` → `Ai::` → HTTP OpenAI | `README.md:122–131` |
 
-### Obecna struktura `app/services/ai/`
+### Current `app/services/ai/` structure
 
-| Plik | Rola |
+| File | Role |
 |------|------|
-| `client.rb:4–7` | Moduł portu `#complete` |
-| `request.rb:9–47` | Envelope request (messages role/content — kształt Chat Completions) |
-| `completion_result.rb:4–18` | Wynik adaptera (structured hash + markdown) |
-| `open_ai_client.rb:14–58` | Adapter OpenAI — jedyne miejsce z `OpenAI::Client` |
-| `fake_client.rb:4–19` | Stub deterministyczny |
-| `client_resolver.rb:4–14` | Fabryka env-gated |
-| `response_validator.rb:6–107` | Walidacja hypothesis schema |
-| `report_schema.rb:13–53` | Kontrakt JSON raportu |
+| `client.rb:4–7` | Port module `#complete` |
+| `request.rb:9–47` | Request envelope (messages role/content — Chat Completions shape) |
+| `completion_result.rb:4–18` | Adapter result (structured hash + markdown) |
+| `open_ai_client.rb:14–58` | OpenAI adapter — only place with `OpenAI::Client` |
+| `fake_client.rb:4–19` | Deterministic stub |
+| `client_resolver.rb:4–14` | Env-gated factory |
+| `response_validator.rb:6–107` | Hypothesis schema validation |
+| `report_schema.rb:13–53` | Report JSON contract |
 
-Granica bezpieczeństwa redaction ⊥ AI jest **zachowana** — brak importów `Redaction::` / `Intake::` w `app/services/ai/*.rb` (`artifact-2-structure.md:74`).
+Redaction ⊥ AI security boundary is **preserved** — no `Redaction::` / `Intake::` imports in `app/services/ai/*.rb` (`artifact-2-structure.md:74`).
 
 ---
 
-## KROK 1 — Przeciekające zależności
+## STEP 1 — Leaking dependencies
 
-### Z1 — `ruby-openai` / `OpenAI::Client` (SDK OpenAI)
+### Z1 — `ruby-openai` / `OpenAI::Client` (OpenAI SDK)
 
-| Plik | Linia | Jak „zna" |
+| File | Line | How it „knows" |
 |------|-------|-----------|
 | `app/services/ai/open_ai_client.rb` | 15 | `OpenAI::Client.new(access_token: api_key)` |
 | `app/services/ai/open_ai_client.rb` | 17, 19 | `@client.chat(parameters: …)` |
-| `app/services/ai/open_ai_client.rb` | 35 | `response_format: { type: "json_object" }` — specyfika OpenAI |
+| `app/services/ai/open_ai_client.rb` | 35 | `response_format: { type: "json_object" }` — OpenAI-specific |
 | `spec/services/ai/open_ai_client_spec.rb` | 8 | `instance_double(OpenAI::Client)` |
 
-**Ocena:** SDK **dobrze zamknięte** w jednym adapterze runtime. Brak przecieku do UI/kontrolera.
+**Assessment:** SDK **well contained** in one runtime adapter. No leak to UI/controller.
 
 ---
 
-### Z2 — `Ai::Request` (format wire Chat Completions)
+### Z2 — `Ai::Request` (Chat Completions wire format)
 
-Envelope `{ role:, content: }[]` — kształt API OpenAI, adoptowany jako kontrakt międzywarstwowy.
+Envelope `{ role:, content: }[]` — OpenAI API shape, adopted as cross-layer contract.
 
-| Plik | Linia | Jak „zna" |
+| File | Line | How it „knows" |
 |------|-------|-----------|
-| `app/services/analysis/prompt_builder.rb` | 4, 17–23 | Buduje i zwraca `Ai::Request.new(messages: …)` |
-| `app/services/ai/open_ai_client.rb` | 18, 31–36 | `#complete(request)` mapuje `request.messages` |
+| `app/services/analysis/prompt_builder.rb` | 4, 17–23 | Builds and returns `Ai::Request.new(messages: …)` |
+| `app/services/ai/open_ai_client.rb` | 18, 31–36 | `#complete(request)` maps `request.messages` |
 | `app/services/ai/fake_client.rb` | 9–10 | `@last_request = request` |
-| `app/services/ai/request.rb` | 9–47 | Definicja klasy |
-| `spec/services/ai/request_spec.rb` | 5–36 | Testy kształtu |
+| `app/services/ai/request.rb` | 9–47 | Class definition |
+| `spec/services/ai/request_spec.rb` | 5–36 | Shape tests |
 | `spec/services/ai/open_ai_client_spec.rb` | 10–12 | Fixture request |
 | `spec/services/ai/fake_client_spec.rb` | 9–11 | Fixture request |
-| `spec/services/ai/sanitized_prompt_guard_spec.rb` | 22, 31, 40 | Bezpośrednie konstrukcje |
+| `spec/services/ai/sanitized_prompt_guard_spec.rb` | 22, 31, 40 | Direct constructions |
 
-**Ocena:** **Analysis zna format providera** — klasyczny brak ACL.
+**Assessment:** **Analysis knows provider format** — classic ACL gap.
 
 ---
 
-### Z3 — `Ai::Client` + `Ai::ClientResolver` (port adaptera w orchestracji i HTTP)
+### Z3 — `Ai::Client` + `Ai::ClientResolver` (adapter port in orchestration and HTTP)
 
-| Plik | Linia | Jak „zna" |
+| File | Line | How it „knows" |
 |------|-------|-----------|
 | `app/services/analysis/analyze_case.rb` | 13, 17–19, 60 | Default `client: Ai::ClientResolver.current`; `@client.complete(request)` |
 | `app/controllers/debugging_cases_controller.rb` | 25 | `@fake_ai_client_active = Ai::ClientResolver.fake_client_active?` |
-| `app/services/ai/client_resolver.rb` | 4–14 | Implementacja |
-| `app/services/ai/client.rb` | 4–7 | Moduł kontraktu |
+| `app/services/ai/client_resolver.rb` | 4–14 | Implementation |
+| `app/services/ai/client.rb` | 4–7 | Contract module |
 | `app/services/ai/fake_client.rb` | 5 | `include Client` |
 | `app/services/ai/open_ai_client.rb` | 5 | `include Client` |
 | `spec/services/analysis/analyze_case_spec.rb` | 28, 53, 69, 84 | `Ai::FakeClient.new` |
 | `spec/support/ai_test_clients.rb` | 5, 11, 27 | `include Ai::Client`; fallback FakeClient |
 | `spec/requests/debugging_cases_security_spec.rb` | 84–87, 118–121, 182–185, 243–246 | Stub resolver → FakeClient |
-| `spec/requests/debugging_cases_analyze_security_spec.rb` | 7, 13 | j.w. |
-| `spec/requests/debugging_cases_report_export_security_spec.rb` | 8, 14 | j.w. |
+| `spec/requests/debugging_cases_analyze_security_spec.rb` | 7, 13 | same |
+| `spec/requests/debugging_cases_report_export_security_spec.rb` | 8, 14 | same |
 | `spec/requests/debugging_cases_analyze_spec.rb` | 72 | Stub InvalidClient |
-| `spec/requests/debugging_cases_authorization_spec.rb` | 82–83 | j.w. |
+| `spec/requests/debugging_cases_authorization_spec.rb` | 82–83 | same |
 | `spec/requests/debugging_cases_spec.rb` | 166 | Stub `fake_client_active?` |
 | `spec/services/ai/client_resolver_spec.rb` | 5, 8 | Unit resolver |
 | `spec/services/ai/sanitized_prompt_guard_spec.rb` | 8, 39 | Resolver + FakeClient |
 
-**Ocena:** Port adaptera **wycieka do HTTP (UI flag)** i **do wszystkich request speców** — wymiana providera wymaga dotknięcia kontrolera i ~8 plików spec.
+**Assessment:** Adapter port **leaks to HTTP (UI flag)** and **to all request specs** — swapping provider requires touching controller and ~8 spec files.
 
 ---
 
-### Z4 — `Ai::CompletionResult` (typ wyniku adaptera w orchestracji)
+### Z4 — `Ai::CompletionResult` (adapter result type in orchestration)
 
-| Plik | Linia | Jak „zna" |
+| File | Line | How it „knows" |
 |------|-------|-----------|
 | `app/services/analysis/analyze_case.rb` | 36–37 | `completion.structured`, `completion.markdown` |
-| `app/services/ai/completion_result.rb` | 4–18 | Definicja |
-| `app/services/ai/open_ai_client.rb` | 23–26 | Tworzenie |
-| `app/services/ai/fake_client.rb` | 15–18 | Tworzenie |
+| `app/services/ai/completion_result.rb` | 4–18 | Definition |
+| `app/services/ai/open_ai_client.rb` | 23–26 | Creation |
+| `app/services/ai/fake_client.rb` | 15–18 | Creation |
 | `spec/support/ai_test_clients.rb` | 19, 39 | Invalid fixture |
 
 ---
 
-### Z5 — `Ai::InvalidResponseError` + `Ai::ResponseValidator` (semantyka adaptera w orchestracji)
+### Z5 — `Ai::InvalidResponseError` + `Ai::ResponseValidator` (adapter semantics in orchestration)
 
-| Plik | Linia | Jak „zna" |
+| File | Line | How it „knows" |
 |------|-------|-----------|
-| `app/services/analysis/analyze_case.rb` | 41, 61, 63 | `rescue Ai::InvalidResponseError`; ponowne wołanie `ResponseValidator` |
-| `app/services/ai/open_ai_client.rb` | 21 | Walidacja w adapterze |
-| `app/services/ai/fake_client.rb` | 13 | Walidacja w fake |
-| `app/services/ai/response_validator.rb` | 4, 6–107 | Definicja |
-| `app/services/ai/report_schema.rb` | 14–15 | Klucze wymagane |
+| `app/services/analysis/analyze_case.rb` | 41, 61, 63 | `rescue Ai::InvalidResponseError`; re-call `ResponseValidator` |
+| `app/services/ai/open_ai_client.rb` | 21 | Validation in adapter |
+| `app/services/ai/fake_client.rb` | 13 | Validation in fake |
+| `app/services/ai/response_validator.rb` | 4, 6–107 | Definition |
+| `app/services/ai/report_schema.rb` | 14–15 | Required keys |
 | `spec/services/ai/response_validator_spec.rb` | 5–76 | Unit |
-| `spec/services/ai/fake_client_spec.rb` | 23 | Walidacja outputu fake |
+| `spec/services/ai/fake_client_spec.rb` | 23 | Fake output validation |
 
-**Duplikacja:** walidacja w `OpenAiClient`/`FakeClient` **i** ponownie w `AnalyzeCase#complete_with_retry` (`analyze_case.rb:61`).
+**Duplication:** validation in `OpenAiClient`/`FakeClient` **and** again in `AnalyzeCase#complete_with_retry` (`analyze_case.rb:61`).
 
 ---
 
-### Z6 — `Ai::ReportSchema` (kontrakt providera w testach i fake)
+### Z6 — `Ai::ReportSchema` (provider contract in tests and fake)
 
-| Plik | Linia | Jak „zna" |
+| File | Line | How it „knows" |
 |------|-------|-----------|
-| `app/services/ai/report_schema.rb` | 13–53 | Definicja |
+| `app/services/ai/report_schema.rb` | 13–53 | Definition |
 | `app/services/ai/response_validator.rb` | 32, 61 | REQUIRED_KEYS |
 | `app/services/ai/fake_client.rb` | 12, 17 | Canonical fixture |
 | `spec/services/ai/response_validator_spec.rb` | 8 | CANONICAL_STRUCTURED |
 | `spec/services/ai/open_ai_client_spec.rb` | 14 | canonical_structured |
 
-**Ocena:** Wewnątrz `Ai::` — OK; przeciek gdy testy budują invalid payload znając klucze schema zamiast portu domenowego.
+**Assessment:** Inside `Ai::` — OK; leak when tests build invalid payload knowing schema keys instead of domain port.
 
 ---
 
-## KROK 2 — Klasyfikacja i wybór #1
+## STEP 2 — Classification and #1 selection
 
-| ID | (a) Warstwy/pliki | (b) Koszt wymiany providera | (c) Deklarowana wymienialność | Werdykt |
+| ID | (a) Layers/files | (b) Provider swap cost | (c) Declared swappability | Verdict |
 |----|-------------------|----------------------------|-------------------------------|---------|
-| Z1 OpenAI SDK | 1 adapter + 1 spec | Niski — celowo tu | Tak — zgodne | **OK** |
-| **Z2+Z3+Z4+Z5 (pakiet)** | **Analysis (2) + HTTP (1) + Ai (8) + spec (~12)** | **Wysoki** — PromptBuilder, AnalyzeCase, controller, wszystkie request specs | **Rozjazd** — „swappable without touching redaction" implikuje też Analysis | **#1 najgorszy** |
-| Z6 ReportSchema | Ai + specs | Średni | Częściowy | Wchodzi w pakiet Z2–Z5 |
+| Z1 OpenAI SDK | 1 adapter + 1 spec | Low — intentionally here | Yes — aligned | **OK** |
+| **Z2+Z3+Z4+Z5 (bundle)** | **Analysis (2) + HTTP (1) + Ai (8) + spec (~12)** | **High** — PromptBuilder, AnalyzeCase, controller, all request specs | **Drift** — „swappable without touching redaction" also implies Analysis | **#1 worst** |
+| Z6 ReportSchema | Ai + specs | Medium | Partial | Part of Z2–Z5 bundle |
 
-### Wybór #1: **Przeciek kontraktu adaptera `Ai::` do kontekstu Analysis i HTTP**
+### Selection #1: **`Ai::` adapter contract leak into Analysis and HTTP context**
 
-Łączę Z2–Z5 jako jeden problem ACL: warstwa **Analysis** i **HTTP** operuje na typach **`Ai::Request`**, **`Ai::Client`**, **`Ai::CompletionResult`**, **`Ai::InvalidResponseError`**, **`Ai::ClientResolver`** zamiast na portcie domenowym „generuj raport hipotez z sanityzowanych dowodów".
+Combining Z2–Z5 as one ACL problem: **Analysis** and **HTTP** layers operate on **`Ai::Request`**, **`Ai::Client`**, **`Ai::CompletionResult`**, **`Ai::InvalidResponseError`**, **`Ai::ClientResolver`** types instead of domain port „generate hypothesis report from sanitized evidence".
 
-**Uzasadnienie:**
-- Dokumenty explicite deklarują adapter **provider-agnostic** (`shape-notes.md:187`, `tech-stack.md:30`), a F-03 plan zakłada wąski `Ai::Client` — lecz **S-03 (AnalyzeCase) i PromptBuilder zostały napisane „przez" ten kontrakt**, nie „obok" niego z ACL.
-- Wymiana OpenAI → inny provider (Anthropic Messages API, lokalny LLM) wymaga dziś edycji `PromptBuilder` (format messages), `AnalyzeCase` (client injection, error handling), kontrolera (demo flag) i ~12 plików spec — **wbrew intencji artifact-2**.
-- SDK `OpenAI::` jest izolowane (Z1); **prawdziwy koszt swapu siedzi w przecieku typów `Ai::`**, nie w gemie.
-- Kontroler woła `ClientResolver.fake_client_active?` (`debugging_cases_controller.rb:25`) — **warstwa UI zna szczegóły implementacji AI**, nie stan produktu.
+**Rationale:**
+- Documents explicitly declare **provider-agnostic** adapter (`shape-notes.md:187`, `tech-stack.md:30`), and F-03 plan assumes narrow `Ai::Client` — yet **S-03 (AnalyzeCase) and PromptBuilder were written „through" this contract**, not „beside" it with ACL.
+- Swapping OpenAI → another provider (Anthropic Messages API, local LLM) today requires editing `PromptBuilder` (messages format), `AnalyzeCase` (client injection, error handling), controller (demo flag) and ~12 spec files — **contrary to artifact-2 intent**.
+- SDK `OpenAI::` is isolated (Z1); **real swap cost sits in `Ai::` type leak**, not the gem.
+- Controller calls `ClientResolver.fake_client_active?` (`debugging_cases_controller.rb:25`) — **UI layer knows AI implementation details**, not product state.
 
 ---
 
-## KROK 3 — Diagnoza
+## STEP 3 — Diagnosis
 
-### Rozjazd intencja vs kod
+### Intent vs code drift
 
-**Intencja** (`artifact-2-structure.md:74`): „AI adapter swappable (FakeClient/OpenAI) **without touching redaction**".
+**Intent** (`artifact-2-structure.md:74`): „AI adapter swappable (FakeClient/OpenAI) **without touching redaction**".
 
-**Kod:** redaction nietknięte ✓, ale Analysis **musi** dotykać `Ai::`:
+**Code:** redaction untouched ✓, but Analysis **must** touch `Ai::`:
 
 ```17:23:app/services/analysis/prompt_builder.rb
       Ai::Request.new(
@@ -199,13 +199,13 @@ Envelope `{ role:, content: }[]` — kształt API OpenAI, adoptowany jako kontra
     @fake_ai_client_active = Ai::ClientResolver.fake_client_active?
 ```
 
-### Duplikacja walidacji (triple gate)
+### Validation duplication (triple gate)
 
 1. `open_ai_client.rb:21` — `ResponseValidator.call(structured)`
-2. `fake_client.rb:13` — to samo
-3. `analyze_case.rb:61` — **ponowna** walidacja po `@client.complete`
+2. `fake_client.rb:13` — same
+3. `analyze_case.rb:61` — **repeated** validation after `@client.complete`
 
-Orchestrator zna semantykę błędu adaptera:
+Orchestrator knows adapter error semantics:
 
 ```41:43:app/services/analysis/analyze_case.rb
     rescue Ai::InvalidResponseError
@@ -213,39 +213,39 @@ Orchestrator zna semantykę błędu adaptera:
       failure(ai_report)
 ```
 
-### UI jako strażnik wiedzy o providerze
+### UI as provider knowledge guard
 
-`show.html.erb:17–18` renderuje notice na podstawie `@fake_ai_client_active` — flaga pochodzi z resolvera OpenAI-env (`client_resolver.rb:12–13`), nie ze stanu domeny „demo analysis mode".
+`show.html.erb:17–18` renders notice based on `@fake_ai_client_active` — flag from OpenAI-env resolver (`client_resolver.rb:12–13`), not domain state „demo analysis mode".
 
-### Co działa dobrze (nie psuć)
+### What works well (do not break)
 
-| Element | Dowód |
+| Element | Evidence |
 |---------|-------|
-| SDK tylko w adapterze | `OpenAI::Client` — `open_ai_client.rb:15`; spec double — `open_ai_client_spec.rb:8` |
-| Brak prompt persistence | Brak tabeli; `FakeClient#last_request` in-memory (`fake_client.rb:7–10`) |
-| Sanitized-only upstream | Komentarz + testy — `prompt_builder.rb:4–5`; `sanitized_prompt_guard_spec.rb` |
-| Redaction ⊥ AI | Brak cross-importów (`artifact-2-structure.md:118`) |
+| SDK only in adapter | `OpenAI::Client` — `open_ai_client.rb:15`; spec double — `open_ai_client_spec.rb:8` |
+| No prompt persistence | No table; `FakeClient#last_request` in-memory (`fake_client.rb:7–10`) |
+| Sanitized-only upstream | Comment + tests — `prompt_builder.rb:4–5`; `sanitized_prompt_guard_spec.rb` |
+| Redaction ⊥ AI | No cross-imports (`artifact-2-structure.md:118`) |
 
-### Otwarte pytanie kontraktu OpenAI (rozstrzygnięcie w ACL)
+### Open OpenAI contract question (resolved in ACL)
 
-**Pytanie:** Czy odpowiedź providera musi być `{ "structured": {...}, "markdown": "..." }` w jednym JSON?
+**Question:** Must provider response be `{ "structured": {...}, "markdown": "..." }` in one JSON?
 
-**Decyzja (na podstawie `open_ai_client.rb:45–55` i F-03 plan):** Tak **dla adaptera OpenAI** — wymuszane przez `response_format: json_object` i parser w adapterze. To **wiedza infrastrukturalna**, nie domenowa. ACL mapuje ten envelope na `Analysis::HypothesisReport` wewnątrz `Ai::`, nigdy w `AnalyzeCase`.
+**Decision (based on `open_ai_client.rb:45–55` and F-03 plan):** Yes **for OpenAI adapter** — enforced by `response_format: json_object` and parser in adapter. This is **infrastructure knowledge**, not domain. ACL maps this envelope to `Analysis::HypothesisReport` inside `Ai::`, never in `AnalyzeCase`.
 
-**Alternatywny provider** może zwracać markdown + JSON osobno — translator w nowym adapterze, bez zmiany Analysis.
+**Alternative provider** may return markdown + JSON separately — translator in new adapter, without Analysis changes.
 
 ---
 
-## KROK 4 — Projekt ACL
+## STEP 4 — ACL design
 
-### Podział kontekstów
+### Context split
 
 ```
 ┌─────────────────────────────────────────────┐
 │ Analysis (domain)                           │
 │  EvidenceBundle, HypothesisReport (VO)      │
 │  HypothesisGenerator (PORT)                 │
-│  AnalyzeCase (orchestrator — zna tylko PORT)│
+│  AnalyzeCase (orchestrator — knows PORT only)│
 └──────────────────┬──────────────────────────┘
                    │ port
 ┌──────────────────▼──────────────────────────┐
@@ -258,21 +258,21 @@ Orchestrator zna semantykę błędu adaptera:
 └─────────────────────────────────────────────┘
 ```
 
-### Value objects domenowe (Analysis — jedyne miejsce wiedzy o „co" wysyłamy/wiadomo)
+### Domain value objects (Analysis — only place knowing „what" we send/receive)
 
 ```ruby
 module Analysis
-  # Sanityzowany pakiet dowodów — zero wiedzy o Chat Completions
+  # Sanitized evidence bundle — zero Chat Completions knowledge
   class EvidenceBundle
     attr_reader :case_id, :title, :description, :environment,
                 :customer_reference, :correlation_payload, :log_sources
 
     def self.from_debugging_case(debugging_case:, correlation_payload:)
-      # mapuje AR → immutable structs (source_type, name, sanitized_content, position)
+      # maps AR → immutable structs (source_type, name, sanitized_content, position)
     end
   end
 
-  # Raport hipotez — kontrakt PRD FR-008, nie JSON providera
+  # Hypothesis report — PRD FR-008 contract, not provider JSON
   class HypothesisReport
     attr_reader :summary, :hypotheses, :uncertainty_notes,
                 :correlation_highlights, :markdown_body
@@ -283,11 +283,11 @@ module Analysis
     end
   end
 
-  class ReportGenerationError < StandardError; end  # port failure — nie Ai::InvalidResponseError
+  class ReportGenerationError < StandardError; end  # port failure — not Ai::InvalidResponseError
 end
 ```
 
-### Wąski port (interfejs domenowy)
+### Narrow port (domain interface)
 
 ```ruby
 module Analysis
@@ -302,9 +302,9 @@ module Analysis
 end
 ```
 
-Reszta kodu (`AnalyzeCase`, controller, views) zna **tylko** `HypothesisGenerator` i `HypothesisReport`.
+Rest of code (`AnalyzeCase`, controller, views) knows **only** `HypothesisGenerator` and `HypothesisReport`.
 
-### ACL — adapter implementujący port
+### ACL — adapter implementing port
 
 ```ruby
 module Ai
@@ -326,7 +326,7 @@ module Ai
     end
   end
 
-  # INTERNAL — nie wychodzi z app/services/ai/
+  # INTERNAL — does not leave app/services/ai/
   class PromptTranslator
     def self.to_chat_request(evidence)
       ChatRequest.new(
@@ -347,14 +347,14 @@ module Ai
   end
 
   class FakeHypothesisProvider
-    # Deterministyczny raport; opcjonalnie @last_evidence dla testów
+    # Deterministic report; optionally @last_evidence for tests
   end
 end
 ```
 
-**Rename w planie:** `Ai::Request` → `Ai::ChatRequest` (internal); `Ai::Client#complete` → `Ai::ChatProvider#complete` — sygnalizuje, że to wire OpenAI, nie kontrakt domeny.
+**Planned rename:** `Ai::Request` → `Ai::ChatRequest` (internal); `Ai::Client#complete` → `Ai::ChatProvider#complete` — signals this is OpenAI wire, not domain contract.
 
-### Orchestrator po ACL
+### Orchestrator after ACL
 
 ```ruby
 module Analysis
@@ -372,15 +372,15 @@ module Analysis
         markdown_body: report.markdown_body
       )
     rescue ReportGenerationError
-      # failed status — bez referencji do Ai::
+      # failed status — no reference to Ai::
     end
   end
 end
 ```
 
-`PromptBuilder` → **`EvidenceBundle.from_debugging_case`** (usunięcie bezpośredniego `Ai::Request.new`).
+`PromptBuilder` → **`EvidenceBundle.from_debugging_case`** (remove direct `Ai::Request.new`).
 
-### Demo flag — z kontrolera do konfiguracji aplikacji
+### Demo flag — from controller to application config
 
 ```ruby
 # app/services/analysis/generator_resolver.rb
@@ -397,97 +397,97 @@ module Analysis
 end
 ```
 
-Controller (`debugging_cases_controller.rb:25`) → `@demo_analysis_mode = Analysis::GeneratorResolver.demo_mode_active?` — **zero importu `Ai::` w kontrolerze docelowo**, lub cienki helper w `Analysis::` namespace.
+Controller (`debugging_cases_controller.rb:25`) → `@demo_analysis_mode = Analysis::GeneratorResolver.demo_mode_active?` — **zero `Ai::` import in controller target**, or thin helper in `Analysis::` namespace.
 
 ---
 
-## KROK 5 — Dowód izolacji + before/after
+## STEP 5 — Isolation proof + before/after
 
-### Kryterium sukcesu (grep)
+### Success criterion (grep)
 
-Po refaktorze:
+After refactor:
 
-| Wzorzec grep | Dozwolone lokalizacje | Zabronione po refaktorze |
+| Grep pattern | Allowed locations | Forbidden after refactor |
 |--------------|----------------------|--------------------------|
 | `OpenAI::` | `app/services/ai/open_ai_chat_provider.rb` (rename) + `spec/services/ai/*` | Analysis, controllers, views |
 | `Ai::Request` / `Ai::ChatRequest` | `app/services/ai/**` + `spec/services/ai/**` | `app/services/analysis/**`, `app/controllers/**` |
-| `Ai::ClientResolver` | **Usunięty** → `Ai::ProviderResolver` (internal) + `Analysis::GeneratorResolver` | controllers, request specs |
-| `Ai::FakeClient` | `app/services/ai/**` + ewent. `spec/support` przez adapter | `spec/requests/**` bezpośrednio |
+| `Ai::ClientResolver` | **Removed** → `Ai::ProviderResolver` (internal) + `Analysis::GeneratorResolver` | controllers, request specs |
+| `Ai::FakeClient` | `app/services/ai/**` + optionally `spec/support` via adapter | `spec/requests/**` directly |
 | `Ai::InvalidResponseError` | `app/services/ai/**` | `app/services/analysis/**` |
 | `Analysis::HypothesisGenerator` | Analysis + test doubles | — |
 
-### Before / after — zduplikowane miejsca
+### Before / after — duplicated locations
 
-| Miejsce | Before | After |
+| Location | Before | After |
 |---------|--------|-------|
-| `prompt_builder.rb:17–23` | Buduje `Ai::Request` | **`EvidenceBundle.from_debugging_case`** — logika przeniesiona z PromptBuilder |
+| `prompt_builder.rb:17–23` | Builds `Ai::Request` | **`EvidenceBundle.from_debugging_case`** — logic moved from PromptBuilder |
 | `analyze_case.rb:13,27–30,60–63` | `client.complete(Ai::Request)` + `Ai::ResponseValidator` | `generator.generate(evidence:)` → `HypothesisReport` |
 | `analyze_case.rb:41` | `rescue Ai::InvalidResponseError` | `rescue Analysis::ReportGenerationError` |
 | `debugging_cases_controller.rb:25` | `Ai::ClientResolver.fake_client_active?` | `Analysis::GeneratorResolver.demo_mode_active?` |
-| `open_ai_client.rb:21` + `analyze_case.rb:61` | Podwójna walidacja | Walidacja **tylko** w ACL (`HypothesisGeneratorAdapter`); retry w AnalyzeCase na `ReportGenerationError` |
-| Request specs (8 plików) | `allow(Ai::ClientResolver)... FakeClient` | Stub `Analysis::GeneratorResolver.current` → `Analysis::TestGenerators::CapturingGenerator` |
-| `ai_test_clients.rb` | `include Ai::Client`; buduje `CompletionResult` | `Analysis::TestGenerators::InvalidGenerator` implementuje port |
-| `fake_client.rb` | Zna `ReportSchema`, `Request` | Wchodzi w `FakeHypothesisProvider` — internal |
-| UI `show.html.erb:17` | `@fake_ai_client_active` | `@demo_analysis_mode` — boolean domenowy |
+| `open_ai_client.rb:21` + `analyze_case.rb:61` | Double validation | Validation **only** in ACL (`HypothesisGeneratorAdapter`); retry in AnalyzeCase on `ReportGenerationError` |
+| Request specs (8 files) | `allow(Ai::ClientResolver)... FakeClient` | Stub `Analysis::GeneratorResolver.current` → `Analysis::TestGenerators::CapturingGenerator` |
+| `ai_test_clients.rb` | `include Ai::Client`; builds `CompletionResult` | `Analysis::TestGenerators::InvalidGenerator` implements port |
+| `fake_client.rb` | Knows `ReportSchema`, `Request` | Becomes `FakeHypothesisProvider` — internal |
+| UI `show.html.erb:17` | `@fake_ai_client_active` | `@demo_analysis_mode` — domain boolean |
 
-### UI dostaje dane domenowe
+### UI receives domain data
 
-| Dane | Before | After |
+| Data | Before | After |
 |------|--------|-------|
-| Notice demo | Flaga z resolvera OpenAI env | `demo_mode_active?` — semantyka produktu |
-| Raport na show | `ParseStructuredReport` parsuje JSON z DB | Bez zmian — JSON pochodzi z `HypothesisReport#to_persistence_json`, nie z envelope OpenAI |
-| Analyze outcome | `AiReport` AR enum | Bez zmian — orchestrator mapuje `HypothesisReport` → AR |
+| Demo notice | Flag from OpenAI env resolver | `demo_mode_active?` — product semantics |
+| Report on show | `ParseStructuredReport` parses JSON from DB | Unchanged — JSON from `HypothesisReport#to_persistence_json`, not OpenAI envelope |
+| Analyze outcome | `AiReport` AR enum | Unchanged — orchestrator maps `HypothesisReport` → AR |
 
 ---
 
-## KROK 6 — Plan faz
+## STEP 6 — Phase plan
 
-Zgodnie z konwencją projektu: małe fazy, RSpec test-first, `bin/ci` green po każdej fazie.
+Per project convention: small phases, RSpec test-first, `bin/ci` green after each phase.
 
-| Faza | Zakres | Test-first | Pliki dotykane |
+| Phase | Scope | Test-first | Files touched |
 |------|--------|------------|----------------|
-| **F1** | Wprowadź `Analysis::EvidenceBundle`, `HypothesisReport`, `ReportGenerationError`; `EvidenceBundle.from_debugging_case` (logika z `PromptBuilder`) | `spec/services/analysis/evidence_bundle_spec.rb` | `analysis/evidence_bundle.rb`, `prompt_builder.rb` (deprecate) |
-| **F2** | Port `HypothesisGenerator`; `Ai::HypothesisGeneratorAdapter` delegujący do obecnego `FakeClient`/`OpenAiClient` przez translator | `spec/services/ai/hypothesis_generator_adapter_spec.rb` | nowe pliki w `ai/`, rename internal |
-| **F3** | `AnalyzeCase` na porcie; usuń `Ai::` z orchestratora; retry na `ReportGenerationError` | `analyze_case_spec.rb` — zaktualizować injection | `analyze_case.rb` |
-| **F4** | `GeneratorResolver`; controller demo flag; usunąć `ClientResolver` z HTTP | request spec dla notice | `generator_resolver.rb`, `debugging_cases_controller.rb` |
-| **F5** | Test infrastructure: `Analysis::TestGenerators::*`; migracja stubów w request specs | security specs green | `spec/support/`, `spec/requests/*` |
-| **F6** | Cleanup: rename `Request`→`ChatRequest`, `Client`→`ChatProvider`; usuń duplikat walidacji w starym path; deprecate `PromptBuilder.call` jeśli redundant | pełny `bin/ci` | `app/services/ai/*` |
+| **F1** | Introduce `Analysis::EvidenceBundle`, `HypothesisReport`, `ReportGenerationError`; `EvidenceBundle.from_debugging_case` (logic from `PromptBuilder`) | `spec/services/analysis/evidence_bundle_spec.rb` | `analysis/evidence_bundle.rb`, `prompt_builder.rb` (deprecate) |
+| **F2** | Port `HypothesisGenerator`; `Ai::HypothesisGeneratorAdapter` delegating to current `FakeClient`/`OpenAiClient` via translator | `spec/services/ai/hypothesis_generator_adapter_spec.rb` | new files in `ai/`, rename internal |
+| **F3** | `AnalyzeCase` on port; remove `Ai::` from orchestrator; retry on `ReportGenerationError` | `analyze_case_spec.rb` — update injection | `analyze_case.rb` |
+| **F4** | `GeneratorResolver`; controller demo flag; remove `ClientResolver` from HTTP | request spec for notice | `generator_resolver.rb`, `debugging_cases_controller.rb` |
+| **F5** | Test infrastructure: `Analysis::TestGenerators::*`; migrate stubs in request specs | security specs green | `spec/support/`, `spec/requests/*` |
+| **F6** | Cleanup: rename `Request`→`ChatRequest`, `Client`→`ChatProvider`; remove duplicate validation in old path; deprecate `PromptBuilder.call` if redundant | full `bin/ci` | `app/services/ai/*` |
 
-**Nie w scope:** nowy provider (Anthropic), async analyze, prompt persistence.
+**Out of scope:** new provider (Anthropic), async analyze, prompt persistence.
 
-### Przypadki testowe ACL
+### ACL test cases
 
-| # | Scenariusz | Warstwa | Oczekiwanie |
+| # | Scenario | Layer | Expectation |
 |---|------------|---------|-------------|
-| A-L1 | `EvidenceBundle.from_debugging_case` z 2 sources | Analysis unit | Zawiera tylko `sanitized_content`; brak klucza `pasted_content` |
-| A-L2 | `HypothesisGeneratorAdapter#generate` z FakeProvider | ACL unit | Zwraca `HypothesisReport` z hypotheses + uncertainty |
-| A-L3 | AnalyzeCase end-to-end z injected generator | Service | `AiReport` generated; brak referencji do `Ai::` w orchestratorze |
-| A-L4 | Request analyze — raw secret w intake | Request security | Prompt capture przez `CapturingGenerator`; raw absent |
+| A-L1 | `EvidenceBundle.from_debugging_case` with 2 sources | Analysis unit | Contains only `sanitized_content`; no `pasted_content` key |
+| A-L2 | `HypothesisGeneratorAdapter#generate` with FakeProvider | ACL unit | Returns `HypothesisReport` with hypotheses + uncertainty |
+| A-L3 | AnalyzeCase end-to-end with injected generator | Service | `AiReport` generated; no `Ai::` reference in orchestrator |
+| A-L4 | Request analyze — raw secret in intake | Request security | Prompt capture via `CapturingGenerator`; raw absent |
 | A-N1 | Invalid provider output 2× | Service | `ReportGenerationError` → failed report; `FAILURE_MESSAGE` |
-| A-N2 | Grep guard (custom spec) | Meta | `app/services/analysis/` nie zawiera `Ai::` |
-| A-N3 | Controller nie importuje `Ai::ClientResolver` | Request | Demo notice działa via `GeneratorResolver` |
+| A-N2 | Grep guard (custom spec) | Meta | `app/services/analysis/` does not contain `Ai::` |
+| A-N3 | Controller does not import `Ai::ClientResolver` | Request | Demo notice works via `GeneratorResolver` |
 
-### Load-bearing names (rejestr kontraktów)
+### Load-bearing names (contract registry)
 
-| Nazwa | Rejestr |
+| Name | Registry |
 |-------|---------|
-| `Analysis::EvidenceBundle` | Ten dokument → po F1 wzmianka w `README.md` Architecture |
-| `Analysis::HypothesisReport` | Ten dokument; mapuje PRD FR-008 |
-| `Analysis::HypothesisGenerator` | Port — `test-plan.md` risk #2 (zamiast FakeClient capture) |
-| `Analysis::ReportGenerationError` | Ten dokument |
-| `Analysis::GeneratorResolver` | Zastępuje publiczny `Ai::ClientResolver` |
-| `Ai::HypothesisGeneratorAdapter` | ACL facade — jedyny most Analysis↔Ai |
+| `Analysis::EvidenceBundle` | This document → after F1 mention in `README.md` Architecture |
+| `Analysis::HypothesisReport` | This document; maps PRD FR-008 |
+| `Analysis::HypothesisGenerator` | Port — `test-plan.md` risk #2 (instead of FakeClient capture) |
+| `Analysis::ReportGenerationError` | This document |
+| `Analysis::GeneratorResolver` | Replaces public `Ai::ClientResolver` |
+| `Ai::HypothesisGeneratorAdapter` | ACL facade — only Analysis↔Ai bridge |
 | `Ai::PromptTranslator` | Internal — Chat Completions mapping |
-| `Ai::ChatRequest` | Internal (rename z `Ai::Request`) |
-| `Ai::OpenAiChatProvider` | Internal (rename z `OpenAiClient`) |
+| `Ai::ChatRequest` | Internal (rename from `Ai::Request`) |
+| `Ai::OpenAiChatProvider` | Internal (rename from `OpenAiClient`) |
 
 ---
 
-## Diagram: przepływ before → after
+## Diagram: flow before → after
 
 ```mermaid
 flowchart TB
-  subgraph before [Before — przeciek]
+  subgraph before [Before — leak]
     PB1[PromptBuilder] --> AR1[Ai::Request]
     AC1[AnalyzeCase] --> CR1[Ai::ClientResolver]
     AC1 --> AR1
@@ -509,9 +509,9 @@ flowchart TB
 
 ---
 
-## Metadane
+## Metadata
 
-- **Wybrany przeciek #1:** kontrakt `Ai::` (Request/Client/CompletionResult/Errors/Resolver) w Analysis + HTTP
-- **SDK OpenAI:** poprawnie izolowane — problem to brak ACL nad portem domenowym
-- **Powiązanie:** uzupełnia `02-invariant-aggregate-refactor.md` (INV-G2 sanitized-only AI) — ACL wzmacnia egzekucję bez mieszania z intake aggregate
-- **Nie weryfikowano:** pełna lista linii w każdym pliku spec poza grep; widoki poza `show.html.erb:17`
+- **Selected leak #1:** `Ai::` contract (Request/Client/CompletionResult/Errors/Resolver) in Analysis + HTTP
+- **OpenAI SDK:** correctly isolated — problem is missing ACL over domain port
+- **Link:** complements `02-invariant-aggregate-refactor.md` (INV-G2 sanitized-only AI) — ACL strengthens enforcement without mixing with intake aggregate
+- **Not verified:** full line list in every spec file beyond grep; views beyond `show.html.erb:17`

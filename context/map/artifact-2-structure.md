@@ -140,7 +140,7 @@ The codebase is **easy to unit-test in the service layer** (explicit `.call` obj
 | **Env-dependent AI resolver** | `Ai::ClientResolver` | Unit spec + request analyze specs | Branch on `Rails.env`, `OPENAI_API_KEY` |
 | **Pure vs persistent correlation** | `Correlation::ExtractSignals` vs `AnalyzeCase` | Unit spec (pure) vs orchestrator spec (persist) | ExtractSignals is pure; persistence in AnalyzeCase (S-03) |
 
-### Najbardziej podejrzane moduły
+### Most suspicious modules
 
 | Module | Fan-out | Recommended test level |
 |--------|---------|------------------------|
@@ -150,13 +150,13 @@ The codebase is **easy to unit-test in the service layer** (explicit `.call` obj
 | `e2e/helpers.ts` | 4 spec importers | Playwright only |
 | `Ai::OpenAiClient` | External HTTP | Unit spec with stubbed network |
 
-### Co sprawdzić dalej
+### What to check next
 
 1. Add optional CI gate: `npm run depcruise:validate`.
 2. Extend **request security specs** before controller refactors (artifact-1 spine).
 3. Consider [Packwerk](https://github.com/Shopify/packwerk) if `app/services/` grows — not needed at ~25 service files.
 
-### Opcjonalny kolejny krok: graf
+### Optional next step: graph
 
 E2E hub (dependency-cruiser → DOT → SVG via `@viz-js/viz`):
 

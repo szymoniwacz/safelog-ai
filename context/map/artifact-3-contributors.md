@@ -83,13 +83,13 @@ Derived from artifact-1 (git activity + co-change) and artifact-2 (structure ris
 3. **Agent-assisted work** — commits are human-authored (`Szymon Iwacz`); Cursor/AI may have assisted but no separate agent git identity to filter.
 4. **Documentation vs runtime** — high activity in `context/changes/` (artifact-1) does not imply a second “docs team”; same maintainer.
 
-State these in `repo-map.md` § Ograniczenia and § Kogo zapytać.
+State these in `repo-map.md` § Limitations and § Who to ask.
 
 ---
 
 ## Implications for repo-map synthesis
 
-1. **§ Kogo zapytać:** one row per [Top 5 area](#top-5-areas--potential-contact-needed) → Szymon Iwacz + doc fallback.
+1. **§ Who to ask:** one row per [Top 5 area](#top-5-areas--potential-contact-needed) → Szymon Iwacz + doc fallback.
 2. **Do not invent secondary owners** — honesty beats fake RACI on a solo MVP.
 3. **Pair with artifact-2** — contact routing follows structural risk (orchestrator, E2E hub, security specs).
 4. **Future contributors:** when a second author appears, re-run this prompt and split area leaders.

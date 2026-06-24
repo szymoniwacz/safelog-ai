@@ -21,7 +21,7 @@ Official 10xDevs 3.0 intake closes **23:59** on each date. All badges submitted 
 | **2** | **2026-08-10** | — |
 | **3** | **2026-09-14** | Final |
 
-- **Builder (M1–M3):** separate form — see platform post *Certyfikacja 10xBuilder*.
+- **Builder (M1–M3):** separate form — see platform post *10xBuilder certification: submission form and key rules* (course title in Polish on platform).
 - **Architect + Champion (M4–M5):** [shared Baserow form](https://baserow.io/form/fwnBioduXc90QTli6lsCVL_YgRdTECPTCmwiVhu8d-E).
 
 Full rules, SafeLog artifact mapping, and recommended strategy: [`submission-guide.md`](submission-guide.md).

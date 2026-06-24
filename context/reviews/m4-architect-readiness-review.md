@@ -11,7 +11,7 @@
 
 **READY**
 
-SafeLog AI meets Architect requirements for Module 4 lessons 2–5: repo territory and structure maps, map-guided flow research with ast-grep verification, ranked structural refactor exploration, and DDD domain distillation with invariant aggregate and anti-corruption-layer **plans**. M4L5 deliverables are explicitly plan-only (`02-invariant-aggregate-refactor.md` opens with *„Plan DDD (bez implementacji kodu produkcyjnego)”*). Ranked refactor **implementation** (TD-2, IMPL-1) is optional post-MVP hygiene — not a certification blocker (`context/team/mom-test-validation.md`).
+SafeLog AI meets Architect requirements for Module 4 lessons 2–5: repo territory and structure maps, map-guided flow research with ast-grep verification, ranked structural refactor exploration, and DDD domain distillation with invariant aggregate and anti-corruption-layer **plans**. M4L5 deliverables are explicitly plan-only (`02-invariant-aggregate-refactor.md` opens with *"DDD plan (no production code implementation)"*). Ranked refactor **implementation** (TD-2, IMPL-1) is optional post-MVP hygiene — not a certification blocker (`context/team/mom-test-validation.md`).
 
 ---
 
@@ -48,7 +48,7 @@ Architect work spans four vertical slices:
 | **M4L3** — ast-grep verification | **PASS** | Same research doc — § AST-grep verification |
 | **M4L4** — refactor change intention | **PASS** | [`refactor-opportunities/change.md`](../changes/refactor-opportunities/change.md) |
 | **M4L4** — ranked refactor opportunities | **PASS** | [`refactor-opportunities/research.md`](../changes/refactor-opportunities/research.md) — TD-2 #1, IMPL-1 #2, TD-5 #3 |
-| **M4L4** — ranking ast-grep verification | **PASS** | Same research doc — § Weryfikacja twierdzeń |
+| **M4L4** — ranking ast-grep verification | **PASS** | Same research doc — § Claim verification |
 | **M4L5** — domain distillation | **PASS** | [`01-domain-distillation.md`](../domain/01-domain-distillation.md) |
 | **M4L5** — invariant aggregate plan | **PASS** | [`02-invariant-aggregate-refactor.md`](../domain/02-invariant-aggregate-refactor.md) — INV-G1 / `SanitizedCaseDraft` |
 | **M4L5** — anti-corruption layer plan | **PASS** | [`03-anti-corruption-layer.md`](../domain/03-anti-corruption-layer.md) — `HypothesisGenerator` port |

@@ -484,54 +484,54 @@ These items from the source analysis are **not structural refactors** but should
 - `context/archive/2026-05-27-load-demo-case/plan-brief.md` — S-06 demo reuse decision (TD-10)
 - `context/foundation/prd.md` — guardrails and encryption NFR
 
-## Weryfikacja twierdzeń (ast-grep)
+## Claim verification (ast-grep)
 
-Weryfikacja pierwotna: ast-grep 0.43.0, commit `2ce9993`. **Re-run 2026-06-22** at `e96dc92` — delta rows marked **changed**.
+Initial verification: ast-grep 0.43.0, commit `2ce9993`. **Re-run 2026-06-22** at `e96dc92` — delta rows marked **changed**. **Re-run 2026-06-24:** V-16 superseded (CRLF spec added); V-19 example count 13+ in `process_case_submission_spec.rb`.
 
-| # | Twierdzenie | Jun-10 | **Jun-22** | Dowód |
-|---|-------------|--------|------------|-------|
-| V-01 | Jedyny runtime call-site `redaction_findings.create!` w `app/` | Potwierdzone | **Potwierdzone** | `process_case_submission.rb:46` |
-| V-02 | Brak mappera/DTO/`Data.define` dla findings | Potwierdzone | **Zmienione → mapper + VO istnieją** | `finding.rb:4`; `build_from_engine_finding` at `:8–18` |
-| V-03 | Hash findings ma 4 klucze | Potwierdzone | **Zmienione → typed Finding, nie hash** | `engine.rb:36–41` emits `Finding.new(...)` |
-| V-04 | 2 runtime callery `ProcessCaseSubmission.call` | Potwierdzone | **Potwierdzone** | controller + `load_case.rb:23` |
-| V-05 | 2 runtime call-site'y `Redaction::Engine.redact` | Potwierdzone | **Potwierdzone** | `process_case_submission.rb:36`, `:63` |
-| V-06 | Jedyny `DebuggingCase.transaction` w `app/` | Potwierdzone | **Potwierdzone** | `process_case_submission.rb:27` |
-| V-07 | 3× `create!` na 3 modelach | Potwierdzone | **Potwierdzone** | `:28`, `:38`, `:46` |
-| V-08 | `redact_metadata` — 5 call-site'ów | Potwierdzone | **Potwierdzone** | `:29–32`, `:40` |
-| V-09 | `ProcessCaseSubmission` ~72 linie | Potwierdzone | **Potwierdzone (74 linie)** | `wc -l` |
-| V-17 | Brak `redaction_finding_spec.rb` | Potwierdzone | **Zmienione → plik istnieje** | `spec/models/redaction_finding_spec.rb` |
-| V-19 | `process_case_submission_spec.rb` — 12 examples | Potwierdzone | **Zmienione → 14 examples** | +G-01/G-02 |
-| V-16 | Zero `\r`/CRLF w `spec/` | Potwierdzone | **Potwierdzone** | brak matchy |
+| # | Claim | Jun-10 | **Jun-22** | Evidence |
+|---|-------|--------|------------|----------|
+| V-01 | Only runtime call-site `redaction_findings.create!` in `app/` | Confirmed | **Confirmed** | `process_case_submission.rb:46` |
+| V-02 | No mapper/DTO/`Data.define` for findings | Confirmed | **Changed → mapper + VO exist** | `finding.rb:4`; `build_from_engine_finding` at `:8–18` |
+| V-03 | Findings hash has 4 keys | Confirmed | **Changed → typed Finding, not hash** | `engine.rb:36–41` emits `Finding.new(...)` |
+| V-04 | 2 runtime callers `ProcessCaseSubmission.call` | Confirmed | **Confirmed** | controller + `load_case.rb:23` |
+| V-05 | 2 runtime call-sites `Redaction::Engine.redact` | Confirmed | **Confirmed** | `process_case_submission.rb:36`, `:63` |
+| V-06 | Only `DebuggingCase.transaction` in `app/` | Confirmed | **Confirmed** | `process_case_submission.rb:27` |
+| V-07 | 3× `create!` on 3 models | Confirmed | **Confirmed** | `:28`, `:38`, `:46` |
+| V-08 | `redact_metadata` — 5 call-sites | Confirmed | **Confirmed** | `:29–32`, `:40` |
+| V-09 | `ProcessCaseSubmission` ~72 lines | Confirmed | **Confirmed (74 lines)** | `wc -l` |
+| V-17 | No `redaction_finding_spec.rb` | Confirmed | **Changed → file exists** | `spec/models/redaction_finding_spec.rb` |
+| V-19 | `process_case_submission_spec.rb` — 12 examples | Confirmed | **Changed → 14 examples** | +G-01/G-02 |
+| V-16 | Zero `\r`/CRLF examples in `spec/` | Confirmed | **Changed → CRLF spec in `engine_spec.rb` (Phase 7)** | `patterns_spec`, CRLF normalization |
 
-**Wpływ na ranking:** TD-2 done — IMPL-1 becomes top open refactor. V-02/V-03/V-17 supersede original "implicit contract" claims. Remaining open candidates unchanged in shape (IMPL-1 monolith, TD-5 CRLF, G-05 passthrough).
+**Ranking impact:** TD-2 done — IMPL-1 becomes top open refactor. V-02/V-03/V-17 supersede original "implicit contract" claims. TD-5 closed in Phase 7 (CRLF normalization). Remaining open candidates unchanged in shape (IMPL-1 monolith, G-05 passthrough).
 
-*(Pełna tabela Jun-10 poniżej — historyczna; wiersze V-02, V-03, V-17, V-19 mają status superseded przez re-run powyżej.)*
+*(Full Jun-10 table below — historical; rows V-02, V-03, V-17, V-19 superseded by re-run above.)*
 
-| # | Twierdzenie | Werdykt | Dowód | Metoda |
-|---|-------------|---------|-------|--------|
-| V-01 | Jedyny runtime call-site `redaction_findings.create!` w `app/` | **Potwierdzone** | `process_case_submission.rb:46` | `ast-grep -p 'log_source.redaction_findings.create!($ARG)' app/` → 1 match |
-| V-02 | Brak mappera/DTO/`Data.define` dla findings w domenie redaction | **Potwierdzone** | Brak matchy w `app/services/redaction/`; grep `RedactionFinding.(new\|build\|from)` → 0 | `ast-grep -p 'Data.define($$$)' app/services/redaction/` → 0; `rg RedactionFinding\.(new\|build\|from) app/` → 0 |
-| V-03 | Hash findings ma 4 klucze: `finding_type`, `line_number`, `placeholder`, `risk_level` | **Potwierdzone** | `engine.rb:36–41` | `ast-grep -p 'findings << { finding_type: $A, line_number: $B, placeholder: $C, risk_level: $D }' app/` |
-| V-04 | 2 runtime callery `ProcessCaseSubmission.call` | **Potwierdzone** | `debugging_cases_controller.rb:30`, `load_case.rb:23` | `ast-grep -p 'Intake::ProcessCaseSubmission.call($$$)' app/` → 2 |
-| V-05 | 2 runtime call-site'y `Redaction::Engine.redact` w `app/` | **Potwierdzone** | `process_case_submission.rb:36`, `:61` | `ast-grep -p 'Redaction::Engine.redact($$$)' app/` → 2 |
-| V-06 | Jedyny `DebuggingCase.transaction` w `app/` | **Potwierdzone** | `process_case_submission.rb:27` | `ast-grep -p 'DebuggingCase.transaction' app/` → 1; `rg '\.transaction' app/` → 1 |
-| V-07 | 3× `create!` na 3 modelach w `ProcessCaseSubmission` | **Potwierdzone** | `:28` (`DebuggingCase`), `:38` (`LogSource`), `:46` (`RedactionFinding`) | `rg '\.create!' process_case_submission.rb` → 3 |
-| V-08 | `redact_metadata` — N call-site'ów w jednej klasie | **Doprecyzowane → 5** | `:29`, `:30`, `:31`, `:32`, `:40` (raport: 4) | `ast-grep -p 'redact_metadata($$$)' app/` → 5 |
-| V-09 | `ProcessCaseSubmission` ~72 linie | **Potwierdzone** | 72 linie pliku | `wc -l process_case_submission.rb` |
-| V-10 | 5 commitów dotykających `process_case_submission.rb` | **Potwierdzone** | 5 commitów w historii | `git log --oneline -- process_case_submission.rb \| wc -l` → 5 |
-| V-11 | Zero same-commit co-change proc ↔ demo | **Potwierdzone** | Brak wspólnych commitów | `git log` + `git show --name-only` per commit proc → brak `load_case.rb` |
-| V-12 | `load_case.rb` — 1 commit w historii | **Potwierdzone** | `77b0291` | `git log --oneline -- load_case.rb \| wc -l` → 1 |
-| V-13 | `encrypts` tylko `customer_reference` / `sanitized_content`; metadata plain | **Potwierdzone** | `debugging_case.rb:5`, `log_source.rb:6`; brak `encrypts` na title/description/environment/name | `ast-grep -p 'encrypts $_' app/models/` → 4 wiersze (2 submission-path) |
-| V-14 | Gałąź `source.is_a?(Source)` w `normalize_sources` | **Potwierdzone** | `case_submission.rb:29` | `ast-grep -p 'source.is_a?(Source)' app/` → 1 |
-| V-15 | Zero `Source.new` / `CaseSubmission::Source` w `spec/` | **Potwierdzone** | Brak matchy | `rg 'Source\.new\|CaseSubmission::Source' spec/` → 0 |
-| V-16 | Zero przykładów `\r`/CRLF w `spec/` | **Potwierdzone** | Brak matchy | `rg '\\r\|/\\\\r' spec/` → 0 |
-| V-17 | Brak `spec/models/redaction_finding_spec.rb` | **Potwierdzone** | Plik nie istnieje | `glob redaction_finding_spec.rb` → 0 |
-| V-18 | `split(/\n/, -1)` w `Engine#redact` | **Potwierdzone** | `engine.rb:15` | `ast-grep -p 'split($$$)' engine.rb` → 0 (regex literal); `rg 'split\(/\\\\n/, -1\)' engine.rb` → 1 |
-| V-19 | `process_case_submission_spec.rb` — 12 examples | **Potwierdzone** | 12 bloków `it` | `rg '^\s+it ' process_case_submission_spec.rb` → 12 |
-| V-20 | `debugging_cases_security_spec.rb` — 10 examples | **Potwierdzone** | 10 bloków `it` | `rg '^\s+it ' debugging_cases_security_spec.rb` → 10 |
-| V-21 | 2 runtime callery `CaseSubmission.new` | **Potwierdzone** | `debugging_cases_controller.rb:29`, `load_case.rb:22` | `ast-grep -p 'Intake::CaseSubmission.new($$$)' app/` → 2 |
+| # | Claim | Verdict | Evidence | Method |
+|---|-------|---------|----------|--------|
+| V-01 | Only runtime call-site `redaction_findings.create!` in `app/` | **Confirmed** | `process_case_submission.rb:46` | `ast-grep -p 'log_source.redaction_findings.create!($ARG)' app/` → 1 match |
+| V-02 | No mapper/DTO/`Data.define` for findings in redaction domain | **Confirmed** | No match in `app/services/redaction/`; grep `RedactionFinding.(new\|build\|from)` → 0 | `ast-grep -p 'Data.define($$$)' app/services/redaction/` → 0; `rg RedactionFinding\.(new\|build\|from) app/` → 0 |
+| V-03 | Findings hash has 4 keys: `finding_type`, `line_number`, `placeholder`, `risk_level` | **Confirmed** | `engine.rb:36–41` | `ast-grep -p 'findings << { finding_type: $A, line_number: $B, placeholder: $C, risk_level: $D }' app/` |
+| V-04 | 2 runtime callers `ProcessCaseSubmission.call` | **Confirmed** | `debugging_cases_controller.rb:30`, `load_case.rb:23` | `ast-grep -p 'Intake::ProcessCaseSubmission.call($$$)' app/` → 2 |
+| V-05 | 2 runtime call-sites `Redaction::Engine.redact` in `app/` | **Confirmed** | `process_case_submission.rb:36`, `:61` | `ast-grep -p 'Redaction::Engine.redact($$$)' app/` → 2 |
+| V-06 | Only `DebuggingCase.transaction` in `app/` | **Confirmed** | `process_case_submission.rb:27` | `ast-grep -p 'DebuggingCase.transaction' app/` → 1; `rg '\.transaction' app/` → 1 |
+| V-07 | 3× `create!` on 3 models in `ProcessCaseSubmission` | **Confirmed** | `:28` (`DebuggingCase`), `:38` (`LogSource`), `:46` (`RedactionFinding`) | `rg '\.create!' process_case_submission.rb` → 3 |
+| V-08 | `redact_metadata` — N call-sites in one class | **Refined → 5** | `:29`, `:30`, `:31`, `:32`, `:40` (report: 4) | `ast-grep -p 'redact_metadata($$$)' app/` → 5 |
+| V-09 | `ProcessCaseSubmission` ~72 lines | **Confirmed** | 72 file lines | `wc -l process_case_submission.rb` |
+| V-10 | 5 commits touching `process_case_submission.rb` | **Confirmed** | 5 commits in history | `git log --oneline -- process_case_submission.rb \| wc -l` → 5 |
+| V-11 | Zero same-commit co-change proc ↔ demo | **Confirmed** | No shared commits | `git log` + `git show --name-only` per proc commit → no `load_case.rb` |
+| V-12 | `load_case.rb` — 1 commit in history | **Confirmed** | `77b0291` | `git log --oneline -- load_case.rb \| wc -l` → 1 |
+| V-13 | `encrypts` only `customer_reference` / `sanitized_content`; metadata plain | **Confirmed** | `debugging_case.rb:5`, `log_source.rb:6`; no `encrypts` on title/description/environment/name | `ast-grep -p 'encrypts $_' app/models/` → 4 rows (2 submission-path) |
+| V-14 | `source.is_a?(Source)` branch in `normalize_sources` | **Confirmed** | `case_submission.rb:29` | `ast-grep -p 'source.is_a?(Source)' app/` → 1 |
+| V-15 | Zero `Source.new` / `CaseSubmission::Source` in `spec/` | **Confirmed** | No match | `rg 'Source\.new\|CaseSubmission::Source' spec/` → 0 |
+| V-16 | Zero `\r`/CRLF examples in `spec/` | **Confirmed (Jun-10 snapshot)** | No match at time of scan | `rg '\\r\|/\\\\r' spec/` → 0 |
+| V-17 | No `spec/models/redaction_finding_spec.rb` | **Confirmed (Jun-10 snapshot)** | File did not exist | `glob redaction_finding_spec.rb` → 0 |
+| V-18 | `split(/\n/, -1)` in `Engine#redact` | **Confirmed** | `engine.rb:15` | `ast-grep -p 'split($$$)' engine.rb` → 0 (regex literal); `rg 'split\(/\\\\n/, -1\)' engine.rb` → 1 |
+| V-19 | `process_case_submission_spec.rb` — 12 examples | **Confirmed (Jun-10 snapshot)** | 12 `it` blocks | `rg '^\s+it ' process_case_submission_spec.rb` → 12 |
+| V-20 | `debugging_cases_security_spec.rb` — 10 examples | **Confirmed** | 10 `it` blocks | `rg '^\s+it ' debugging_cases_security_spec.rb` → 10 |
+| V-21 | 2 runtime callers `CaseSubmission.new` | **Confirmed** | `debugging_cases_controller.rb:29`, `load_case.rb:22` | `ast-grep -p 'Intake::CaseSubmission.new($$$)' app/` → 2 |
 
-**Wpływ na ranking:** Żaden werdykt nie podważa pozycji kandydatów #1–#3. V-08 (5 vs 4 call-site'y `redact_metadata`) wzmacnia argument za IMPL-1 (#2), nie osłabia — do decyzji na etapie planowania: czy ekstrakcja obejmuje wszystkie 5 wywołań jednym helperem.
+**Ranking impact:** No verdict undermines candidates #1–#3. V-08 (5 vs 4 `redact_metadata` call-sites) strengthens the argument for IMPL-1 (#2), not weakens it — planning decision: whether extraction covers all 5 calls with one helper.
 
 ---
 
