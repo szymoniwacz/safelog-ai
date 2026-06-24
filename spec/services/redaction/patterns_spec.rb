@@ -33,4 +33,28 @@ RSpec.describe Redaction::Patterns do
       )
     end
   end
+
+  describe "labeled password fields" do
+    it "redacts password= and passwd= style assignments" do
+      raw = "login failed password=supersecret123456 passwd:anothersecret99"
+
+      result = Redaction::Engine.redact(raw)
+
+      expect(result.sanitized_text).to eq("login failed [PASSWORD_1] [PASSWORD_2]")
+      expect(result.sanitized_text).not_to include("supersecret123456")
+      expect(result.sanitized_text).not_to include("anothersecret99")
+      expect(result.findings).to contain_exactly(
+        have_attributes(
+          finding_type: "password",
+          placeholder: "[PASSWORD_1]",
+          risk_level: "high"
+        ),
+        have_attributes(
+          finding_type: "password",
+          placeholder: "[PASSWORD_2]",
+          risk_level: "high"
+        )
+      )
+    end
+  end
 end

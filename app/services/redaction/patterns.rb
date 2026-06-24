@@ -62,6 +62,12 @@ module Redaction
         placeholder_type: "TOKEN",
         risk_level: "high",
         regex: /\b(?:api[_-]?key|token|secret)\s*[=:]\s*["']?([A-Za-z0-9._-]{8,})["']?/i
+      },
+      {
+        finding_type: "password",
+        placeholder_type: "PASSWORD",
+        risk_level: "high",
+        regex: /\b(?:password|passwd|pwd)\s*[=:]\s*["']?([A-Za-z0-9._-]{8,})["']?/i
       }
     ].freeze
   end

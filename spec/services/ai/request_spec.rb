@@ -70,5 +70,29 @@ RSpec.describe Ai::Request do
 
       expect(request.messages).to eq([ { role: "user", content: "Sanitized evidence only." } ])
     end
+
+    it "accepts placeholder tokens instead of raw emails" do
+      request = described_class.new(
+        messages: [ { role: "user", content: "Login failed for [EMAIL_1] in checkout." } ]
+      )
+
+      expect(request.messages.first[:content]).to include("[EMAIL_1]")
+    end
+
+    it "rejects raw Authorization Bearer tokens in message content" do
+      expect do
+        described_class.new(
+          messages: [ { role: "user", content: "Authorization: Bearer sk-test-secret-token" } ]
+        )
+      end.to raise_error(ArgumentError, /raw Authorization Bearer tokens/)
+    end
+
+    it "rejects raw email addresses in message content" do
+      expect do
+        described_class.new(
+          messages: [ { role: "user", content: "Login failed for user@example.com" } ]
+        )
+      end.to raise_error(ArgumentError, /raw email addresses/)
+    end
   end
 end

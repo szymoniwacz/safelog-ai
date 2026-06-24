@@ -66,6 +66,7 @@ RSpec.describe "Debugging cases security (AGENTS.md guardrails)", type: :request
     end
   end
 
+  # Test-env log/test.log only; see spec/support/log_guard_operational_checklist.md
   describe "Rails test log guard" do
     it "does not write raw intake secrets to log/test.log after POST /debugging_cases (AGENTS.md)" do
       log_offset = SecurityPersistenceHelpers::TEST_LOG_PATH.exist? ? SecurityPersistenceHelpers::TEST_LOG_PATH.size : 0

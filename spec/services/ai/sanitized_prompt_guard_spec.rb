@@ -16,14 +16,18 @@ RSpec.describe "AGENTS.md AI guardrails" do
   end
 
   describe "sanitized prompt boundary" do
-    # Ai::Request trusts upstream sanitization; PromptBuilder is the sole producer
-    # of analyze prompts. Content safety is proven in analyze security specs.
-    it "documents that message content is not re-scanned at the request boundary" do
+    it "accepts placeholder-only evidence and rejects obvious raw-secret shapes" do
       request = Ai::Request.new(
         messages: [ { role: "user", content: "Evidence with [EMAIL_1] only." } ]
       )
 
       expect(request.messages.first[:content]).to include("[EMAIL_1]")
+
+      expect do
+        Ai::Request.new(
+          messages: [ { role: "user", content: "Authorization: Bearer sk-leaked" } ]
+        )
+      end.to raise_error(ArgumentError, /raw Authorization Bearer tokens/)
     end
 
     it "rejects forbidden raw-like metadata on AI requests" do

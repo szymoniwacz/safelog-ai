@@ -4,10 +4,14 @@ module Ai
   # Outbound AI request envelope. Sanitization is enforced upstream: only
   # Analysis::PromptBuilder (and future callers) may construct messages, and
   # those services must use redacted/sanitized case evidence only. This class
-  # validates request shape and blocks forbidden metadata keys; it does not
-  # re-scan message content — see request + analyze security specs for proof.
+  # validates request shape, blocks forbidden metadata keys, and applies a
+  # lightweight defense-in-depth content guard for obvious raw-secret shapes
+  # (Bearer tokens, unredacted emails). Placeholder tokens such as [EMAIL_1]
+  # are allowed.
   class Request
     FORBIDDEN_KEY_PATTERN = /raw|original|mapping/i
+    BEARER_TOKEN_PATTERN = /Authorization:\s*Bearer\s+\S+/i
+    RAW_EMAIL_PATTERN = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/
 
     attr_reader :messages, :case_ref
 
@@ -30,6 +34,18 @@ module Ai
         unless message.is_a?(Hash) && message[:role].is_a?(String) && message[:content].is_a?(String)
           raise ArgumentError, "each message must have string role and content"
         end
+
+        validate_message_content!(message[:content])
+      end
+    end
+
+    def validate_message_content!(content)
+      if content.match?(BEARER_TOKEN_PATTERN)
+        raise ArgumentError, "message content must not contain raw Authorization Bearer tokens"
+      end
+
+      if content.match?(RAW_EMAIL_PATTERN)
+        raise ArgumentError, "message content must not contain raw email addresses"
       end
     end
 

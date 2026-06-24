@@ -196,6 +196,26 @@ RSpec.describe "Debugging cases", type: :request do
       expect(response.body).not_to include(pasted_secret)
       expect(response.body).to include('aria-invalid="true"')
     end
+
+    it "re-renders new with 422 when pasted content exceeds the size limit" do
+      sign_in user
+      oversized_content = "x" * (Intake::CaseSubmission::MAX_PASTED_CONTENT_LENGTH + 1)
+
+      expect {
+        post debugging_cases_path, params: {
+          debugging_case: {
+            title: "Oversized paste case",
+            sources: [
+              { source_type: "rails_log", pasted_content: oversized_content }
+            ]
+          }
+        }
+      }.not_to change(DebuggingCase, :count)
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include("source 1 pasted content exceeds the 256KB limit")
+      expect(response.body).not_to include(oversized_content)
+    end
   end
 
   describe "GET /debugging_cases/:id" do

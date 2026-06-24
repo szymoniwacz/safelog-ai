@@ -10,6 +10,7 @@ Rails.application.routes.draw do
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
+  # Rate limiting deferred post-MVP — see context/foundation/test-plan.md §6.11
   resources :debugging_cases, only: [ :index, :new, :create, :show ] do
     collection do
       post :load_demo

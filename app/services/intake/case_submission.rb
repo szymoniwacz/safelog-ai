@@ -7,11 +7,14 @@ module Intake
 
     Source = Data.define(:source_type, :name, :pasted_content)
 
+    MAX_PASTED_CONTENT_LENGTH = 256_000
+
     attr_accessor :title, :description, :customer_reference, :environment, :sources
 
     validates :title, presence: true
     validate :at_least_one_source_with_content
     validate :source_types_are_valid
+    validate :pasted_content_within_limit
 
     def initialize(attributes = {})
       super
@@ -46,6 +49,18 @@ module Intake
         next if LogSource.source_types.key?(source.source_type.to_s)
 
         errors.add(:sources, "source #{index + 1} has an invalid source type")
+      end
+    end
+
+    def pasted_content_within_limit
+      sources.each_with_index do |source, index|
+        next if source.pasted_content.blank?
+        next if source.pasted_content.length <= MAX_PASTED_CONTENT_LENGTH
+
+        errors.add(
+          :sources,
+          "source #{index + 1} pasted content exceeds the 256KB limit"
+        )
       end
     end
   end

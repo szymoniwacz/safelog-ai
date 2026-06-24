@@ -99,5 +99,62 @@ RSpec.describe Intake::CaseSubmission do
       expect(submission.errors[:sources]).to include("source 1 has an invalid source type")
       expect(submission.errors[:sources]).to include("source 3 has an invalid source type")
     end
+
+    it "accepts pasted content at the size limit" do
+      submission = described_class.new(
+        title: "Checkout timeout",
+        sources: [
+          {
+            source_type: "rails_log",
+            pasted_content: "x" * described_class::MAX_PASTED_CONTENT_LENGTH
+          }
+        ]
+      )
+
+      expect(submission).to be_valid
+    end
+
+    it "rejects pasted content over the size limit" do
+      submission = described_class.new(
+        title: "Checkout timeout",
+        sources: [
+          {
+            source_type: "rails_log",
+            pasted_content: "x" * (described_class::MAX_PASTED_CONTENT_LENGTH + 1)
+          }
+        ]
+      )
+
+      expect(submission).not_to be_valid
+      expect(submission.errors[:sources].first).to include("source 1 pasted content exceeds the 256KB limit")
+    end
+
+    it "reports the UI slot number when only the second slot exceeds the limit" do
+      submission = described_class.new(
+        title: "Checkout timeout",
+        sources: [
+          { source_type: "rails_log", pasted_content: "request_id=req-1" },
+          {
+            source_type: "browser_console",
+            pasted_content: "x" * (described_class::MAX_PASTED_CONTENT_LENGTH + 1)
+          }
+        ]
+      )
+
+      expect(submission).not_to be_valid
+      expect(submission.errors[:sources].first).to include("source 2 pasted content exceeds the 256KB limit")
+    end
+
+    it "ignores blank slots when checking pasted content size" do
+      submission = described_class.new(
+        title: "Checkout timeout",
+        sources: [
+          { source_type: "rails_log", pasted_content: "" },
+          { source_type: "browser_console", pasted_content: "console error" }
+        ]
+      )
+
+      expect(submission).to be_valid
+    end
   end
 end
