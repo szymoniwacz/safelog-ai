@@ -23,6 +23,7 @@ gem "devise"
 # AI provider (env-gated; FakeClient in test/CI)
 gem "ruby-openai"
 gem "faraday", ">= 2.14.3" # CVE-2026-54297 (transitive via ruby-openai)
+gem "concurrent-ruby", ">= 1.3.7" # CVE-2026-54904–54906 (transitive via rails/solid_*)
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
