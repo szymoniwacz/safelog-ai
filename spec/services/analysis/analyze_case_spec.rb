@@ -91,6 +91,7 @@ RSpec.describe Analysis::AnalyzeCase do
       expect(result.ai_report.structured_json).to be_nil
       expect(result.ai_report.markdown_body).to be_nil
       expect(client.complete_calls).to eq(2)
+      expect(debugging_case.correlation_signals.count).to eq(1)
     end
 
     it "marks the report failed when the AI provider returns an HTTP error" do
@@ -131,6 +132,7 @@ RSpec.describe Analysis::AnalyzeCase do
       expect(result.user_message).to eq(Analysis::AnalyzeCase::FAILURE_MESSAGE)
       expect(result.ai_report).to be_nil
       expect(debugging_case.ai_reports.count).to eq(0)
+      expect(debugging_case.correlation_signals.count).to eq(0)
     end
 
     it "treats a nil ai_report as not successful" do

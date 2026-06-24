@@ -78,6 +78,28 @@ RSpec.describe Ai::OpenAiClient do
       )
     end
 
+    it "rejects truncated JSON in the assistant response" do
+      allow(openai_client).to receive(:chat).and_return(
+        "choices" => [ { "message" => { "content" => "{\"structured\":" } } ]
+      )
+
+      expect { client.complete(request) }.to raise_error(
+        Ai::InvalidResponseError,
+        "assistant response was not valid JSON"
+      )
+    end
+
+    it "rejects a JSON array instead of an object payload" do
+      allow(openai_client).to receive(:chat).and_return(
+        "choices" => [ { "message" => { "content" => [ structured, markdown ].to_json } } ]
+      )
+
+      expect { client.complete(request) }.to raise_error(
+        Ai::InvalidResponseError,
+        "assistant response must include structured and markdown"
+      )
+    end
+
     it "rejects assistant JSON missing structured or markdown keys" do
       allow(openai_client).to receive(:chat).and_return(
         "choices" => [ { "message" => { "content" => { "summary" => "only" }.to_json } } ]

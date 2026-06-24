@@ -33,6 +33,7 @@ RSpec.describe "Debugging case analyze", type: :request do
       expect(response).to redirect_to(new_user_session_path)
     end
 
+    # Cross-user IDOR matrix lives in spec/requests/debugging_cases_authorization_spec.rb.
     it "returns not found for another user's case" do
       sign_in other_user
 
