@@ -23,6 +23,22 @@ RSpec.describe "Encryption at rest (F-02)", type: :model do
   end
 
   describe DebuggingCase do
+    it "stores title, description, and environment as plaintext in SQLite" do
+      debugging_case = Intake::ProcessCaseSubmission.call(
+        user: user,
+        submission: Intake::CaseSubmission.new(
+          title: "Case #{plaintext_marker}",
+          description: "Details #{plaintext_marker}",
+          environment: "prod-#{plaintext_marker}",
+          sources: [ { source_type: "rails_log", pasted_content: "ok" } ]
+        )
+      ).debugging_case
+
+      expect(raw_column_value(DebuggingCase, :title, debugging_case.id)).to include(plaintext_marker)
+      expect(raw_column_value(DebuggingCase, :description, debugging_case.id)).to include(plaintext_marker)
+      expect(raw_column_value(DebuggingCase, :environment, debugging_case.id)).to include(plaintext_marker)
+    end
+
     it "stores customer_reference as ciphertext in SQLite" do
       debugging_case = Intake::ProcessCaseSubmission.call(
         user: user,
