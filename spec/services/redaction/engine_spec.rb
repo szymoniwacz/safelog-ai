@@ -4,6 +4,20 @@ require "rails_helper"
 
 RSpec.describe Redaction::Engine do
   describe ".redact" do
+    it "returns empty sanitized text and no findings for nil input" do
+      result = described_class.redact(nil)
+
+      expect(result.sanitized_text).to eq("")
+      expect(result.findings).to eq([])
+    end
+
+    it "returns empty sanitized text and no findings for empty input" do
+      result = described_class.redact("")
+
+      expect(result.sanitized_text).to eq("")
+      expect(result.findings).to eq([])
+    end
+
     it "redacts emails and authorization headers without storing originals in findings" do
       raw = <<~LOG.strip
         User login failed for user@example.com
