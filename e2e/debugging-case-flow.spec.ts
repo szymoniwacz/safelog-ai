@@ -55,6 +55,12 @@ test("full debugging case journey in the browser", async ({ page }) => {
   const reportMarkdown = page.getByRole("textbox", { name: "Report Markdown" });
   await expect(reportMarkdown).toContainText("## Hypothesis report");
 
+  /*
+   * F7 — Copy Markdown (clipboard): intentionally not automated here.
+   * The clipboard API is flaky in headless/automation contexts; manual
+   * smoke is sufficient per test-plan §7. RSpec covers the copy surface
+   * (Report Markdown textarea). Export/download below is the E2E substitute.
+   */
   const downloadPromise = page.waitForEvent("download");
   await page.getByRole("link", { name: "download the report" }).click();
   const download = await downloadPromise;
