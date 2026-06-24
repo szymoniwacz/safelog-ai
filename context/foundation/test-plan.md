@@ -87,7 +87,7 @@ The classic test base for this project. AI-native tools (if any) carry a
 | factories | FactoryBot | — | User and domain fixtures |
 | static security | Brakeman + bundler-audit + importmap audit | — | Wired in `bin/ci` and GitHub Actions |
 | manual browser smoke | Playwright MCP (`.cursor/prompts/m3l4-e2e-smoke.md`) | — | Cursor ad-hoc smoke; superseded for regression by `e2e/` specs |
-| accessibility | none | — | Manual smoke for UI changes; no axe wired |
+| accessibility | `@axe-core/playwright` (`e2e/accessibility.spec.ts`) | 4.12+ | Optional spot-check via `bin/e2e`; serious/critical WCAG A/AA tags only |
 
 **Stack grounding tools (current session):**
 - Docs: none (Context7 / framework docs MCP not available in session) — skipped; checked: 2026-05-29
@@ -370,12 +370,13 @@ Keep **security oracles** in RSpec request specs — Playwright asserts UI only.
 | `analyze-failure.spec.ts` | safe analyze failure UX (invalid AI via `X-E2E-AI-Client` header) |
 | `demo-case.spec.ts` | Load demo case (test server) |
 | `user-isolation.spec.ts` | cross-user show returns 404 / no case content |
+| `accessibility.spec.ts` | axe WCAG A/AA spot-check: dashboard after sign up, new debugging case form (serious/critical gate) |
 | `capture-*.spec.ts` (4) | certification screenshots only — skipped unless `PLAYWRIGHT_CAPTURE_SCREENSHOTS=1` |
 
 **Commands:**
 
 ```bash
-mise exec -- bin/e2e                  # prepare DB + test Rails server + 13 functional Playwright tests
+mise exec -- bin/e2e                  # prepare DB + test Rails server + 15 functional Playwright tests
 mise exec -- npm run test:e2e:install # Chromium only (first run)
 PLAYWRIGHT_SKIP_WEBSERVER=1 mise exec -- bin/e2e   # reuse running server on :3000
 ```
