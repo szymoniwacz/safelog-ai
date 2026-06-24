@@ -120,7 +120,7 @@ Requirements: `context/changes/ci-cd-code-review/requirements.md`.
 
 **URL:** https://safelog-ai.fly.dev/
 
-Manual deploy via `fly deploy --app safelog-ai` (see `context/deployment/deploy-plan.md`). SQLite persists on a Fly volume at `/rails/storage`. Health check: `GET /up` (200).
+GitHub Actions auto deploys on push to `main` (see `.github/workflows/fly-deploy.yml`); manual `fly deploy --app safelog-ai` remains available as a fallback. SQLite persists on a Fly volume at `/rails/storage`. Health check: `GET /up` (200).
 
 **Public demo (reviewers):** sign up or sign in, then use **New debugging case** and paste multiple log sources manually. **Load demo case** is off on Fly by default; set `SAFELOG_ENABLE_DEMO_LOADER=true` as a Fly secret to show the one-click fixture for certification review. After case creation, redaction, analyze, export, and archive behave the same as locally. Full comparison: `context/certification/certification-readiness.md` § Public demo vs local `load_demo`.
 

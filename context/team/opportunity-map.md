@@ -16,7 +16,7 @@
 | Engine findings hash → DB with no typed contract (TD-2) | Implicit 4-key hash at sole `create!` call-site; security specs scan values not keys | `RedactionFinding.build_from_engine_finding` at persist seam | Contract spec + factory on demo fixture; no schema change | mock / local | Review / CI gate + internal refactor |
 | Intake changes risk silent regressions (27 gaps, 15 untested paths) | `bin/ci` + security oracles; manual review of `ProcessCaseSubmission` | Rollback specs (G-01/G-02) before any extraction | Add 2 rollback examples on synthetic failure; green `bin/ci` | mock / local | Review / CI gate |
 | Windows CRLF pastes may corrupt line-based redaction (TD-5) | LF-only `split(/\n/)`; no CRLF specs | Normalize `\r\n` → `\n` in Engine | Characterization spec with `"line\r\nsecret"` input; then normalize | mock / local | Feature (paste fidelity) or Wait |
-| Manual `fly deploy`; no GHA deploy workflow | Fly CLI + deploy-plan; `/up` health check | GHA workflow triggered on tag/main (read-only smoke after deploy) | Draft workflow YAML; dry-run against staging/mock | local / non-sensitive | Async / remote work |
+| GitHub Actions auto deploy on `main`; manual `fly deploy` remains available | Fly CLI + deploy-plan; `/up` health check | Fly auto-deploy workflow configured; smoke can still be run after deploy | Draft workflow YAML; dry-run against staging/mock | local / non-sensitive | Async / remote work |
 | E2E covers happy path only (TD-8) | 135 RSpec + 5 Playwright happy-path; `bin/e2e` optional | One Playwright spec for validation failure | Single E2E: submit empty sources → see error; no prod data | mock / local | Review / CI gate |
 
 ## Signal Detail
