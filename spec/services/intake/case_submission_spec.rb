@@ -52,6 +52,14 @@ RSpec.describe Intake::CaseSubmission do
       expect(submission.errors[:sources]).to include("must include at least one non-blank log source")
     end
 
+    it "treats nil sources as an empty list and fails validation" do
+      submission = described_class.new(title: "Checkout timeout", sources: nil)
+
+      expect(submission).not_to be_valid
+      expect(submission.errors[:sources]).to include("must include at least one non-blank log source")
+      expect(submission.sources).to eq([])
+    end
+
     it "rejects invalid source types" do
       submission = described_class.new(
         title: "Checkout timeout",
