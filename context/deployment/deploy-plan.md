@@ -298,6 +298,7 @@ fly ssh console --app safelog-ai -C "bin/rails runner 'puts ActiveRecord::Base.c
 | Public URL with Devise auth | Unauthenticated users see sign-in only; register open for course demo | Accept for course demo; restrict registration later if needed |
 | AR Encryption keys required | App boot may fail or diagnostic writes error without Fly encryption secrets | Set all three `RAILS_ACTIVE_RECORD_ENCRYPTION_*` before demo |
 | Manual deploy only | Drift between local and prod until CI deploy added | Document deploy commands; add GH Action later |
+| Synchronous Analyze in request | Long OpenAI calls may hit Fly/proxy request timeouts | Keep FakeClient for demos; set reasonable `OPENAI_API_KEY` model; async Analyze is post-MVP (`roadmap.md` Parked) |
 | Estimated cost ~$6–8/mo | Not zero-cost | Budget for course demo window |
 
 ---
