@@ -187,10 +187,10 @@ _Resolved: MVP uses server-rendered Rails views per PRD Non-Goals (2026-05-28)._
 ## Parked
 
 - **Unarchive debugging case** — Why parked: PRD FR-010 and S-05 deliver archive-only lifecycle (set `archived_at`, hide from default list, show via Archived filter); no restore path in MVP. Conscious scope cut — avoids undo semantics, accidental re-surfacing in the active list, and extra authorization/index UX under the ~3-week budget. Revisit post-MVP if users mis-archive cases often.
-- **Real observability API integrations** — Why parked: PRD §Non-Goals; manual paste only in MVP.
+- **File upload + observability API integrations** — Why parked: PRD §Non-Goals; paste-only intake in MVP (source-type labels are metadata — no CloudWatch/New Relic connectors, no file upload). Baseline `/up` health check and Rails logging only; no Sentry/OTel stack. Revisit post-MVP when external log pull becomes a roadmap slice.
 - **Log management / incident-command platform scope** — Why parked: PRD §Non-Goals.
 - **Raw log retention in any form** — Why parked: PRD §Non-Goals and guardrails.
-- **Adding log sources after initial submission** — Why parked: PRD §Non-Goals; all sources in one request for MVP.
+- **Adding log sources after case creation** — Why parked: PRD §Non-Goals and S-02 intake model — all pasted sources must be submitted in the single create request; no append/edit-after-create routes or UI. Keeps the sanitized-evidence snapshot immutable and avoids re-opening the redaction pipeline mid-lifecycle. Revisit post-MVP via `/10x-new` if users need incremental intake.
 - **Background jobs for analysis** — Why parked: PRD §Non-Goals; synchronous Analyze only.
 - **Multi-tenancy and role models** — Why parked: PRD §Non-Goals.
 - **Container packaging as MVP gate** — Why parked: PRD §Non-Goals; Fly deploy completed 2026-06-09 without blocking feature work.

@@ -472,6 +472,8 @@ contributors should respect these unless the underlying assumption changes.
 - **Real OpenAI API in CI or local default** — violates AGENTS.md; WebMock + FakeClient only. Re-evaluate never for CI; production uses optional `OPENAI_API_KEY`. (Source: AGENTS.md.)
 - **Rate limiting / abuse flood scenarios** — solo course MVP with flat user ownership; low blast radius. Re-evaluate if multi-tenant or public signup scales. (Source: Phase 2 interview Q5.)
 - **Unarchive / restore archived cases** — MVP is archive-only per PRD FR-010; no route, UI, or `unarchive!` on `DebuggingCase`. Archive and Archived-filter flows are covered; clearing `archived_at` is deliberately out of scope (see `roadmap.md` Parked). Re-evaluate post-MVP if mis-archive recovery becomes a top user pain.
+- **Post-create log source intake** — no request/system/Playwright coverage for append-or-edit flows after case create; PRD Non-Goals and `roadmap.md` Parked. Re-evaluate when incremental intake ships.
+- **File upload and external log-source APIs** — no specs for multipart upload, S3 ingest, or live CloudWatch/New Relic connectors; paste-only MVP per PRD and `roadmap.md` Parked.
 
 ## 8. Freshness Ledger
 
