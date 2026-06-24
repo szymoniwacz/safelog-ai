@@ -29,7 +29,7 @@ hints:
 | Auth | Devise | `database_authenticatable`, `registerable`, `validatable` only |
 | AI | Provider-agnostic adapter | `Ai::FakeClient` in test/CI; OpenAI optional via `OPENAI_API_KEY` |
 | Tests | RSpec | 240 examples + SimpleCov 100% line/branch in `bin/ci`; 13 functional Playwright via `bin/e2e` |
-| CI | GitHub Actions + `bin/ci` | Lint, security audits, RSpec — **no auto-deploy** (manual `fly deploy`) |
+| CI | GitHub Actions + `bin/ci` | Lint, security audits, RSpec, plus auto-deploy on push to `main` |
 | Hosting | Fly.io + Docker | Deployed at https://safelog-ai.fly.dev/ (verified 2026-06-09; suspended when idle); SQLite on Fly volume |
 
 PostgreSQL is a **future scale option only** — not used in the shipped MVP.
@@ -42,7 +42,7 @@ SafeLog AI is a solo, after-hours web MVP with email/password auth, encrypted di
 
 **Database:** **SQLite** for MVP — simpler local and Fly.io deploy, sufficient for course/demo scale, compatible with Active Record Encryption. Bootstrap initially scaffolded with `--database postgresql`; app config was switched to SQLite before feature work (see `config/database.yml`, `storage/`).
 
-**Operations:** GitHub Actions runs CI gates on push/PR. Production deploy is **manual** `fly deploy` per `context/deployment/deploy-plan.md` — first deploy completed 2026-06-09; auto-deploy on merge not configured yet (Architect/Champion may extend).
+**Operations:** GitHub Actions runs CI gates on push/PR. Production deploy is now automated on successful pushes to `main` via `.github/workflows/fly-deploy.yml`; manual `fly deploy` remains a fallback for maintenance and emergency restores.
 
 Auth, AI, and encryption flags are set; background jobs, payments, realtime, and external log integrations stay out of scope per the PRD.
 

@@ -1,0 +1,24 @@
+name: Fly Auto Deploy
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
+    runs-on: ubuntu-latest
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Install flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@v1
+        with:
+          version: latest
+
+      - name: Deploy to Fly.io
+        run: flyctl deploy --config fly.toml --app safelog-ai --remote-only

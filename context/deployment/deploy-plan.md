@@ -2,7 +2,7 @@
 
 ## Deployment status
 
-**Completed and verified:** 2026-06-09 (initial), **2026-06-22** (certification redeploy)  
+**Completed and verified:** 2026-06-09 (initial), **2026-06-22** (certification redeploy)
 **Runtime policy:** App may be **intentionally suspended** when not needed for demo or review. The URL is not expected to respond while suspended; run `fly deploy --app safelog-ai` (or start machines) before a public demo.
 
 | Item | Status |
@@ -14,7 +14,7 @@
 | End-to-end | Sign-in, case flow, and deploy process verified manually (2026-06-09; redeploy 2026-06-22) |
 | Current runtime | **Running** after 2026-06-22 redeploy for certification submission |
 
-Deploy method: manual `fly deploy --app safelog-ai` (no GitHub Actions deploy workflow).
+Deploy method: GitHub Actions auto deploy on push to `main`; manual `fly deploy --app safelog-ai` remains available as a fallback.
 
 ---
 
@@ -26,9 +26,9 @@ Deploy the **full MVP** (F-01–S-06) to Fly.io as a **public course demo** usin
 - SQLite files on a Fly Volume mounted at `/rails/storage`
 - Single Machine in **`fra`** (Frankfurt), `min_machines_running = 1`
 - Devise auth, encrypted diagnostic schema, safe intake, analyze, export, archive
-- **Manual** `fly deploy` (no GitHub Actions deploy workflow yet — per [`context/foundation/infrastructure.md`](../foundation/infrastructure.md))
+- **Manual** `fly deploy` remains available for emergency restores and maintenance; auto-deploy on `main` is configured in `.github/workflows/fly-deploy.yml`.
 
-**Out of scope for this deploy:** CI auto-deploy, staging app, Postgres, Redis, LiteFS, backups automation, custom domain/DNS.
+**Out of scope for this deploy:** staging app, Postgres, Redis, LiteFS, backups automation, custom domain/DNS.
 
 ```mermaid
 flowchart LR
@@ -80,7 +80,7 @@ flowchart LR
 | File | Note |
 |------|------|
 | [`.dockerignore`](../../.dockerignore) | `/vendor/bundle` excluded | ✅ Applied |
-| [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) | Add deploy workflow later; not part of manual deploy |
+| [`.github/workflows/fly-deploy.yml`](../../.github/workflows/fly-deploy.yml) | GitHub Actions auto-deploy on successful `main` branch pushes |
 
 ### Do not change for this deploy
 
@@ -132,6 +132,10 @@ fly secrets set RAILS_MASTER_KEY="$(cat config/master.key)" --app safelog-ai
 ```
 
 Rails 8 derives `SECRET_KEY_BASE` from credentials via `RAILS_MASTER_KEY` — no separate `SECRET_KEY_BASE` secret needed if credentials are configured.
+
+#### Required for GitHub Actions auto-deploy
+
+Set the repository secret `FLY_API_TOKEN` in GitHub so `.github/workflows/fly-deploy.yml` can deploy on `main`.
 
 #### Required before first MVP deploy (not just `/up`)
 

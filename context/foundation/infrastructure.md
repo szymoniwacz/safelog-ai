@@ -126,9 +126,9 @@ RAILS_ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT
 | App | `safelog-ai` |
 | Region | `fra` |
 | Volume | `data` → `/rails/storage` |
-| Deploy | Manual `fly deploy --app safelog-ai`; app may be suspended when not needed |
+| Deploy | GitHub Actions auto deploy on successful pushes to `main`; app may be suspended when not needed |
 
-Verified: app boot, SQLite persistence on volume, `/up` health checks passing, end-to-end browser access.
+Verified: app boot, SQLite persistence on volume, `/up` health checks passing, end-to-end browser access. Auto-deploy is configured in `.github/workflows/fly-deploy.yml`.
 
 Deployment flow:
 
