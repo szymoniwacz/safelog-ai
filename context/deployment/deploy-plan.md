@@ -152,11 +152,17 @@ Generate encryption keys locally:
 mise exec -- bin/rails db:encryption:init
 ```
 
-#### Optional — real AI analyze (otherwise FakeClient + UI notice)
+#### Optional — real AI analyze (default: FakeClient + UI notice)
+
+Without `OPENAI_API_KEY`, production uses `Ai::FakeClient` — analyze succeeds with deterministic sample hypotheses. The dashboard and case show page display a demo-AI callout so reviewers know output is not from OpenAI.
+
+Set the secret only when you want live provider output:
 
 ```bash
 fly secrets set OPENAI_API_KEY="..." --app safelog-ai
 ```
+
+CI and `RAILS_ENV=test` always use `FakeClient` regardless of this secret.
 
 #### Previously shell-only (now superseded)
 

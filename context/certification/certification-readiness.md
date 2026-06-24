@@ -277,6 +277,12 @@ Reviewers and course staff often compare the README demo (which mentions **Load 
 
 Do **not** expect a **Load demo case** button on Fly unless `SAFELOG_ENABLE_DEMO_LOADER` is set — absence is default, not a deploy bug.
 
+### Demo AI client (FakeClient default)
+
+Public Fly and local dev without `OPENAI_API_KEY` use `Ai::FakeClient` — analyze completes with canned hypothesis text, not live OpenAI. The signed-in **dashboard** and **case show** pages show a callout when this mode is active.
+
+**Reviewer expectation:** After **Analyze case**, read the report as a pipeline demo (redaction → correlation → structured report), not as provider-generated diagnosis. Optional: `fly secrets set OPENAI_API_KEY="..."` — see README § AI client and `context/deployment/deploy-plan.md`.
+
 ### Commands reference
 
 ```bash

@@ -11,6 +11,10 @@
   <% end %>
 </div>
 
+<% if Ai::ClientResolver.fake_client_active? %>
+  <p class="callout callout--info"><em>Analyze returns sample AI output until OPENAI_API_KEY is set — expected on Fly until you add the secret. See README § AI client.</em></p>
+<% end %>
+
 <section class="card">
   <p class="card__hint">Create a case with multiple pasted log sources. SafeLog redacts sensitive values in memory and stores sanitized evidence only.</p>
 </section>
