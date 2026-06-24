@@ -16,7 +16,7 @@ scope: Copy-paste guide for all three 10xDevs certification forms
 
 | Step | Command / action | Expected |
 |------|------------------|----------|
-| Local CI | `mise exec -- bin/ci` | 181 examples, 0 failures |
+| Local CI | `mise exec -- bin/ci` | 228 examples, 0 failures |
 | Production health | `curl -sf https://safelog-ai.fly.dev/up` | HTTP 200 |
 | Fly redeploy (if down) | `fly deploy --app safelog-ai` | `/up` returns 200 |
 | Architect PDF | `npm run cert:architecture-pdf` | `architecture-report.pdf` exists |
@@ -35,11 +35,11 @@ Platform post: *Certyfikacja 10xBuilder: Formularz zgłoszeniowy i kluczowe zasa
 | **Public URL** | https://safelog-ai.fly.dev/ |
 | **Repository** | https://github.com/szymoniwacz/safelog-ai |
 | **Stack** | Rails 8.1, SQLite, Devise, server-rendered ERB, Fly.io |
-| **CI evidence** | https://github.com/szymoniwacz/safelog-ai/actions/runs/27950236114 |
+| **CI evidence** | https://github.com/szymoniwacz/safelog-ai/actions/runs/27970702328 |
 
 ### Project summary (PL)
 
-SafeLog AI to aplikacja Rails do bezpiecznego debugowania incydentów produkcyjnych z wielu źródeł logów. Surowe logi są redagowane **w pamięci** przed zapisem i przed wysłaniem do AI — persystowane są wyłącznie sanityzowane dowody (szyfrowane w SQLite). Użytkownik tworzy case z wielu wklejonych źródeł, widzi podsumowanie redakcji, uruchamia analizę AI (raport hipotez, nie werdykt), eksportuje Markdown i archiwizuje case. Auth: Devise; izolacja per-user (404 cross-user). Testy: 181 RSpec + 8 system + 11 Playwright E2E; fake AI w CI.
+SafeLog AI to aplikacja Rails do bezpiecznego debugowania incydentów produkcyjnych z wielu źródeł logów. Surowe logi są redagowane **w pamięci** przed zapisem i przed wysłaniem do AI — persystowane są wyłącznie sanityzowane dowody (szyfrowane w SQLite). Użytkownik tworzy case z wielu wklejonych źródeł, widzi podsumowanie redakcji, uruchamia analizę AI (raport hipotez, nie werdykt), eksportuje Markdown i archiwizuje case. Auth: Devise; izolacja per-user (404 cross-user). Testy: 228 RSpec + 9 system + 11 Playwright E2E; fake AI w CI.
 
 ### Screenshots to attach
 
@@ -136,12 +136,12 @@ Local alternative: `mise exec -- bin/dev` → **Load demo case** (dev/test only)
 
 | Check | Result |
 |-------|--------|
-| `bin/ci` | 181 examples, 0 failures |
+| `bin/ci` | 228 examples, 0 failures |
 | `bin/e2e --grep-invert capture` | 11 passed |
 | `npm run depcruise:validate` | 0 violations |
 | `packages/ai-toolkit` smoke | passed |
 | Fly `/up` | 200 |
-| GHA `main` | [run 27950236114](https://github.com/szymoniwacz/safelog-ai/actions/runs/27950236114) success |
+| GHA `main` | [run 27970702328](https://github.com/szymoniwacz/safelog-ai/actions/runs/27970702328) success |
 
 ---
 

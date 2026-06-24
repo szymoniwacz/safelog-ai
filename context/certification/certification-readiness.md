@@ -30,7 +30,7 @@ Full rules, SafeLog artifact mapping, and recommended strategy: [`submission-gui
 
 | Badge | Modules | Verdict | Summary |
 |-------|---------|---------|---------|
-| **10xBuilder** | M1–M3 | **READY** | MVP shipped; 181 RSpec + 8 system + 11 functional Playwright; Fly.io at https://safelog-ai.fly.dev/; submission screenshots captured; local `bin/ci` + remote GHA green on `main` (2026-06-22). |
+| **10xBuilder** | M1–M3 | **READY** | MVP shipped; 228 RSpec + 9 system + 11 functional Playwright; Fly.io at https://safelog-ai.fly.dev/; submission screenshots captured; local `bin/ci` + remote GHA green on `main` (2026-06-22). |
 | **10xArchitect** | M4 | **READY** | M4L2–L5 complete — repo map, flow research, ranked refactors, DDD distillation + invariant/ACL plans; [`architecture-report.md`](architecture-report.md) two-pager; readiness review + excerpt screenshots. |
 | **10xChampion** | M5 | **READY** | M5L2 review agent + M5L3 GHA AI review (PR #11 fail / #12 pass) + M5L4 `@szymoniwacz/ai-toolkit` on GitHub Packages ([PR #13](https://github.com/szymoniwacz/safelog-ai/pull/13), [run 27877220442](https://github.com/szymoniwacz/safelog-ai/actions/runs/27877220442)); readiness review + screenshots. |
 
@@ -71,10 +71,10 @@ flowchart LR
 | CRUD — create, read (index/show), archive | **PASS** | Request specs; no edit/destroy (intentional MVP) |
 | Business logic — redaction, intake, correlation, analyze, export | **PASS** | `app/services/*`; service + request specs |
 | Context documents — PRD, roadmap, test-plan, infra, deploy-plan | **PASS** | `context/foundation/*` |
-| Tests — meaningful coverage | **PASS** | 181 RSpec + 8 system + 11 functional Playwright (15 total incl. 4 capture specs) |
+| Tests — meaningful coverage | **PASS** | 228 RSpec + 9 system + 11 functional Playwright (15 total incl. 4 capture specs) |
 | CI/CD — local gate | **PASS** | `mise exec -- bin/ci` green 2026-06-22 |
 | CI/CD — GitHub Actions config | **PASS** | `.github/workflows/ci.yml` parity with `config/ci.rb` |
-| CI/CD — remote GHA on latest `main` | **PASS** | [Run 27950236114](https://github.com/szymoniwacz/safelog-ai/actions/runs/27950236114) on `43f70df` (2026-06-22); all four jobs green; 181 RSpec examples |
+| CI/CD — remote GHA on latest `main` | **PASS** | [Run 27970702328](https://github.com/szymoniwacz/safelog-ai/actions/runs/27970702328) on `2ecea64` (2026-06-22); all four jobs green; 228 RSpec examples |
 | Public URL | **PASS** | https://safelog-ai.fly.dev/ — redeploy verified 2026-06-22 |
 | Deployment evidence | **PASS** | `deploy-plan.md` § Deployment status + lessons learned; manual E2E verification |
 | Demo flow — local | **PASS** | README demo section; **Load demo case** + manual intake; system + Playwright specs |
@@ -97,8 +97,8 @@ flowchart LR
 ### Commands (verified 2026-06-22)
 
 ```bash
-mise exec -- bin/ci                              # 181 examples — PASS
-mise exec -- bundle exec rspec spec/system       # 8 examples — PASS
+mise exec -- bin/ci                              # 228 examples — PASS
+mise exec -- bundle exec rspec spec/system       # 9 examples — PASS
 mise exec -- bin/e2e                             # 11 functional Playwright tests — PASS
 mise exec -- bin/dev                             # local demo
 curl -sf https://safelog-ai.fly.dev/up           # production health — PASS after redeploy
@@ -108,7 +108,7 @@ curl -sf https://safelog-ai.fly.dev/up           # production health — PASS af
 
 - Local: `config/ci.rb` — setup, RuboCop, bundler-audit, importmap audit, Brakeman, RSpec.
 - GHA: four jobs (`scan_ruby`, `scan_js`, `lint`, `test`); same tools.
-- Remote: latest `main` verified 2026-06-22 — [run 27950236114](https://github.com/szymoniwacz/safelog-ai/actions/runs/27950236114) (`43f70df`; lint, scan_ruby, scan_js, test all success).
+- Remote: latest `main` verified 2026-06-22 — [run 27970702328](https://github.com/szymoniwacz/safelog-ai/actions/runs/27970702328) (`2ecea64`; lint, scan_ruby, scan_js, test all success).
 - Playwright: optional (`bin/e2e`); not in `bin/ci` (see `test-plan.md` §6.9).
 
 ---

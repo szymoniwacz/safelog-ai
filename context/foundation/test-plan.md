@@ -79,7 +79,7 @@ The classic test base for this project. AI-native tools (if any) carry a
 
 | Layer | Tool | Version | Notes |
 |-------|------|---------|-------|
-| unit + integration | RSpec | 3.x (via rspec-rails) | Primary layer; 181 examples across services, requests, models, system |
+| unit + integration | RSpec | 3.x (via rspec-rails) | Primary layer; 228 examples across services, requests, models, system |
 | HTTP integration | RSpec request specs | — | Security, authorization matrix, persistence oracles |
 | user flows | Capybara system specs (`spec/system`) | 3.40 (rack_test) | Browser-visible happy paths; same-thread driver for speed + transactional fixtures |
 | browser E2E | Playwright (`e2e/`, `@playwright/test`) | 1.50+ | Real Chromium journeys; optional gate via `bin/e2e` |
@@ -105,7 +105,7 @@ The full set of gates that must pass before a change reaches production.
 | bundler-audit | `bin/ci`, GHA `scan_ruby` | required | vulnerable gems |
 | importmap audit | `bin/ci`, GHA `scan_js` | required | JS dependency CVEs |
 | Brakeman | `bin/ci`, GHA `scan_ruby` | required | Rails security patterns |
-| RSpec (181) | `bin/ci`, GHA `test` | required | logic, security, and system-flow regressions |
+| RSpec (228) | `bin/ci`, GHA `test` | required | logic, security, and system-flow regressions |
 | Full `bin/ci` locally before push | developer workflow | required (AGENTS.md) | combined gate failures |
 | Capybara system specs (`spec/system`) | `bin/ci` (via full RSpec) | required | user-visible flows (auth, intake, analyze, archive) |
 | Playwright E2E (`e2e/`) | `mise exec -- bin/e2e` | optional | real Chromium regression; not in `bin/ci` (see §6.9) |
@@ -376,7 +376,7 @@ PLAYWRIGHT_SKIP_WEBSERVER=1 mise exec -- bin/e2e   # reuse running server on :30
 
 **CI policy:** Playwright is **not** wired into `bin/ci` or GHA `test` job —
 adds Node + Chromium install, separate Rails boot, and ~30–60s latency on top
-of 181 RSpec examples. Capybara system specs already guard user flows in CI.
+of 228 RSpec examples. Capybara system specs already guard user flows in CI.
 Run `bin/e2e` locally before Demo Day or after UI changes.
 
 **Selectors:** `getByRole`, `getByLabel`, scoped `section.card` + `legend` for
