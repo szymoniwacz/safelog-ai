@@ -1,0 +1,54 @@
+<header class="page-header">
+  <h1>Edit debugging case</h1>
+  <p class="page-header__lead">Update case metadata. Log sources cannot be changed after creation — sanitized content stays as submitted.</p>
+</header>
+
+<% if @debugging_case.errors.any? %>
+  <div id="error_explanation">
+    <h2><%= pluralize(@debugging_case.errors.count, "error") %> prohibited this case from being saved:</h2>
+    <ul>
+      <% @debugging_case.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<%= form_with model: @debugging_case, local: true, html: { class: "form-panel" } do |form| %>
+  <fieldset>
+    <legend>Case details</legend>
+
+    <div class="<%= form_field_css_class("form-field", invalid: title_field_invalid?(@debugging_case.errors)) %>">
+      <%= form.label :title, "Title" %>
+      <%= form.text_field :title,
+            required: true,
+            aria: {
+              invalid: title_field_invalid?(@debugging_case.errors),
+              describedby: (field_error_id("title") if title_field_invalid?(@debugging_case.errors))
+            } %>
+      <% if title_field_invalid?(@debugging_case.errors) %>
+        <span class="field-error" id="<%= field_error_id("title") %>"><%= @debugging_case.errors[:title].first %></span>
+      <% end %>
+    </div>
+
+    <div class="form-field">
+      <%= form.label :description, "Description" %>
+      <%= form.text_area :description, rows: 3 %>
+    </div>
+
+    <div class="form-field">
+      <%= form.label :customer_reference, "Customer reference" %>
+      <%= form.text_field :customer_reference %>
+    </div>
+
+    <div class="form-field">
+      <%= form.label :environment, "Environment" %>
+      <%= form.text_field :environment, placeholder: "e.g. production" %>
+    </div>
+  </fieldset>
+
+  <div class="form-actions">
+    <%= form.submit "Save changes", class: "btn" %>
+    <%= link_to "Cancel", debugging_case_path(@debugging_case) %>
+  </div>
+<% end %>

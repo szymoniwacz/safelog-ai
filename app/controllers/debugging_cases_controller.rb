@@ -38,6 +38,27 @@ class DebuggingCasesController < AuthenticatedController
     end
   end
 
+  def edit
+    @debugging_case = current_user.debugging_cases.find(params[:id])
+  end
+
+  def update
+    @debugging_case = current_user.debugging_cases.find(params[:id])
+
+    if @debugging_case.update(case_metadata_params)
+      redirect_to debugging_case_path(@debugging_case), notice: "Case updated."
+    else
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    debugging_case = current_user.debugging_cases.find(params[:id])
+    debugging_case.destroy!
+
+    redirect_to debugging_cases_path, notice: "Case deleted."
+  end
+
   def analyze
     debugging_case = current_user.debugging_cases.includes(:log_sources).find(params[:id])
     if Rails.env.test?
@@ -100,6 +121,15 @@ class DebuggingCasesController < AuthenticatedController
       :customer_reference,
       :environment,
       sources: [ :source_type, :name, :pasted_content ]
+    )
+  end
+
+  def case_metadata_params
+    params.require(:debugging_case).permit(
+      :title,
+      :description,
+      :customer_reference,
+      :environment
     )
   end
 

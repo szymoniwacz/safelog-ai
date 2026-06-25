@@ -15,7 +15,7 @@ Rails.application.routes.draw do
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   # Rate limiting deferred post-MVP — see context/foundation/test-plan.md §6.11
-  resources :debugging_cases, only: [ :index, :new, :create, :show ] do
+  resources :debugging_cases, only: [ :index, :new, :create, :show, :edit, :update, :destroy ] do
     collection do
       post :load_demo
     end

@@ -5,10 +5,16 @@
 <div class="page-actions">
   <%= link_to "All cases", debugging_cases_path %>
   <%= link_to "New debugging case", new_debugging_case_path %>
+  <%= link_to "Edit case", edit_debugging_case_path(@debugging_case) %>
   <%= link_to "Dashboard", root_path %>
   <% unless @debugging_case.archived? %>
     <%= button_to "Archive case", archive_debugging_case_path(@debugging_case), method: :post, class: "btn btn--danger" %>
   <% end %>
+  <%= button_to "Delete case",
+        debugging_case_path(@debugging_case),
+        method: :delete,
+        class: "btn btn--danger",
+        form: { data: { turbo_confirm: "Permanently delete this case? This cannot be undone." } } %>
 </div>
 
 <section class="card card--highlight">

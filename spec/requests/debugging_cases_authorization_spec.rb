@@ -69,6 +69,41 @@ RSpec.describe "Debugging cases authorization", type: :request do
     end
   end
 
+  describe "GET /debugging_cases/:id/edit" do
+    it "returns not found for another user's case" do
+      sign_in other_user
+
+      get edit_debugging_case_path(debugging_case)
+
+      expect_not_found_without_forbidden
+    end
+  end
+
+  describe "PATCH /debugging_cases/:id" do
+    it "returns not found for another user's case" do
+      sign_in other_user
+
+      patch debugging_case_path(debugging_case), params: {
+        debugging_case: { title: "Stolen title" }
+      }
+
+      expect_not_found_without_forbidden
+      expect(debugging_case.reload.title).to eq("Owner-only case")
+    end
+  end
+
+  describe "DELETE /debugging_cases/:id" do
+    it "returns not found for another user's case" do
+      sign_in other_user
+
+      expect {
+        delete debugging_case_path(debugging_case)
+      }.not_to change(DebuggingCase, :count)
+
+      expect_not_found_without_forbidden
+    end
+  end
+
   describe "GET /debugging_cases/:id/download_report" do
     it "returns not found for another user's case" do
       sign_in other_user
