@@ -1,6 +1,6 @@
 ---
 project: SafeLog AI
-updated: 2026-06-25
+updated: 2026-06-26
 scope: Copy-paste guide for all three 10xDevs certification forms
 ---
 
@@ -14,13 +14,13 @@ scope: Copy-paste guide for all three 10xDevs certification forms
 
 ## Before you submit
 
-| Step | Command / action | Expected |
-|------|------------------|----------|
-| Fly deploy (ship latest `main`) | `fly deploy --app safelog-ai` | `curl -sf https://safelog-ai.fly.dev/up` → 200; **Cases** index shows **Actions** (Edit / Delete) |
-| Local CI | `mise exec -- bin/ci` | 280 examples, 0 failures |
-| Production health | `curl -sf https://safelog-ai.fly.dev/up` | HTTP 200 |
-| Fly redeploy (if down) | `fly deploy --app safelog-ai` | `/up` returns 200 |
-| Architect PDF | `npm run cert:architecture-pdf` | `architecture-report.pdf` exists |
+| Step | Command / action | Expected | Status |
+|------|------------------|----------|--------|
+| Local CI | `mise exec -- bin/ci` | 280 examples, 0 failures | **DONE** 2026-06-26 |
+| Fly deploy (CRUD on production) | `fly deploy --app safelog-ai` | `/up` 200; **Cases** index shows **Actions** | **DONE** 2026-06-26 |
+| Builder screenshots 01–08 | `e2e/capture-submission-screenshots.spec.ts` | 8 PNGs in `screenshots/builder/` | **DONE** 2026-06-26 |
+| Production health | `curl -sf https://safelog-ai.fly.dev/up` | HTTP 200 | **DONE** |
+| Architect PDF | `npm run cert:architecture-pdf` | `architecture-report.pdf` exists | **DONE** |
 
 ---
 
@@ -36,7 +36,7 @@ Platform post (course): *10xBuilder certification: submission form and key rules
 | **Public URL** | https://safelog-ai.fly.dev/ |
 | **Repository** | https://github.com/szymoniwacz/safelog-ai |
 | **Stack** | Rails 8.1, SQLite, Devise, server-rendered ERB, Fly.io |
-| **CI evidence** | https://github.com/szymoniwacz/safelog-ai/actions/runs/28185226849 |
+| **CI evidence** | https://github.com/szymoniwacz/safelog-ai/actions/runs/28200826502 |
 
 ### Project summary
 
@@ -44,16 +44,16 @@ SafeLog AI is a Rails app for safe multi-source production incident debugging. R
 
 ### Screenshots to attach
 
-Upload all PNGs from [`screenshots/builder/`](screenshots/builder/) (7 required from 2026-06-24 capture; add `08` after re-capture post-CRUD deploy):
+Upload **all 8** PNGs from [`screenshots/builder/`](screenshots/builder/) (captured 2026-06-26 on live Fly with CRUD):
 
 1. `01-sign-in.png`
 2. `02-sign-up.png`
 3. `03-dashboard.png`
 4. `04-new-case-intake.png`
 5. `05-case-redaction-summary.png`
-6. `06-hypothesis-report.png`
-7. `07-archived-cases.png`
-8. `08-cases-index-actions.png` — **Cases** index with **Actions** column (Edit / Delete); capture after CRUD deploy (2026-06-25+)
+6. `08-cases-index-actions.png` — **Cases** index with **Actions** column (Edit / Delete)
+7. `06-hypothesis-report.png`
+8. `07-archived-cases.png`
 
 **Note for reviewers:** Fly production hides **Load demo case** by default — use **New case** + manual paste, or ask the deployer to set `SAFELOG_ENABLE_DEMO_LOADER=true` on Fly for the one-click fixture. See [`certification-readiness.md`](certification-readiness.md) § Public demo vs local `load_demo`.
 
@@ -135,17 +135,19 @@ Local alternative: `mise exec -- bin/dev` → **Load demo case** (dev/test only)
 
 ---
 
-## Verification log (2026-06-25, CRUD refresh)
+## Verification log (2026-06-26)
 
 | Check | Result |
 |-------|--------|
 | `bin/ci` | 280 examples, 0 failures; 100% line + branch coverage |
 | `bundle exec rspec spec/system` | 10 examples, 0 failures |
 | `bin/e2e --grep-invert capture` | 19 functional tests passed |
+| `fly deploy --app safelog-ai` | Success; [GHA deploy 28200851152](https://github.com/szymoniwacz/safelog-ai/actions/runs/28200851152) |
+| Builder screenshots 01–08 | Captured on https://safelog-ai.fly.dev/ |
 | `npm run depcruise:validate` | 0 violations |
 | `packages/ai-toolkit` smoke | passed |
 | Fly `/up` | 200 |
-| GHA `main` | [run 28185226849](https://github.com/szymoniwacz/safelog-ai/actions/runs/28185226849) on `a3d85d3` (2026-06-25) |
+| GHA `main` CI | [run 28200826502](https://github.com/szymoniwacz/safelog-ai/actions/runs/28200826502) on `80ab4d1` (2026-06-26) |
 
 ---
 

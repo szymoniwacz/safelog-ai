@@ -350,10 +350,10 @@ Replaces prior row *"no update/delete of cases — intentional MVP scope"*.
 | `mise exec -- bin/e2e --grep-invert capture` | PASS — **19** functional Playwright tests |
 | GHA `main` | PASS — [run 28185226849](https://github.com/szymoniwacz/safelog-ai/actions/runs/28185226849) (2026-06-25; re-run after CRUD merge if needed) |
 
-### Pre-submission
+### Pre-submission (completed 2026-06-26)
 
-1. Push CRUD to `main` (or merge PR).
-2. `fly deploy --app safelog-ai` — public URL must show **Actions** on `/debugging_cases`.
-3. Optional: re-capture `08-cases-index-actions.png` per `context/certification/screenshots/builder/README.md`.
+1. Push CRUD to `main` — **DONE** (`80ab4d1`).
+2. `fly deploy --app safelog-ai` — **DONE** ([run 28200851152](https://github.com/szymoniwacz/safelog-ai/actions/runs/28200851152)).
+3. Screenshots 01–08 on Fly — **DONE** (`screenshots/builder/`).
 
 Living checklist: [`context/certification/certification-readiness.md`](../certification/certification-readiness.md).

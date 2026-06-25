@@ -1,6 +1,6 @@
 ---
 project: SafeLog AI
-updated: 2026-06-25
+updated: 2026-06-26
 scope: 10xDevs Builder + Architect + Champion
 ---
 
@@ -30,7 +30,7 @@ Full rules, SafeLog artifact mapping, and recommended strategy: [`submission-gui
 
 | Badge | Modules | Verdict | Summary |
 |-------|---------|---------|---------|
-| **10xBuilder** | M1–M3 | **READY** | Full CRUD on debugging cases (create/read/update metadata/destroy + archive); 280 RSpec + 10 system + 23 Playwright E2E; Fly.io at https://safelog-ai.fly.dev/ (**redeploy `main` before submission** so public UI matches); submission screenshots 01–07 (2026-06-24) + optional `08` after redeploy; local `bin/ci` green ([run 28185226849](https://github.com/szymoniwacz/safelog-ai/actions/runs/28185226849), 2026-06-25). |
+| **10xBuilder** | M1–M3 | **READY** | Full CRUD on debugging cases; 280 RSpec + 10 system + 23 Playwright E2E; Fly.io CRUD deployed 2026-06-26; **8** submission PNGs (2026-06-26 capture); CI [run 28200826502](https://github.com/szymoniwacz/safelog-ai/actions/runs/28200826502) on `80ab4d1`. |
 | **10xArchitect** | M4 | **READY** | M4L2–L5 complete — repo map, flow research, ranked refactors, DDD distillation + invariant/ACL plans; [`architecture-report.md`](architecture-report.md) two-pager; readiness review + excerpt screenshots. |
 | **10xChampion** | M5 | **READY** | M5L2 review agent + M5L3 GHA AI review (PR #11 fail / #12 pass) + M5L4 `@szymoniwacz/ai-toolkit` on GitHub Packages ([PR #13](https://github.com/szymoniwacz/safelog-ai/pull/13), [run 27877220442](https://github.com/szymoniwacz/safelog-ai/actions/runs/27877220442)); readiness review + screenshots. |
 
@@ -73,14 +73,14 @@ flowchart LR
 | Business logic — redaction, intake, correlation, analyze, export | **PASS** | `app/services/*`; service + request specs |
 | Context documents — PRD, roadmap, test-plan, infra, deploy-plan | **PASS** | `context/foundation/*` |
 | Tests — meaningful coverage | **PASS** | 280 RSpec + 10 system + 23 Playwright E2E (4 capture + 19 functional); SimpleCov 100% line + branch in full suite |
-| CI/CD — local gate | **PASS** | `mise exec -- bin/ci` green 2026-06-25 (280 examples) |
+| CI/CD — local gate | **PASS** | `mise exec -- bin/ci` green 2026-06-26 (280 examples) |
 | CI/CD — GitHub Actions config | **PASS** | `.github/workflows/ci.yml` parity with `config/ci.rb` |
-| CI/CD — remote GHA on latest `main` | **PASS** | [Run 28185226849](https://github.com/szymoniwacz/safelog-ai/actions/runs/28185226849) on `a3d85d3` (2026-06-25) |
-| Public URL | **PASS** | https://safelog-ai.fly.dev/ — `/up` 200 verified 2026-06-25 |
-| Deployment evidence | **PASS** | `deploy-plan.md` § Deployment status; GHA auto-deploy on `main` (`.github/workflows/fly-deploy.yml`) |
+| CI/CD — remote GHA on latest `main` | **PASS** | [Run 28200826502](https://github.com/szymoniwacz/safelog-ai/actions/runs/28200826502) on `80ab4d1` (2026-06-26) |
+| Public URL | **PASS** | https://safelog-ai.fly.dev/ — `/up` 200; CRUD **Actions** on index verified 2026-06-26 |
+| Deployment evidence | **PASS** | `fly deploy` 2026-06-26 + GHA Fly Auto Deploy [run 28200851152](https://github.com/szymoniwacz/safelog-ai/actions/runs/28200851152) |
 | Demo flow — local | **PASS** | README demo section; **Load demo case** + manual intake; system + Playwright specs |
-| Demo flow — public | **PASS** | Manual intake → analyze → edit/delete or archive on Fly after redeploy; **no load_demo** by default — see [Public demo vs local](#public-demo-vs-local-load_demo) |
-| Submission screenshots | **PASS** | [`screenshots/builder/`](screenshots/builder/) — 7 PNGs (2026-06-24); optional `08-cases-index-actions.png` after CRUD redeploy — see [Pre-submission](#pre-submission-checklist) |
+| Demo flow — public | **PASS** | Manual intake → analyze → edit/delete or archive on Fly; **no load_demo** by default — see [Public demo vs local](#public-demo-vs-local-load_demo) |
+| Submission screenshots | **PASS** | [`screenshots/builder/`](screenshots/builder/) — **8** PNGs from live Fly (2026-06-26), including `08-cases-index-actions.png` |
 | Security evidence | **PASS** | Security checklist in builder readiness review; log guard, encryption, AI boundary specs |
 
 ### Evidence
@@ -95,7 +95,7 @@ flowchart LR
 | Submission screenshots | [`context/certification/screenshots/builder/`](screenshots/builder/) |
 | Health check | [`context/foundation/health-check.md`](../foundation/health-check.md) |
 
-### Commands (verified 2026-06-25)
+### Commands (verified 2026-06-26)
 
 ```bash
 mise exec -- bin/ci                              # 280 examples — PASS
@@ -109,7 +109,8 @@ curl -sf https://safelog-ai.fly.dev/up           # production health — 200
 
 - Local: `config/ci.rb` — setup, RuboCop, bundler-audit, importmap audit, Brakeman, RSpec.
 - GHA: four jobs (`scan_ruby`, `scan_js`, `lint`, `test`); same tools.
-- Remote: latest `main` verified 2026-06-25 — [run 28185226849](https://github.com/szymoniwacz/safelog-ai/actions/runs/28185226849) (`a3d85d3`; lint, scan_ruby, scan_js, test all success).
+- Remote: latest `main` verified 2026-06-26 — [run 28200826502](https://github.com/szymoniwacz/safelog-ai/actions/runs/28200826502) (`80ab4d1`; lint, scan_ruby, scan_js, test all success).
+- Fly deploy: 2026-06-26 — [run 28200851152](https://github.com/szymoniwacz/safelog-ai/actions/runs/28200851152).
 - Playwright: optional (`bin/e2e`); not in `bin/ci` (see `test-plan.md` §6.9).
 
 ---
@@ -233,7 +234,7 @@ Single **certification round** for **Builder + Architect + Champion** — all ba
 |----------|---------|-----------|----------|
 | Project summary | README + PRD | [`architecture-report.md`](architecture-report.md) + [`repo-map.md`](../map/repo-map.md) | [`m5-champion-readiness-review.md`](../reviews/m5-champion-readiness-review.md) executive summary |
 | Demo script | See [Demo flow](#demo-flow) | Walk `architecture-report.md` → domain plans → optional `npm run depcruise:graph` | M5L3: PR AI review; M5L4: `npm install` → skill in `.cursor/skills/` |
-| Screenshots | [`screenshots/builder/`](screenshots/builder/) (7 PNGs) | [`screenshots/architect/`](screenshots/architect/) (6 PNGs) | M5L3: [`screenshots/champion/m5l3/`](screenshots/champion/m5l3/) (6); M5L4: [`screenshots/champion/m5l4/`](screenshots/champion/m5l4/) (8) |
+| Screenshots | [`screenshots/builder/`](screenshots/builder/) (**8** PNGs) | [`screenshots/architect/`](screenshots/architect/) (6 PNGs) | M5L3: [`screenshots/champion/m5l3/`](screenshots/champion/m5l3/) (6); M5L4: [`screenshots/champion/m5l4/`](screenshots/champion/m5l4/) (8) |
 | Deployment URL | https://safelog-ai.fly.dev/ | Same URL + architecture notes in repo-map | Same + automation proof |
 | Review documents | [`m1-m3-builder-readiness-review.md`](../reviews/m1-m3-builder-readiness-review.md) | [`m4-architect-readiness-review.md`](../reviews/m4-architect-readiness-review.md) | [`m5-champion-readiness-review.md`](../reviews/m5-champion-readiness-review.md) |
 | CI evidence | `bin/ci` + GHA config | `depcruise:validate` + map/structure artifacts | [AI code review](../../.github/workflows/ai-code-review.yml) + [publish toolkit](../../.github/workflows/publish-ai-toolkit.yml) |
@@ -252,16 +253,15 @@ Single **certification round** for **Builder + Architect + Champion** — all ba
 
 Security narrative: transient raw intake; encrypted `sanitized_content`; scoped `find` → 404; FakeClient in CI.
 
-### Pre-submission checklist
+### Pre-submission checklist (completed 2026-06-26)
 
-Before the Builder form (especially round 1, **2026-07-05**):
-
-1. `mise exec -- bin/ci` — 280 examples green.
-2. `mise exec -- bin/e2e --grep-invert capture` — 19 functional Playwright tests (optional but recommended after UI changes).
-3. **`fly deploy --app safelog-ai`** — ship CRUD + index **Actions** to production (GHA auto-deploy on `main` if pushed; manual deploy if working locally only).
-4. `curl -sf https://safelog-ai.fly.dev/up` — HTTP 200.
-5. Smoke on Fly: **Cases** index shows **Edit** / **Delete**; delete prompts *Permanently delete this case? This action cannot be undone.*
-6. Optional: re-capture [`08-cases-index-actions.png`](screenshots/builder/08-cases-index-actions.png) — see [`screenshots/builder/README.md`](screenshots/builder/README.md).
+| Step | Status | Evidence |
+|------|--------|----------|
+| `bin/ci` green | **DONE** | 280 examples, 100% coverage |
+| `bin/e2e --grep-invert capture` | **DONE** | 19 functional Playwright tests |
+| CRUD on Fly (`fly deploy`) | **DONE** | [Fly deploy run 28200851152](https://github.com/szymoniwacz/safelog-ai/actions/runs/28200851152); `/up` 200 |
+| Builder screenshots 01–08 | **DONE** | [`screenshots/builder/`](screenshots/builder/) captured 2026-06-26 |
+| GHA CI on `main` | **DONE** | [run 28200826502](https://github.com/szymoniwacz/safelog-ai/actions/runs/28200826502) |
 
 Copy-paste helper: [`submission-checklist.md`](submission-checklist.md).
 
@@ -328,8 +328,7 @@ PLAYWRIGHT_SKIP_WEBSERVER=1 PLAYWRIGHT_BASE_URL=https://safelog-ai.fly.dev \
 | Gap | Severity | Action |
 |-----|----------|--------|
 | Fake AI default without `OPENAI_API_KEY` | Accepted | Documented — demo AI callout on dashboard + case show; optional Fly secret |
-| Builder screenshots 01–07 pre-CRUD UI | Accepted | Core flow still valid; optional `08` after redeploy shows **Actions** column |
-| Unarchive / restore archived case | Accepted | Archive-only MVP per PRD FR-010; parked post-MVP — reviewers should not expect a restore action |
+| Unarchive / restore archived case | Out of course scope | Archive-only MVP per PRD FR-010; not a Builder CRUD requirement |
 
 ### Architect
 
