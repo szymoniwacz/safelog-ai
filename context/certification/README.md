@@ -5,7 +5,7 @@ Long-term source of truth for **10xDevs** badge progress (Builder, Architect, Ch
 | Document | Purpose |
 |----------|---------|
 | [`submission-guide.md`](submission-guide.md) | **Deadlines & forms** — official course terms (Jul/Aug/Sep 2026), submission rules, Baserow links, SafeLog mapping |
-| [`certification-readiness.md`](certification-readiness.md) | **Primary** — status, checklists, evidence links, gaps, submission package |
+| [`certification-readiness.md`](certification-readiness.md) | **Primary** — status, checklists, evidence links, gaps, **pre-submission** (deploy + CRUD smoke) |
 | [`submission-checklist.md`](submission-checklist.md) | **Copy-paste guide** — form fields, URLs, screenshots, verification log |
 | [`architecture-report.md`](architecture-report.md) | **Architect two-pager** — M4L5 submission report synthesized from map, research, and domain artifacts |
 | [`architecture-report.pdf`](architecture-report.pdf) | PDF export for Architect form upload (regenerate: `npm run cert:architecture-pdf`) |

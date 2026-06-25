@@ -322,3 +322,38 @@ Rationale:
 | GHA `main` latest success | PASS — [run 27228714749](https://github.com/szymoniwacz/safelog-ai/actions/runs/27228714749) on `3c92dcb` (2026-06-09) |
 | Fresh impl-review | `m1-m3-final-impl-review.md` — APPROVED |
 | Certification tracker | `context/certification/certification-readiness.md` |
+
+---
+
+## Addendum — certification refresh (2026-06-25, CRUD)
+
+Point-in-time audit above remains the 2026-06-09 record. **Builder submission** should use this addendum for current evidence.
+
+### CRUD (10xBuilder minimum)
+
+| Requirement | Status | Evidence |
+|-------------|--------|----------|
+| Create | **PASS** | `new` / `create`; intake + request specs |
+| Read | **PASS** | `index` / `show` |
+| Update | **PASS** | `edit` / `update` — case metadata only (log sources remain create-time); `debugging_cases_update_spec.rb`, `debugging_case_crud_spec.rb`, `e2e/debugging-case-crud.spec.ts` |
+| Destroy | **PASS** | `destroy` — hard delete with browser confirm; `debugging_cases_destroy_spec.rb`, Playwright confirm/cancel specs |
+| Archive (additional) | **PASS** | Soft hide — `debugging_cases_archive_spec.rb` |
+
+Replaces prior row *"no update/delete of cases — intentional MVP scope"*.
+
+### Automated evidence (2026-06-25)
+
+| Command | Result |
+|---------|--------|
+| `mise exec -- bin/ci` | PASS — **280** examples, 0 failures; 100% line + branch coverage |
+| `mise exec -- bundle exec rspec spec/system` | PASS — **10** examples |
+| `mise exec -- bin/e2e --grep-invert capture` | PASS — **19** functional Playwright tests |
+| GHA `main` | PASS — [run 28185226849](https://github.com/szymoniwacz/safelog-ai/actions/runs/28185226849) (2026-06-25; re-run after CRUD merge if needed) |
+
+### Pre-submission
+
+1. Push CRUD to `main` (or merge PR).
+2. `fly deploy --app safelog-ai` — public URL must show **Actions** on `/debugging_cases`.
+3. Optional: re-capture `08-cases-index-actions.png` per `context/certification/screenshots/builder/README.md`.
+
+Living checklist: [`context/certification/certification-readiness.md`](../certification/certification-readiness.md).

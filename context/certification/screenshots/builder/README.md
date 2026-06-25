@@ -13,6 +13,9 @@ Captured from **https://safelog-ai.fly.dev/** on 2026-06-24 via Playwright (`e2e
 | `05-case-redaction-summary.png` | Case show — sanitized logs + redaction summary (raw secrets not visible) |
 | `06-hypothesis-report.png` | After analyze — hypothesis report + correlation signals |
 | `07-archived-cases.png` | Case index — Archived filter |
+| `08-cases-index-actions.png` | Case index — **Actions** column (Edit / Delete); capture after CRUD is on Fly |
+
+**Note:** PNGs `01`–`07` were captured 2026-06-24 (pre-CRUD index actions). They remain valid for intake → analyze → archive. Re-run capture after deploying CRUD to add `08` (recommended for Builder reviewers).
 
 ## Re-capture
 

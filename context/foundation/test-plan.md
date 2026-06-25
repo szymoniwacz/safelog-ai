@@ -463,6 +463,8 @@ and CI (partial `rspec` runs skip minimum). Transitive gem pins: `concurrent-rub
 (`SAFELOG_ENABLE_DEMO_LOADER`), demo AI callout, intake content limits, health
 endpoints (`/up`, `/health`), persistence rollback guarantee specs. Baseline
 grew 240 → 262 examples. Playwright grew 13 → 15 functional tests
+
+**2026-06-25 CRUD refresh:** 280 RSpec (+ update/destroy request specs, `debugging_case_crud_spec.rb`); 10 system; 19 functional Playwright (`debugging-case-crud.spec.ts`, accessibility index/edit). See `certification-readiness.md` § Pre-submission.
 (`demo-case.spec.ts`, expanded validation paths). Files touched:
 `app/services/demo/load_case.rb`, `app/controllers/health_controller.rb`,
 `spec/requests/debugging_cases_load_demo_spec.rb`,

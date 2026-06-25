@@ -30,7 +30,7 @@ Full rules, SafeLog artifact mapping, and recommended strategy: [`submission-gui
 
 | Badge | Modules | Verdict | Summary |
 |-------|---------|---------|---------|
-| **10xBuilder** | M1–M3 | **READY** | MVP shipped; 280 RSpec + 10 system + 23 Playwright E2E (4 capture + 19 functional); Fly.io at https://safelog-ai.fly.dev/; submission screenshots captured (2026-06-24); local `bin/ci` + remote GHA green on `main` ([run 28185226849](https://github.com/szymoniwacz/safelog-ai/actions/runs/28185226849), 2026-06-25). |
+| **10xBuilder** | M1–M3 | **READY** | Full CRUD on debugging cases (create/read/update metadata/destroy + archive); 280 RSpec + 10 system + 23 Playwright E2E; Fly.io at https://safelog-ai.fly.dev/ (**redeploy `main` before submission** so public UI matches); submission screenshots 01–07 (2026-06-24) + optional `08` after redeploy; local `bin/ci` green ([run 28185226849](https://github.com/szymoniwacz/safelog-ai/actions/runs/28185226849), 2026-06-25). |
 | **10xArchitect** | M4 | **READY** | M4L2–L5 complete — repo map, flow research, ranked refactors, DDD distillation + invariant/ACL plans; [`architecture-report.md`](architecture-report.md) two-pager; readiness review + excerpt screenshots. |
 | **10xChampion** | M5 | **READY** | M5L2 review agent + M5L3 GHA AI review (PR #11 fail / #12 pass) + M5L4 `@szymoniwacz/ai-toolkit` on GitHub Packages ([PR #13](https://github.com/szymoniwacz/safelog-ai/pull/13), [run 27877220442](https://github.com/szymoniwacz/safelog-ai/actions/runs/27877220442)); readiness review + screenshots. |
 
@@ -79,8 +79,8 @@ flowchart LR
 | Public URL | **PASS** | https://safelog-ai.fly.dev/ — `/up` 200 verified 2026-06-25 |
 | Deployment evidence | **PASS** | `deploy-plan.md` § Deployment status; GHA auto-deploy on `main` (`.github/workflows/fly-deploy.yml`) |
 | Demo flow — local | **PASS** | README demo section; **Load demo case** + manual intake; system + Playwright specs |
-| Demo flow — public | **PASS** | Manual intake → analyze → archive on Fly (2026-06-09); **no load_demo** — see [Public demo vs local](#public-demo-vs-local-load_demo) |
-| Submission screenshots | **PASS** | [`context/certification/screenshots/builder/`](screenshots/builder/) — 7 PNGs from live Fly (2026-06-24) |
+| Demo flow — public | **PASS** | Manual intake → analyze → edit/delete or archive on Fly after redeploy; **no load_demo** by default — see [Public demo vs local](#public-demo-vs-local-load_demo) |
+| Submission screenshots | **PASS** | [`screenshots/builder/`](screenshots/builder/) — 7 PNGs (2026-06-24); optional `08-cases-index-actions.png` after CRUD redeploy — see [Pre-submission](#pre-submission-checklist) |
 | Security evidence | **PASS** | Security checklist in builder readiness review; log guard, encryption, AI boundary specs |
 
 ### Evidence
@@ -247,10 +247,23 @@ Single **certification round** for **Builder + Architect + Champion** — all ba
 2. **New case** with multiple pasted sources (fake secrets). On Fly, use manual intake by default — or enable **Load demo case** with `SAFELOG_ENABLE_DEMO_LOADER=true` for reviewer convenience.
 3. Confirm placeholders on show — raw paste not visible; **Redaction summary** visible.
 4. **Analyze case** → hypothesis report + correlation signals.
-5. **Download** Markdown report.
-6. **Archive** → **Archived** filter on case index.
+5. **Download** Markdown report (optional).
+6. **Edit** metadata from **Cases** index or case show; **Delete** (irreversible confirm) or **Archive** → **Archived** filter on case index.
 
 Security narrative: transient raw intake; encrypted `sanitized_content`; scoped `find` → 404; FakeClient in CI.
+
+### Pre-submission checklist
+
+Before the Builder form (especially round 1, **2026-07-05**):
+
+1. `mise exec -- bin/ci` — 280 examples green.
+2. `mise exec -- bin/e2e --grep-invert capture` — 19 functional Playwright tests (optional but recommended after UI changes).
+3. **`fly deploy --app safelog-ai`** — ship CRUD + index **Actions** to production (GHA auto-deploy on `main` if pushed; manual deploy if working locally only).
+4. `curl -sf https://safelog-ai.fly.dev/up` — HTTP 200.
+5. Smoke on Fly: **Cases** index shows **Edit** / **Delete**; delete prompts *Permanently delete this case? This action cannot be undone.*
+6. Optional: re-capture [`08-cases-index-actions.png`](screenshots/builder/08-cases-index-actions.png) — see [`screenshots/builder/README.md`](screenshots/builder/README.md).
+
+Copy-paste helper: [`submission-checklist.md`](submission-checklist.md).
 
 ### Public demo vs local `load_demo`
 
@@ -261,7 +274,7 @@ Reviewers and course staff often compare the README demo (which mentions **Load 
 | **Environment** | `development` | `production` |
 | **Load demo case** | **Yes** — dashboard button; one-click checkout-timeout fixture (`Demo::LoadCase`) | **Off by default** — button hidden; `POST /debugging_cases/load_demo` returns **404**. Set Fly secret `SAFELOG_ENABLE_DEMO_LOADER=true` (`1` / `yes` also work) to enable for reviewers |
 | **How to start a case** | **Load demo case** *or* **New case** + manual paste | **New case** + manual paste by default — or **Load demo case** when the secret is set |
-| **Redaction / analyze / export / archive** | Same services and UI | Same services and UI |
+| **Redaction / analyze / export / edit / delete / archive** | Same services and UI (after deploy) | Same services and UI (after deploy) |
 | **AI output** | `Ai::FakeClient` if `OPENAI_API_KEY` unset — dashboard + case show **demo AI** callout | Same (Fly default; not a deploy bug) |
 | **Submission screenshots** | N/A | Captured via manual intake on Fly — see [`screenshots/builder/04-new-case-intake.png`](screenshots/builder/04-new-case-intake.png) |
 
@@ -315,6 +328,7 @@ PLAYWRIGHT_SKIP_WEBSERVER=1 PLAYWRIGHT_BASE_URL=https://safelog-ai.fly.dev \
 | Gap | Severity | Action |
 |-----|----------|--------|
 | Fake AI default without `OPENAI_API_KEY` | Accepted | Documented — demo AI callout on dashboard + case show; optional Fly secret |
+| Builder screenshots 01–07 pre-CRUD UI | Accepted | Core flow still valid; optional `08` after redeploy shows **Actions** column |
 | Unarchive / restore archived case | Accepted | Archive-only MVP per PRD FR-010; parked post-MVP — reviewers should not expect a restore action |
 
 ### Architect

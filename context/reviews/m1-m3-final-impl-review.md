@@ -80,7 +80,7 @@
 
 | Area | Verdict |
 |------|---------|
-| MVP user flow (auth → intake → analyze → export → archive) | MATCH |
+| MVP user flow (auth → intake → analyze → export → edit/delete or archive) | MATCH |
 | Security guardrails (AGENTS.md / PRD) | MATCH |
 | No raw log storage columns | MATCH |
 | SQLite + Fly deploy plan (manual) | MATCH |
@@ -99,4 +99,6 @@ Distinction polish (optional, not blocking): run `bin/e2e` in submission notes a
 
 ## Addendum (2026-06-25)
 
-Architect and Champion badges are **READY** — see [`context/certification/certification-readiness.md`](../certification/certification-readiness.md) and [`context/certification/submission-checklist.md`](../certification/submission-checklist.md). Current gate: 262 RSpec examples; GHA [run 28185226849](https://github.com/szymoniwacz/safelog-ai/actions/runs/28185226849).
+Architect and Champion badges are **READY** — see [`context/certification/certification-readiness.md`](../certification/certification-readiness.md) and [`context/certification/submission-checklist.md`](../certification/submission-checklist.md).
+
+**Builder CRUD refresh:** debugging cases now support full course CRUD (create, read, update metadata, destroy) plus archive. Current gate: **280** RSpec examples, **10** system, **19** functional Playwright; GHA [run 28185226849](https://github.com/szymoniwacz/safelog-ai/actions/runs/28185226849) (re-verify on `main` after CRUD merge). **Before submission:** `fly deploy --app safelog-ai` so https://safelog-ai.fly.dev/ shows **Edit** / **Delete** on the cases index.

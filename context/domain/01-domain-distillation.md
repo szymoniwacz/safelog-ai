@@ -193,7 +193,7 @@ Security boundary: `Redaction::` does not import `Ai::` (repo-map, artifact-2).
 | R-08 | Hypothesis framing as domain rule | Enforced only in `Ai::ResponseValidator`, not in `AiReport` model | `ai_report.rb:1–12` — no content validation; `response_validator.rb:27–42` | Low — correct for MVP, weak domain model |
 | R-09 | Analyze case as step after intake | UI hides Archive for archived, but **Analyze always available**; no guard in `analyze` action | `show.html.erb:9–20`; `debugging_cases_controller.rb:41–43` — no `archived?` check | Low — UX/lifecycle rule inconsistency |
 | R-10 | One consistent report per case (flow implies) | Each Analyze creates **new** AiReport; show takes `.last` | `analyze_case.rb:23`; `debugging_cases_controller.rb:22` | Low — multiple analyses allowed, undocumented |
-| R-11 | „Adding sources after initial submission" — non-goal (`prd.md:159`) | No route/action — OK | `config/routes.rb:13` — create only, no update sources | **Aligned** (no drift) |
+| R-11 | „Adding sources after initial submission" — non-goal (`prd.md:159`) | Metadata `edit`/`update` only; no log-source re-intake — OK | `config/routes.rb` — full case CRUD + member actions; `case_metadata_params` excludes sources | **Aligned** (no drift) |
 | R-12 | Raw logs never in application logs | Filter params + oracles | `filter_parameter_logging.rb`; `debugging_cases_security_spec.rb:70–78` | **Aligned** |
 
 ---

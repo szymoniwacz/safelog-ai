@@ -282,7 +282,8 @@ fly ssh console --app safelog-ai -C "bin/rails runner 'puts ActiveRecord::Base.c
 
 - Visit `https://safelog-ai.fly.dev/` — sign up / sign in; dashboard loads (**no Load demo case** button in production)
 - Create a case via **New debugging case** — paste multiple log sources manually (load_demo is dev/test only; see `context/certification/certification-readiness.md` § Public demo vs local load_demo)
-- Analyze (demo AI notice if no `OPENAI_API_KEY`), export report, archive
+- **Cases** index — **Actions** column with **Edit** / **Delete** (irreversible confirm on delete)
+- Analyze (demo AI notice if no `OPENAI_API_KEY`), export report, edit metadata, delete or archive
 - Visit `https://safelog-ai.fly.dev/up` — health check 200
 - Fly dashboard: Machine **started**, volume **attached**, health check **passing**
 

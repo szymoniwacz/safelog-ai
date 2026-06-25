@@ -127,7 +127,7 @@ SafeLog covers **both** Champion paths (review pipeline + package registry).
 
 ## What to prepare — 10xBuilder (M1–M3)
 
-Form fields and instructions — on the course platform (*10xBuilder certification*; Polish title on platform). Local evidence checklist:
+Form fields and instructions — on the course platform (*10xBuilder certification*; Polish title on platform). Minimum course requirements include **full CRUD** on a primary resource, business logic, tests, and auth — SafeLog maps CRUD to **debugging cases** (create, index/show, edit/update metadata, destroy, plus archive).
 
 | Type | Location |
 |------|----------|
@@ -146,7 +146,7 @@ Given “one round, one deadline, no add-ons”:
 
 1. **Pick a round** — distinctions / Demo Day → **5 July 2026**; otherwise a later round, but before **14 September 2026**.
 2. **In the same round**, submit the **Builder** form plus the **Architect/Champion** form (select both optional badges).
-3. **Builder:** screenshots + URL + CI evidence from [`screenshots/builder/`](screenshots/builder/).
+3. **Builder:** screenshots + URL + CI evidence from [`screenshots/builder/`](screenshots/builder/); **`fly deploy`** so live app shows CRUD **Actions** on `/debugging_cases`.
 4. **Architect:** upload [`architecture-report.pdf`](architecture-report.pdf) (or link [`architecture-report.md`](architecture-report.md)).
 5. **Champion:** screenshots from [`screenshots/champion/`](screenshots/champion/) — both paths (M5L3 + M5L4) already captured.
 6. **Copy-paste helper:** [`submission-checklist.md`](submission-checklist.md).

@@ -16,6 +16,7 @@ scope: Copy-paste guide for all three 10xDevs certification forms
 
 | Step | Command / action | Expected |
 |------|------------------|----------|
+| Fly deploy (ship latest `main`) | `fly deploy --app safelog-ai` | `curl -sf https://safelog-ai.fly.dev/up` → 200; **Cases** index shows **Actions** (Edit / Delete) |
 | Local CI | `mise exec -- bin/ci` | 280 examples, 0 failures |
 | Production health | `curl -sf https://safelog-ai.fly.dev/up` | HTTP 200 |
 | Fly redeploy (if down) | `fly deploy --app safelog-ai` | `/up` returns 200 |
@@ -43,7 +44,7 @@ SafeLog AI is a Rails app for safe multi-source production incident debugging. R
 
 ### Screenshots to attach
 
-Upload all 7 PNGs from [`screenshots/builder/`](screenshots/builder/):
+Upload all PNGs from [`screenshots/builder/`](screenshots/builder/) (7 required from 2026-06-24 capture; add `08` after re-capture post-CRUD deploy):
 
 1. `01-sign-in.png`
 2. `02-sign-up.png`
@@ -52,6 +53,7 @@ Upload all 7 PNGs from [`screenshots/builder/`](screenshots/builder/):
 5. `05-case-redaction-summary.png`
 6. `06-hypothesis-report.png`
 7. `07-archived-cases.png`
+8. `08-cases-index-actions.png` — **Cases** index with **Actions** column (Edit / Delete); capture after CRUD deploy (2026-06-25+)
 
 **Note for reviewers:** Fly production hides **Load demo case** by default — use **New case** + manual paste, or ask the deployer to set `SAFELOG_ENABLE_DEMO_LOADER=true` on Fly for the one-click fixture. See [`certification-readiness.md`](certification-readiness.md) § Public demo vs local `load_demo`.
 
@@ -126,18 +128,20 @@ Course requires **one** of two paths; SafeLog covers **both**.
 2. **New debugging case** → paste ≥2 log sources with fake secrets (email, token, shared request_id).
 3. Confirm show page: placeholders only, **Redaction summary** visible.
 4. **Analyze case** → hypothesis report + correlation signals.
-5. **Download** Markdown report → **Archive** → **Archived** filter.
+5. **Edit** case metadata from **Cases** index or case show; **Delete** (irreversible browser confirm) or **Archive** → **Archived** filter.
+6. Optional: **Download** Markdown report.
 
 Local alternative: `mise exec -- bin/dev` → **Load demo case** (dev/test only).
 
 ---
 
-## Verification log (2026-06-25)
+## Verification log (2026-06-25, CRUD refresh)
 
 | Check | Result |
 |-------|--------|
 | `bin/ci` | 280 examples, 0 failures; 100% line + branch coverage |
-| `bin/e2e --grep-invert capture` | 15 passed |
+| `bundle exec rspec spec/system` | 10 examples, 0 failures |
+| `bin/e2e --grep-invert capture` | 19 functional tests passed |
 | `npm run depcruise:validate` | 0 violations |
 | `packages/ai-toolkit` smoke | passed |
 | Fly `/up` | 200 |

@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import path from "node:path";
-import { fillLogSourceSlot, signUp, uniqueEmail } from "./helpers";
+import { fillLogSourceSlot, goToCasesIndex, signUp, uniqueEmail } from "./helpers";
 
 const SCREENSHOT_DIR = path.join(
   process.cwd(),
@@ -78,6 +78,17 @@ test("capture Builder submission screenshots on production", async ({ page }) =>
     path: path.join(SCREENSHOT_DIR, "05-case-redaction-summary.png"),
     fullPage: true,
   });
+
+  await goToCasesIndex(page);
+  await expect(page.getByRole("columnheader", { name: "Actions" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Edit" })).toBeVisible();
+  await page.screenshot({
+    path: path.join(SCREENSHOT_DIR, "08-cases-index-actions.png"),
+    fullPage: true,
+  });
+
+  await page.getByRole("link", { name: caseTitle }).click();
+  await expect(page.getByRole("heading", { name: caseTitle })).toBeVisible();
 
   await page.getByRole("button", { name: "Analyze case" }).click();
   await expect(page.getByText("Analysis complete.")).toBeVisible();
