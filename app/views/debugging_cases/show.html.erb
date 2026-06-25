@@ -10,11 +10,7 @@
   <% unless @debugging_case.archived? %>
     <%= button_to "Archive case", archive_debugging_case_path(@debugging_case), method: :post, class: "btn btn--danger" %>
   <% end %>
-  <%= button_to "Delete case",
-        debugging_case_path(@debugging_case),
-        method: :delete,
-        class: "btn btn--danger",
-        form: { data: { turbo_confirm: "Permanently delete this case? This cannot be undone." } } %>
+  <%= destroy_debugging_case_button(@debugging_case) %>
 </div>
 
 <section class="card card--highlight">

@@ -54,4 +54,21 @@ RSpec.describe DebuggingCasesHelper, type: :helper do
       expect(options).to include("selected=\"selected\"")
     end
   end
+
+  describe "#destroy_debugging_case_button" do
+    let(:debugging_case) { instance_double(DebuggingCase, id: 42) }
+
+    before do
+      allow(helper).to receive(:debugging_case_path).with(debugging_case).and_return("/debugging_cases/42")
+    end
+
+    it "renders a delete button with an irreversible confirmation prompt" do
+      html = helper.destroy_debugging_case_button(debugging_case)
+
+      expect(html).to include('method="post"')
+      expect(html).to include('value="delete"')
+      expect(html).to include("onsubmit=")
+      expect(html).to include(DebuggingCasesHelper::DESTROY_CASE_CONFIRMATION)
+    end
+  end
 end

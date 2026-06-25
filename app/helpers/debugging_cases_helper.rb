@@ -3,6 +3,7 @@
 module DebuggingCasesHelper
   SOURCE_SLOT_COUNT = 3
   MISSING_SOURCES_MESSAGE = "must include at least one non-blank log source"
+  DESTROY_CASE_CONFIRMATION = "Permanently delete this case? This action cannot be undone."
 
   def log_source_type_options
     LogSource.source_types.keys.map { |key| [ key.humanize, key ] }
@@ -75,5 +76,13 @@ module DebuggingCasesHelper
 
   def field_error_id(field_key)
     "error_#{field_key}"
+  end
+
+  def destroy_debugging_case_button(debugging_case, label: "Delete case", class_names: "btn btn--danger")
+    button_to label,
+              debugging_case_path(debugging_case),
+              method: :delete,
+              class: class_names,
+              form: { onsubmit: "return confirm('#{j(DESTROY_CASE_CONFIRMATION)}')" }
   end
 end

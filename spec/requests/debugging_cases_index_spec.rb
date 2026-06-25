@@ -94,6 +94,17 @@ RSpec.describe "Debugging cases index", type: :request do
       expect(response.body).to include("Not analyzed")
     end
 
+    it "shows edit and delete actions for each case" do
+      sign_in user
+
+      get debugging_cases_path
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include(edit_debugging_case_path(active_case))
+      expect(response.body).to include(debugging_case_path(active_case))
+      expect(response.body).to include(DebuggingCasesHelper::DESTROY_CASE_CONFIRMATION)
+    end
+
     it "shows in progress and failed analysis statuses" do
       in_progress_case = create_case(title: "In progress case")
       in_progress_case.ai_reports.create!(status: :processing)

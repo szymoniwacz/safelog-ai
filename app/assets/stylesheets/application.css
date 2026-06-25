@@ -499,6 +499,20 @@ form.button_to button:not([class]):hover {
   background: var(--color-danger-bg);
 }
 
+.btn--compact {
+  font-size: 0.8125rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.data-table__actions {
+  white-space: nowrap;
+}
+
+.data-table__actions form {
+  display: inline;
+  margin-left: var(--space-sm);
+}
+
 .btn[disabled],
 .btn[aria-busy="true"] {
   opacity: 0.75;

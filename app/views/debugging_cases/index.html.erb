@@ -21,6 +21,7 @@
         <th>Sources</th>
         <th>Analysis</th>
         <th>Created</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -31,7 +32,10 @@
           <td><%= log_source_count_label(debugging_case) %></td>
           <td><span class="<%= analysis_status_badge_class(debugging_case) %>"><%= analysis_status_label(debugging_case) %></span></td>
           <td><%= l(debugging_case.created_at, format: :short) %></td>
-        </tr>
+          <td class="data-table__actions">
+            <%= link_to "Edit", edit_debugging_case_path(debugging_case) %>
+            <%= destroy_debugging_case_button(debugging_case, label: "Delete", class_names: "btn btn--danger btn--compact") %>
+          </td>
       <% end %>
     </tbody>
   </table>
