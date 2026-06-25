@@ -23,13 +23,18 @@ jobs:
         with:
           version: latest
 
-      - name: Deploy to Fly.io
-        run: flyctl deploy --config fly.toml --app safelog-ai --remote-only
+      - name: Verify Fly auth
+        run: |
+          flyctl auth whoami
+          flyctl status --app safelog-ai
 
-      - name: Smoke check — verify /healthz endpoint
+      - name: Deploy to Fly.io
+        run: flyctl deploy --config fly.toml --app safelog-ai --local-only
+
+      - name: Smoke check — verify /up endpoint
         run: |
           for attempt in {1..10}; do
-            if curl --fail --silent https://safelog-ai.fly.dev/healthz > /dev/null 2>&1; then
+            if curl --fail --silent https://safelog-ai.fly.dev/up > /dev/null 2>&1; then
               echo "✓ Health check passed"
               exit 0
             fi
