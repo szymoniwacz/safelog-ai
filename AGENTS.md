@@ -29,10 +29,10 @@ SafeLog AI is a Rails 8.1 + SQLite app for safe multi-source log debugging (MVP 
 - `mise exec -- bin/dev` — Puma (port 3000)
 - `mise exec -- bin/ci` — RuboCop, bundler-audit, importmap audit, Brakeman (`@config/ci.rb`, `@.github/workflows/ci.yml`)
 - `mise exec -- bin/rubocop` / `bin/brakeman` / `bin/bundler-audit` — individual gates
-- `mise exec -- bundle exec rspec spec/` — full RSpec suite (240 examples; `bin/ci` runs this gate)
+- `mise exec -- bundle exec rspec spec/` — full RSpec suite (262 examples; `bin/ci` runs this gate)
 - Partial `rspec` runs (single files or subdirs) skip the SimpleCov 100% threshold; full suite and CI enforce it.
 - `mise exec -- bundle exec rspec spec/system` — Capybara user-flow specs (9 examples, rack_test driver)
-- `mise exec -- bin/e2e` — Playwright Chromium E2E (`e2e/`; 15 functional + 4 capture specs); optional local gate, not in `bin/ci` or GHA
+- `mise exec -- bin/e2e` — Playwright Chromium E2E (`e2e/`; 15 functional + 4 capture = 19 total); optional local gate, not in `bin/ci` or GHA
 - `mise exec -- bin/e2e e2e/accessibility.spec.ts` — optional axe WCAG A/AA spot-check (serious/critical violations) for dashboard and new-case form
 
 **Browser testing:** `bin/ci` and GitHub Actions run RSpec only — including Capybara system specs (`spec/system`, rack_test driver) for user-visible flows. Playwright is an optional local gate with real Chromium; it is intentionally absent from CI to avoid Chromium install latency. Run `mise exec -- bin/e2e` before Demo Day or after UI changes; run `e2e/accessibility.spec.ts` after UI changes that affect forms or layout.

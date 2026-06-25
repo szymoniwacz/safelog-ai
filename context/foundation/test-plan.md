@@ -79,7 +79,7 @@ The classic test base for this project. AI-native tools (if any) carry a
 
 | Layer | Tool | Version | Notes |
 |-------|------|---------|-------|
-| unit + integration | RSpec | 3.x (via rspec-rails) | Primary layer; 240 examples across services, requests, models, system; SimpleCov 100% line + branch in full suite / CI |
+| unit + integration | RSpec | 3.x (via rspec-rails) | Primary layer; 262 examples across services, requests, models, system; SimpleCov 100% line + branch in full suite / CI |
 | HTTP integration | RSpec request specs | — | Security, authorization matrix, persistence oracles |
 | user flows | Capybara system specs (`spec/system`) | 3.40 (rack_test) | Browser-visible happy paths; same-thread driver for speed + transactional fixtures |
 | browser E2E | Playwright (`e2e/`, `@playwright/test`) | 1.50+ | Real Chromium journeys; optional gate via `bin/e2e` |
@@ -105,7 +105,7 @@ The full set of gates that must pass before a change reaches production.
 | bundler-audit | `bin/ci`, GHA `scan_ruby` | required | vulnerable gems |
 | importmap audit | `bin/ci`, GHA `scan_js` | required | JS dependency CVEs |
 | Brakeman | `bin/ci`, GHA `scan_ruby` | required | Rails security patterns |
-| RSpec (240) | `bin/ci`, GHA `test` | required | logic, security, and system-flow regressions |
+| RSpec (262) | `bin/ci`, GHA `test` | required | logic, security, and system-flow regressions |
 | Full `bin/ci` locally before push | developer workflow | required (AGENTS.md) | combined gate failures |
 | Capybara system specs (`spec/system`) | `bin/ci` (via full RSpec) | required | user-visible flows (auth, intake, analyze, archive) |
 | Playwright E2E (`e2e/`) | `mise exec -- bin/e2e` | optional | real Chromium regression; not in `bin/ci` (see §6.9) |
@@ -383,7 +383,7 @@ PLAYWRIGHT_SKIP_WEBSERVER=1 mise exec -- bin/e2e   # reuse running server on :30
 
 **CI policy:** Playwright is **not** wired into `bin/ci` or GHA `test` job —
 adds Node + Chromium install, separate Rails boot, and ~30–60s latency on top
-of 240 RSpec examples. Capybara system specs already guard user flows in CI.
+of 262 RSpec examples. Capybara system specs already guard user flows in CI.
 Run `bin/e2e` locally before Demo Day or after UI changes.
 
 **Selectors:** `getByRole`, `getByLabel`, scoped `section.card` + `legend` for
@@ -457,6 +457,16 @@ and CI (partial `rspec` runs skip minimum). Transitive gem pins: `concurrent-rub
 `spec/services/analysis/analyze_case_spec.rb`, `spec/support/simplecov.rb`,
 `e2e/*`, `AGENTS.md`, `Gemfile`.
 
+**Phase 8 — Certification hardening** (2026-06-25): Demo loader prod flag
+(`SAFELOG_ENABLE_DEMO_LOADER`), demo AI callout, intake content limits, health
+endpoints (`/up`, `/health`), persistence rollback guarantee specs. Baseline
+grew 240 → 262 examples. Playwright grew 13 → 15 functional tests
+(`demo-case.spec.ts`, expanded validation paths). Files touched:
+`app/services/demo/load_case.rb`, `app/controllers/health_controller.rb`,
+`spec/requests/debugging_cases_load_demo_spec.rb`,
+`spec/requests/health_spec.rb`, `spec/services/intake/persist_redacted_case_spec.rb`,
+`e2e/demo-case.spec.ts`, certification docs.
+
 ## 7. What We Deliberately Don't Test
 
 Exclusions agreed during the rollout (Phase 2 interview, Q5). Future
@@ -478,8 +488,8 @@ contributors should respect these unless the underlying assumption changes.
 
 ## 8. Freshness Ledger
 
-- Strategy (§1–§5) last reviewed: 2026-06-24
-- Stack versions last verified: 2026-06-24
+- Strategy (§1–§5) last reviewed: 2026-06-25
+- Stack versions last verified: 2026-06-25
 - AI-native tool references last verified: 2026-05-29
 
 Refresh (`/10x-test-plan --refresh`) when:

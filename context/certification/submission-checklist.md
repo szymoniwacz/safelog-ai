@@ -1,6 +1,6 @@
 ---
 project: SafeLog AI
-updated: 2026-06-24
+updated: 2026-06-25
 scope: Copy-paste guide for all three 10xDevs certification forms
 ---
 
@@ -16,7 +16,7 @@ scope: Copy-paste guide for all three 10xDevs certification forms
 
 | Step | Command / action | Expected |
 |------|------------------|----------|
-| Local CI | `mise exec -- bin/ci` | 240 examples, 0 failures |
+| Local CI | `mise exec -- bin/ci` | 262 examples, 0 failures |
 | Production health | `curl -sf https://safelog-ai.fly.dev/up` | HTTP 200 |
 | Fly redeploy (if down) | `fly deploy --app safelog-ai` | `/up` returns 200 |
 | Architect PDF | `npm run cert:architecture-pdf` | `architecture-report.pdf` exists |
@@ -35,7 +35,7 @@ Platform post (course): *10xBuilder certification: submission form and key rules
 | **Public URL** | https://safelog-ai.fly.dev/ |
 | **Repository** | https://github.com/szymoniwacz/safelog-ai |
 | **Stack** | Rails 8.1, SQLite, Devise, server-rendered ERB, Fly.io |
-| **CI evidence** | https://github.com/szymoniwacz/safelog-ai/actions/runs/27970702328 |
+| **CI evidence** | https://github.com/szymoniwacz/safelog-ai/actions/runs/28185226849 |
 
 ### Project summary
 
@@ -132,16 +132,16 @@ Local alternative: `mise exec -- bin/dev` → **Load demo case** (dev/test only)
 
 ---
 
-## Verification log (2026-06-24)
+## Verification log (2026-06-25)
 
 | Check | Result |
 |-------|--------|
-| `bin/ci` | 240 examples, 0 failures; 100% line + branch coverage |
-| `bin/e2e --grep-invert capture` | 13 passed |
+| `bin/ci` | 262 examples, 0 failures; 100% line + branch coverage |
+| `bin/e2e --grep-invert capture` | 15 passed |
 | `npm run depcruise:validate` | 0 violations |
 | `packages/ai-toolkit` smoke | passed |
 | Fly `/up` | 200 |
-| GHA `main` | Re-run after push (prior green: [run 27970702328](https://github.com/szymoniwacz/safelog-ai/actions/runs/27970702328) on `2ecea64`, 2026-06-22) |
+| GHA `main` | [run 28185226849](https://github.com/szymoniwacz/safelog-ai/actions/runs/28185226849) on `a3d85d3` (2026-06-25) |
 
 ---
 

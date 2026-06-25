@@ -1,6 +1,6 @@
 ---
 project: SafeLog AI
-updated: 2026-06-22
+updated: 2026-06-25
 source: 10xDevs 3.0 — course email “module 5 / Architect + Champion submission form” (program week 5)
 scope: certification deadlines, rules, and forms (Builder, Architect, Champion)
 ---
@@ -33,7 +33,7 @@ Deadlines are **shared across all certification levels**. Submissions accepted *
 | **2** | **10 August 2026** | — |
 | **3** | **14 September 2026** | **Final** deadline |
 
-*(As of 20 June 2026: ~15 days until round 1.)*
+*(As of 25 June 2026: ~10 days until round 1.)*
 
 ---
 
@@ -134,13 +134,13 @@ Form fields and instructions — on the course platform (*10xBuilder certificati
 | Live app | https://safelog-ai.fly.dev/ |
 | Readiness review | [`context/reviews/m1-m3-builder-readiness-review.md`](../reviews/m1-m3-builder-readiness-review.md) |
 | Screenshots | [`screenshots/builder/`](screenshots/builder/) |
-| CI | `bin/ci` + [GHA run 27950236114](https://github.com/szymoniwacz/safelog-ai/actions/runs/27950236114) |
+| CI | `bin/ci` + [GHA run 28185226849](https://github.com/szymoniwacz/safelog-ai/actions/runs/28185226849) |
 
 ---
 
 ## Recommended strategy for SafeLog AI
 
-Repo status (2026-06-22): **Builder, Architect, and Champion — READY** ([`certification-readiness.md`](certification-readiness.md)).
+Repo status (2026-06-25): **Builder, Architect, and Champion — READY** ([`certification-readiness.md`](certification-readiness.md)).
 
 Given “one round, one deadline, no add-ons”:
 

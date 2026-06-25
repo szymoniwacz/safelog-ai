@@ -130,9 +130,9 @@ GitHub Actions auto deploys on push to `main` (see `.github/workflows/fly-deploy
 
 | Layer | Command | Covers |
 |-------|---------|--------|
-| **RSpec (full)** | `mise exec -- bundle exec rspec spec/` | 240 examples — services, request specs, models, system; 100% line + branch coverage in full suite / CI |
+| **RSpec (full)** | `mise exec -- bundle exec rspec spec/` | 262 examples — services, request specs, models, system; 100% line + branch coverage in full suite / CI |
 | **Capybara system** | `mise exec -- bundle exec rspec spec/system` | 9 examples — server-rendered user flows via rack_test (in `bin/ci`) |
-| **Playwright E2E** | `mise exec -- bin/e2e` | 15 functional + 4 opt-in capture specs in real Chromium; optional before release — not in `bin/ci` |
+| **Playwright E2E** | `mise exec -- bin/e2e` | 19 total (15 functional + 4 opt-in capture) in real Chromium; optional before release — not in `bin/ci` |
 | **Playwright a11y** | `mise exec -- bin/e2e e2e/accessibility.spec.ts` | axe WCAG A/AA spot-check (serious/critical) on dashboard and new-case form; optional |
 
 Partial `rspec` runs (single file or subdirectory) skip the SimpleCov minimum threshold; `bin/ci` and CI enforce 100% line + branch coverage on the full suite.

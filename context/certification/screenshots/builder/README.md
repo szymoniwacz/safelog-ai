@@ -1,6 +1,6 @@
 # Builder submission screenshots (M1–M3)
 
-Captured from **https://safelog-ai.fly.dev/** on 2026-06-09 via Playwright (`e2e/capture-submission-screenshots.spec.ts`).
+Captured from **https://safelog-ai.fly.dev/** on 2026-06-24 via Playwright (`e2e/capture-submission-screenshots.spec.ts`).
 
 **Note for reviewers:** these screenshots use **manual intake** (New case + paste). The public Fly app does not show **Load demo case** — that button appears only in local development/test. See [`../../certification-readiness.md`](../../certification-readiness.md) § Public demo vs local `load_demo`.
 

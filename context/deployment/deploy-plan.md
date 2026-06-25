@@ -12,7 +12,7 @@
 | SQLite volume | `data` mounted at `/rails/storage`; `db:prepare` on boot |
 | Health checks | `GET /up` returns 200 (Fly internal + public) when running |
 | End-to-end | Sign-in, case flow, and deploy process verified manually (2026-06-09; redeploy 2026-06-22) |
-| Current runtime | **Running** after 2026-06-22 redeploy for certification submission |
+| Current runtime | **Running** — `/up` 200 verified 2026-06-25; auto-deploy on `main` via GHA |
 
 Deploy method: GitHub Actions auto deploy on push to `main`; manual `fly deploy --app safelog-ai` remains available as a fallback.
 
