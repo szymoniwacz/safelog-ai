@@ -14,6 +14,7 @@ console_command = "/rails/bin/rails console"
   PORT = "8080"
   HTTP_PORT = "8080"
   RAILS_ENV = "production"
+  SAFELOG_ENABLE_DEMO_LOADER = "false"
 
 [http_service]
   internal_port = 8080

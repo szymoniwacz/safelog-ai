@@ -21,6 +21,9 @@ FLY="$(fly_bin)"
 echo "== Syncing OPENAI_API_KEY from .env to Fly =="
 "$(dirname "$0")/fly-sync-openai"
 
+echo "== Syncing SAFELOG_ENABLE_DEMO_LOADER from .env to Fly =="
+"$(dirname "$0")/fly-sync-demo-loader"
+
 echo "== Deploying ${FLY_APP} on Fly.io =="
 "$FLY" deploy --app "$FLY_APP"
 
