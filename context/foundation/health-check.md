@@ -48,7 +48,7 @@ Packages with major version gaps: not enumerated (outdated-deps scan skipped for
 ## Test Suite
 
 Test runner: RSpec
-Tests found: 262 examples (from `bin/ci` run 2026-06-25)
+Tests found: 280 examples (from `bin/ci` run 2026-06-25)
 Test execution: passing (100% line + branch coverage via SimpleCov in full suite)
 
 Configuration: `spec/`, `config/ci.rb`
@@ -67,7 +67,7 @@ Configuration: `.github/workflows/ci.yml`
 | Type check | ✗      | Not applicable (Ruby, no static types)     |
 | Security   | ✓      | bundler-audit, importmap audit, Brakeman   |
 
-Local gate parity: `bin/ci` green on 2026-06-25 (262 examples, 0 failures).
+Local gate parity: `bin/ci` green on 2026-06-25 (280 examples, 0 failures).
 
 ## Configuration
 
@@ -103,7 +103,7 @@ None required for this readiness pass. CI, `AGENTS.md`, and deployment artifacts
 
 Health status: **healthy**
 
-SafeLog AI has a reproducible Ruby lockfile, clean gem audit (`concurrent-ruby` >= 1.3.7, `faraday` >= 2.14.3 pinned in `Gemfile`), a working RSpec suite (262 examples passing), and a GitHub Actions workflow aligned with local `bin/ci`. No Category A gaps block agent-assisted development on this codebase.
+SafeLog AI has a reproducible Ruby lockfile, clean gem audit (`concurrent-ruby` >= 1.3.7, `faraday` >= 2.14.3 pinned in `Gemfile`), a working RSpec suite (280 examples passing), and a GitHub Actions workflow aligned with local `bin/ci`. No Category A gaps block agent-assisted development on this codebase.
 
 **Production:** Fly.io deploy at https://safelog-ai.fly.dev/ — `/up` returns 200 (verified 2026-06-25). Auto-deploy on `main` via `.github/workflows/fly-deploy.yml`; manual `fly deploy` as fallback. See `context/deployment/deploy-plan.md`.
 

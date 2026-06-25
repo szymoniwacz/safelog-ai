@@ -54,7 +54,7 @@ research's job, see §1 principle #3).
 |------|-----------------------------|----------------|--------------------------------------|-----------------------|-----------------------|
 | #1 | Known secret email/token in pasted content never appears in persisted diagnostic columns after POST intake | Placeholders on show page prove redaction ran, not that DB is clean | Intake transaction path; which columns hold diagnostic text; encrypted vs plain fields | Request spec scanning all persisted models + show response | Asserting response body only without DB scan |
 | #2 | Analyze flow never sends raw intake substrings to fake AI client or correlation JSON | FakeClient returning canned output means prompts were never inspected | Prompt assembly boundary; correlation extractor inputs; ClientResolver in test | Request/service spec with FakeClient capture + joined prompt text | Mocking redaction internals instead of exercising HTTP intake |
-| #3 | Cross-user show, analyze, archive, and export return 404 (not 403 leak) | Signed-in user implies only their own cases are reachable | Controller scoping pattern; all mutating routes on DebuggingCase | Request spec matrix per action with two users | Testing only GET show while leaving analyze/export unguarded |
+| #3 | Cross-user show, analyze, archive, export, edit, update, and destroy return 404 (not 403 leak) | Signed-in user implies only their own cases are reachable | Controller scoping pattern; all mutating routes on DebuggingCase | Request spec matrix per action with two users | Testing only GET show while leaving analyze/export unguarded |
 | #4 | Secrets in title, description, customer_reference, and environment redact on persist and in analyze prompts | Title/description treated as safe because they are not log paste fields | Shared registry in intake; metadata fields included in PromptBuilder | Request security spec per metadata field | Testing description only while title stays plain |
 | #5 | Encrypted diagnostic columns store ciphertext, not plaintext markers | Model `encrypts` declaration alone proves nothing at rest | Which models/columns use Active Record Encryption; test env key source | Model spec with raw SQL `select_value` | Reading decrypted attribute only without SQLite column check |
 | #6 | Load demo returns 404 outside development/test | Demo fixture content matters less than availability gate | Demo availability check; production env config | Request spec with `allow` on availability helper | Testing happy path only in development |
@@ -79,7 +79,7 @@ The classic test base for this project. AI-native tools (if any) carry a
 
 | Layer | Tool | Version | Notes |
 |-------|------|---------|-------|
-| unit + integration | RSpec | 3.x (via rspec-rails) | Primary layer; 262 examples across services, requests, models, system; SimpleCov 100% line + branch in full suite / CI |
+| unit + integration | RSpec | 3.x (via rspec-rails) | Primary layer; 280 examples across services, requests, models, system; SimpleCov 100% line + branch in full suite / CI |
 | HTTP integration | RSpec request specs | — | Security, authorization matrix, persistence oracles |
 | user flows | Capybara system specs (`spec/system`) | 3.40 (rack_test) | Browser-visible happy paths; same-thread driver for speed + transactional fixtures |
 | browser E2E | Playwright (`e2e/`, `@playwright/test`) | 1.50+ | Real Chromium journeys; optional gate via `bin/e2e` |
@@ -105,9 +105,9 @@ The full set of gates that must pass before a change reaches production.
 | bundler-audit | `bin/ci`, GHA `scan_ruby` | required | vulnerable gems |
 | importmap audit | `bin/ci`, GHA `scan_js` | required | JS dependency CVEs |
 | Brakeman | `bin/ci`, GHA `scan_ruby` | required | Rails security patterns |
-| RSpec (262) | `bin/ci`, GHA `test` | required | logic, security, and system-flow regressions |
+| RSpec (280) | `bin/ci`, GHA `test` | required | logic, security, and system-flow regressions |
 | Full `bin/ci` locally before push | developer workflow | required (AGENTS.md) | combined gate failures |
-| Capybara system specs (`spec/system`) | `bin/ci` (via full RSpec) | required | user-visible flows (auth, intake, analyze, archive) |
+| Capybara system specs (`spec/system`) | `bin/ci` (via full RSpec) | required | user-visible flows (auth, intake, CRUD metadata, analyze, archive) |
 | Playwright E2E (`e2e/`) | `mise exec -- bin/e2e` | optional | real Chromium regression; not in `bin/ci` (see §6.9) |
 | Playwright MCP smoke | manual / Cursor | optional | ad-hoc debugging only |
 | Post-edit agent hook | — | not planned | — |
@@ -163,7 +163,7 @@ request layer when the risk is about what the user receives over HTTP.
 - Shared helper: `spec/support/request_status_helpers.rb`
   (`expect_not_found_without_forbidden`) — assert 404, not 403.
 - Matrix: `owner` vs `other_user` on every `:id` action (show, analyze,
-  archive, download_report). Assert side effects (no `ai_reports`, no
+  archive, download_report, edit, update, destroy). Assert side effects (no `ai_reports`, no
   archive, no export body leak) — not status alone.
 - Body-leak oracle on cross-user show: assert case-specific sanitized
   content absent (e.g. `[REQUEST_1]`), not title strings (local error pages
@@ -341,6 +341,7 @@ scope with `within(find("fieldset", text: "Log source 1"))` for repeated fields.
 |------|------------|
 | `authentication_spec.rb` | guest redirect, sign up, sign in, sign out |
 | `debugging_case_flow_spec.rb` | multi-source create → sanitized UI → analyze → report → download → archive → archived filter |
+| `debugging_case_crud_spec.rb` | index edit → metadata update → index delete (rack_test; no JS confirm dialog) |
 | `debugging_case_validation_spec.rb` | failed create (no sources) |
 | `demo_case_spec.rb` | Load demo case (test/dev) |
 | `user_isolation_spec.rb` | other user's case → public 404 |
@@ -366,24 +367,25 @@ Keep **security oracles** in RSpec request specs — Playwright asserts UI only.
 | `seed.spec.ts` | minimal create + redaction summary |
 | `single-source-minimum.spec.ts` | happy path with one log source only |
 | `debugging-case-flow.spec.ts` | multi-source create → sanitized UI → redaction summary → analyze → report → markdown download → archive → archived filter (F7 clipboard intentionally not automated — see comment in spec) |
+| `debugging-case-crud.spec.ts` | index edit → metadata update → irreversible delete confirm (index + show); cancel keeps case |
 | `debugging-case-validation.spec.ts` | empty sources 422, metadata preserve on failure, invalid source type + paste-cleared hint |
 | `analyze-failure.spec.ts` | safe analyze failure UX (invalid AI via `X-E2E-AI-Client` header) |
 | `demo-case.spec.ts` | Load demo case (test server) |
 | `user-isolation.spec.ts` | cross-user show returns 404 / no case content |
-| `accessibility.spec.ts` | axe WCAG A/AA spot-check: dashboard after sign up, new debugging case form (serious/critical gate) |
+| `accessibility.spec.ts` | axe WCAG A/AA spot-check: dashboard after sign up, new debugging case form, cases index, edit form (serious/critical gate) |
 | `capture-*.spec.ts` (4) | certification screenshots only — skipped unless `PLAYWRIGHT_CAPTURE_SCREENSHOTS=1` |
 
 **Commands:**
 
 ```bash
-mise exec -- bin/e2e                  # prepare DB + test Rails server + 15 functional Playwright tests
+mise exec -- bin/e2e                  # prepare DB + test Rails server + 19 functional Playwright tests
 mise exec -- npm run test:e2e:install # Chromium only (first run)
 PLAYWRIGHT_SKIP_WEBSERVER=1 mise exec -- bin/e2e   # reuse running server on :3000
 ```
 
 **CI policy:** Playwright is **not** wired into `bin/ci` or GHA `test` job —
 adds Node + Chromium install, separate Rails boot, and ~30–60s latency on top
-of 262 RSpec examples. Capybara system specs already guard user flows in CI.
+of 280 RSpec examples. Capybara system specs already guard user flows in CI.
 Run `bin/e2e` locally before Demo Day or after UI changes.
 
 **Selectors:** `getByRole`, `getByLabel`, scoped `section.card` + `legend` for

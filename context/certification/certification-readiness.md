@@ -30,7 +30,7 @@ Full rules, SafeLog artifact mapping, and recommended strategy: [`submission-gui
 
 | Badge | Modules | Verdict | Summary |
 |-------|---------|---------|---------|
-| **10xBuilder** | M1–M3 | **READY** | MVP shipped; 262 RSpec + 9 system + 19 Playwright E2E (4 capture + 15 functional); Fly.io at https://safelog-ai.fly.dev/; submission screenshots captured (2026-06-24); local `bin/ci` + remote GHA green on `main` ([run 28185226849](https://github.com/szymoniwacz/safelog-ai/actions/runs/28185226849), 2026-06-25). |
+| **10xBuilder** | M1–M3 | **READY** | MVP shipped; 280 RSpec + 10 system + 23 Playwright E2E (4 capture + 19 functional); Fly.io at https://safelog-ai.fly.dev/; submission screenshots captured (2026-06-24); local `bin/ci` + remote GHA green on `main` ([run 28185226849](https://github.com/szymoniwacz/safelog-ai/actions/runs/28185226849), 2026-06-25). |
 | **10xArchitect** | M4 | **READY** | M4L2–L5 complete — repo map, flow research, ranked refactors, DDD distillation + invariant/ACL plans; [`architecture-report.md`](architecture-report.md) two-pager; readiness review + excerpt screenshots. |
 | **10xChampion** | M5 | **READY** | M5L2 review agent + M5L3 GHA AI review (PR #11 fail / #12 pass) + M5L4 `@szymoniwacz/ai-toolkit` on GitHub Packages ([PR #13](https://github.com/szymoniwacz/safelog-ai/pull/13), [run 27877220442](https://github.com/szymoniwacz/safelog-ai/actions/runs/27877220442)); readiness review + screenshots. |
 
@@ -68,11 +68,12 @@ flowchart LR
 |------|--------|----------|
 | Access control — Devise auth, gated routes | **PASS** | `AuthenticatedController`; `spec/requests/devise/*` |
 | Access control — per-user isolation | **PASS** | `debugging_cases_authorization_spec.rb` |
-| CRUD — create, read (index/show), archive | **PASS** | Request specs; no edit/destroy (intentional MVP); **archive only** — no unarchive (post-MVP parked; `roadmap.md` Parked, `test-plan.md` §7) |
+| CRUD — create, read (index/show), update (metadata), destroy | **PASS** | Request + system + Playwright specs (`debugging_cases_update_spec.rb`, `debugging_cases_destroy_spec.rb`, `debugging_case_crud_spec.rb`, `debugging-case-crud.spec.ts`); log sources remain create-time only |
+| CRUD — archive (soft hide) | **PASS** | `debugging_cases_archive_spec.rb`; **archive only** — no unarchive (post-MVP parked; `roadmap.md` Parked, `test-plan.md` §7) |
 | Business logic — redaction, intake, correlation, analyze, export | **PASS** | `app/services/*`; service + request specs |
 | Context documents — PRD, roadmap, test-plan, infra, deploy-plan | **PASS** | `context/foundation/*` |
-| Tests — meaningful coverage | **PASS** | 262 RSpec + 9 system + 19 Playwright E2E (4 capture + 15 functional); SimpleCov 100% line + branch in full suite |
-| CI/CD — local gate | **PASS** | `mise exec -- bin/ci` green 2026-06-25 (262 examples) |
+| Tests — meaningful coverage | **PASS** | 280 RSpec + 10 system + 23 Playwright E2E (4 capture + 19 functional); SimpleCov 100% line + branch in full suite |
+| CI/CD — local gate | **PASS** | `mise exec -- bin/ci` green 2026-06-25 (280 examples) |
 | CI/CD — GitHub Actions config | **PASS** | `.github/workflows/ci.yml` parity with `config/ci.rb` |
 | CI/CD — remote GHA on latest `main` | **PASS** | [Run 28185226849](https://github.com/szymoniwacz/safelog-ai/actions/runs/28185226849) on `a3d85d3` (2026-06-25) |
 | Public URL | **PASS** | https://safelog-ai.fly.dev/ — `/up` 200 verified 2026-06-25 |
@@ -97,9 +98,9 @@ flowchart LR
 ### Commands (verified 2026-06-25)
 
 ```bash
-mise exec -- bin/ci                              # 262 examples — PASS
-mise exec -- bundle exec rspec spec/system       # 9 examples — PASS
-mise exec -- bin/e2e --grep-invert capture       # 15 functional Playwright tests — PASS
+mise exec -- bin/ci                              # 280 examples — PASS
+mise exec -- bundle exec rspec spec/system       # 10 examples — PASS
+mise exec -- bin/e2e --grep-invert capture       # 19 functional Playwright tests — PASS
 mise exec -- bin/dev                             # local demo
 curl -sf https://safelog-ai.fly.dev/up           # production health — 200
 ```
@@ -273,7 +274,7 @@ Reviewers and course staff often compare the README demo (which mentions **Load 
 3. **New case** → paste multiple sources with fake secrets (e.g. email, token, shared `request_id`)
 4. Verify show page: placeholders only, **Redaction summary** present — [`builder/05-case-redaction-summary.png`](screenshots/builder/05-case-redaction-summary.png)
 5. **Analyze case** → hypothesis report — [`builder/06-hypothesis-report.png`](screenshots/builder/06-hypothesis-report.png)
-6. Optional: download report, archive, **Archived** tab — [`builder/07-archived-cases.png`](screenshots/builder/07-archived-cases.png)
+6. Optional: **Edit** metadata from **Cases** index or case show; **Delete** (irreversible confirm) or **Archive** + **Archived** tab — [`builder/07-archived-cases.png`](screenshots/builder/07-archived-cases.png)
 
 Do **not** expect a **Load demo case** button on Fly unless `SAFELOG_ENABLE_DEMO_LOADER` is set — absence is default, not a deploy bug.
 

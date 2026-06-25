@@ -56,7 +56,7 @@ What's in place as of **2026-06-09** (MVP feature slices F-01–S-06 implemented
 
 - **Frontend:** server-rendered Rails views (Hotwire, Propshaft, importmap); dashboard, case CRUD, analyze, export, archive UI
 - **Backend:** Rails 8.1 services under `app/services/{redaction,intake,correlation,analysis,ai,demo}/`; authenticated case flows
-- **Data:** SQLite domain schema with Active Record Encryption on diagnostic text; 262 RSpec examples (2026-06-25)
+- **Data:** SQLite domain schema with Active Record Encryption on diagnostic text; 280 RSpec examples (2026-06-25)
 - **Auth:** Devise email/password; `AuthenticatedController` gates app routes
 - **Deploy / infra:** Fly.io production at https://safelog-ai.fly.dev/; `Dockerfile`, `fly.toml` (fra, always-on, `HTTP_PORT=8080`); SQLite on volume `data`; GHA auto-deploy on `main` (`.github/workflows/fly-deploy.yml`); CI in `.github/workflows/ci.yml`
 - **Observability:** Rails default logging; `/up` health check (passing on Fly)

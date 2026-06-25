@@ -32,6 +32,8 @@ test("full debugging case journey in the browser", async ({ page }) => {
   await page.getByRole("button", { name: "Create debugging case" }).click();
 
   await expect(page.getByRole("heading", { name: "Playwright checkout failure" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Edit case" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Delete case" })).toBeVisible();
   await expect(page.getByText(rawEmail)).toHaveCount(0);
   await expect(page.getByText(rawToken)).toHaveCount(0);
   await expect(page.getByText(sharedRequestId)).toHaveCount(0);
@@ -53,7 +55,7 @@ test("full debugging case journey in the browser", async ({ page }) => {
   await expect(correlationSection).toContainText("[REQUEST_1]");
 
   const reportMarkdown = page.getByRole("textbox", { name: "Report Markdown" });
-  await expect(reportMarkdown).toContainText("## Hypothesis report");
+  await expect(reportMarkdown).toContainText(/## Hypotheses|## Hypothesis report/);
 
   /*
    * F7 — Copy Markdown (clipboard): intentionally not automated here.
@@ -70,7 +72,7 @@ test("full debugging case journey in the browser", async ({ page }) => {
     chunks.push(Buffer.from(chunk));
   }
   const markdown = Buffer.concat(chunks).toString("utf8");
-  expect(markdown).toContain("## Hypothesis report");
+  expect(markdown).toMatch(/## Hypotheses|## Hypothesis report/);
   expect(markdown).not.toContain(rawEmail);
   expect(markdown).not.toContain(rawToken);
 

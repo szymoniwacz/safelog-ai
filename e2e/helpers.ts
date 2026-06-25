@@ -4,6 +4,9 @@ import { type Browser, type BrowserContext, type Locator, type Page, expect } fr
 
 export const DEFAULT_PASSWORD = "password123";
 
+export const DESTROY_CASE_CONFIRMATION =
+  "Permanently delete this case? This action cannot be undone.";
+
 export function uniqueEmail(prefix: string): string {
   const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   return `${prefix}-${suffix}@example.com`;
@@ -63,4 +66,34 @@ export async function fillLogSourceSlot(
     await fieldset.getByLabel("Name (optional)").fill(options.name);
   }
   await fieldset.getByLabel("Pasted content").fill(options.pastedContent);
+}
+
+export async function goToCasesIndex(page: Page): Promise<void> {
+  const allCasesLink = page.getByRole("link", { name: "All cases" });
+  if (await allCasesLink.isVisible()) {
+    await allCasesLink.click();
+  } else {
+    await page
+      .getByRole("navigation", { name: "Main" })
+      .getByRole("link", { name: "Cases", exact: true })
+      .click();
+  }
+
+  await expect(page.getByRole("heading", { name: "Debugging cases" })).toBeVisible();
+}
+
+type DeleteScope = Pick<Locator, "getByRole">;
+
+export async function clickDeleteWithConfirmation(
+  page: Page,
+  scope: DeleteScope,
+  buttonName: string | RegExp = /Delete/,
+): Promise<void> {
+  page.once("dialog", async (dialog) => {
+    expect(dialog.type()).toBe("confirm");
+    expect(dialog.message()).toBe(DESTROY_CASE_CONFIRMATION);
+    await dialog.accept();
+  });
+
+  await scope.getByRole("button", { name: buttonName }).click();
 }

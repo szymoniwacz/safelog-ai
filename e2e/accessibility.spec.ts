@@ -1,7 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import type { Result } from "axe-core";
-import { signUp, uniqueEmail } from "./helpers";
+import { signUp, uniqueEmail, fillLogSourceSlot, goToCasesIndex } from "./helpers";
 
 // Automated WCAG 2.0/2.1 Level A + AA rules via axe tags (not full manual WCAG coverage).
 const WCAG_AA_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"] as const;
@@ -41,5 +41,25 @@ test("new debugging case form has no serious or critical WCAG violations", async
   await page.getByRole("link", { name: "New case" }).click();
   await expect(page.getByRole("heading", { name: "New debugging case" })).toBeVisible();
 
+  await expectNoSeriousOrCriticalViolations(page);
+});
+
+test("cases index and edit form have no serious or critical WCAG violations", async ({ page }) => {
+  const email = uniqueEmail("pw-a11y-crud");
+
+  await signUp(page, email);
+  await page.getByRole("link", { name: "New case" }).click();
+  await page.getByLabel("Title").fill("Accessibility CRUD case");
+  await fillLogSourceSlot(page, 1, {
+    sourceType: "Rails log",
+    pastedContent: "request_id=req-a11y-crud",
+  });
+  await page.getByRole("button", { name: "Create debugging case" }).click();
+
+  await goToCasesIndex(page);
+  await expectNoSeriousOrCriticalViolations(page);
+
+  await page.getByRole("link", { name: "Edit" }).click();
+  await expect(page.getByRole("heading", { name: "Edit debugging case" })).toBeVisible();
   await expectNoSeriousOrCriticalViolations(page);
 });

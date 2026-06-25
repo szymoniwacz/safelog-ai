@@ -16,7 +16,7 @@ scope: Copy-paste guide for all three 10xDevs certification forms
 
 | Step | Command / action | Expected |
 |------|------------------|----------|
-| Local CI | `mise exec -- bin/ci` | 262 examples, 0 failures |
+| Local CI | `mise exec -- bin/ci` | 280 examples, 0 failures |
 | Production health | `curl -sf https://safelog-ai.fly.dev/up` | HTTP 200 |
 | Fly redeploy (if down) | `fly deploy --app safelog-ai` | `/up` returns 200 |
 | Architect PDF | `npm run cert:architecture-pdf` | `architecture-report.pdf` exists |
@@ -39,7 +39,7 @@ Platform post (course): *10xBuilder certification: submission form and key rules
 
 ### Project summary
 
-SafeLog AI is a Rails app for safe multi-source production incident debugging. Raw logs are redacted **in memory** before persistence and before any AI call — only sanitized evidence is stored (encrypted in SQLite). The user creates a case from multiple pasted log sources, reviews the redaction summary, runs AI analysis (hypothesis-framed report, not a verdict), exports Markdown, and archives the case. Auth: Devise; per-user isolation (404 cross-user). Tests: 262 RSpec + 9 system + 19 Playwright E2E (4 capture + 15 functional); fake AI in CI.
+SafeLog AI is a Rails app for safe multi-source production incident debugging. Raw logs are redacted **in memory** before persistence and before any AI call — only sanitized evidence is stored (encrypted in SQLite). The user creates a case from multiple pasted log sources, reviews the redaction summary, runs AI analysis (hypothesis-framed report, not a verdict), exports Markdown, edits case metadata, deletes or archives cases. Auth: Devise; per-user isolation (404 cross-user). Tests: 280 RSpec + 10 system + 23 Playwright E2E (4 capture + 19 functional); fake AI in CI.
 
 ### Screenshots to attach
 
@@ -136,7 +136,7 @@ Local alternative: `mise exec -- bin/dev` → **Load demo case** (dev/test only)
 
 | Check | Result |
 |-------|--------|
-| `bin/ci` | 262 examples, 0 failures; 100% line + branch coverage |
+| `bin/ci` | 280 examples, 0 failures; 100% line + branch coverage |
 | `bin/e2e --grep-invert capture` | 15 passed |
 | `npm run depcruise:validate` | 0 violations |
 | `packages/ai-toolkit` smoke | passed |

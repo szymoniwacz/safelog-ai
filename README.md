@@ -54,7 +54,8 @@ Register or sign in (Devise). All case flows require authentication.
 4. On the case page, review sanitized sources, redaction findings, and correlation signals.
 5. Click **Analyze case** to run correlation extraction and AI analysis.
 6. Copy or **download** the Markdown report when analysis succeeds.
-7. **Archive** cases you no longer need; view archived cases from the index filter.
+7. **Edit** case metadata (title, description, customer reference, environment) from the case page or the cases index. Log sources cannot be changed after create.
+8. **Delete** cases permanently from the index or case page (browser confirmation required). **Archive** is a separate soft-hide action; archived cases remain in the database and appear under the **Archived** filter.
 
 The demo loader is off in production by default (`POST /debugging_cases/load_demo` returns 404). Certification reviewers can enable it on Fly with `fly secrets set SAFELOG_ENABLE_DEMO_LOADER=true --app safelog-ai`. See `context/certification/certification-readiness.md` § **Public demo vs local load_demo** for reviewer guidance on https://safelog-ai.fly.dev/.
 
@@ -130,10 +131,10 @@ GitHub Actions auto deploys on push to `main` (see `.github/workflows/fly-deploy
 
 | Layer | Command | Covers |
 |-------|---------|--------|
-| **RSpec (full)** | `mise exec -- bundle exec rspec spec/` | 262 examples — services, request specs, models, system; 100% line + branch coverage in full suite / CI |
-| **Capybara system** | `mise exec -- bundle exec rspec spec/system` | 9 examples — server-rendered user flows via rack_test (in `bin/ci`) |
-| **Playwright E2E** | `mise exec -- bin/e2e` | 19 total (15 functional + 4 opt-in capture) in real Chromium; optional before release — not in `bin/ci` |
-| **Playwright a11y** | `mise exec -- bin/e2e e2e/accessibility.spec.ts` | axe WCAG A/AA spot-check (serious/critical) on dashboard and new-case form; optional |
+| **RSpec (full)** | `mise exec -- bundle exec rspec spec/` | 280 examples — services, request specs, models, system; 100% line + branch coverage in full suite / CI |
+| **Capybara system** | `mise exec -- bundle exec rspec spec/system` | 10 examples — server-rendered user flows via rack_test (in `bin/ci`) |
+| **Playwright E2E** | `mise exec -- bin/e2e` | 23 total (19 functional + 4 opt-in capture) in real Chromium; optional before release — not in `bin/ci` |
+| **Playwright a11y** | `mise exec -- bin/e2e e2e/accessibility.spec.ts` | axe WCAG A/AA spot-check (serious/critical) on dashboard, new-case form, cases index, and edit form; optional |
 
 Partial `rspec` runs (single file or subdirectory) skip the SimpleCov minimum threshold; `bin/ci` and CI enforce 100% line + branch coverage on the full suite.
 
@@ -165,7 +166,7 @@ Tests use a fake AI client and assert that raw log values never persist or reach
 
 - **Paste only** — no file uploads or external log integrations (CloudWatch, New Relic, etc.); source-type dropdown values are labels for pasted text only.
 - **No production observability stack** — Rails default logging and `/up` health check only; Sentry/metrics/OTel parked in `roadmap.md`.
-- **Create-time intake** — log sources are submitted with the case; no adding sources after create.
+- **Create-time intake** — log sources are submitted with the case; no adding sources after create (metadata can still be edited).
 - **Synchronous analyze** — no background jobs; analysis runs in the request.
 - **SQLite** — single-node MVP store; PostgreSQL is a future scale option.
 - **Archive only** — cases can be archived but not unarchived (conscious post-MVP scope; see `context/foundation/roadmap.md` Parked and `test-plan.md` §7).
