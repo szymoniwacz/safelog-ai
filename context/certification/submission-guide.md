@@ -85,7 +85,7 @@ Generate the report with the M4L5 lesson prompt. **The report must be yours** �
 | Course requirement | Location in repo |
 |--------------------|-------------------|
 | Repository map | [`context/map/repo-map.md`](../map/repo-map.md) + artifacts 1–3 |
-| Feature research | [`context/changes/case-submission-flow-analysis/research.md`](../changes/case-submission-flow-analysis/research.md) |
+| Feature research | [`10x-archive/case-submission-flow-analysis/research.md`](../../10x-archive/case-submission-flow-analysis/research.md) |
 | Refactoring plan | [`context/changes/refactor-opportunities/research.md`](../changes/refactor-opportunities/research.md) + [`plan.md`](../changes/refactor-opportunities/plan.md) if present |
 | DDD / domain | [`context/domain/`](../domain/) |
 | Architecture report (two-pager) | [`architecture-report.md`](architecture-report.md) · [`architecture-report.pdf`](architecture-report.pdf) |

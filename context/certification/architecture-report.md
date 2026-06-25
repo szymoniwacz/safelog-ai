@@ -5,7 +5,7 @@ scope: 10xDevs M4 Architect submission (two-pager)
 updated: 2026-06-22
 sources:
   - context/map/repo-map.md
-  - context/changes/case-submission-flow-analysis/research.md
+  - 10x-archive/case-submission-flow-analysis/research.md
   - context/changes/refactor-opportunities/research.md
   - context/domain/
 ---
@@ -78,7 +78,7 @@ Both plans include phased F1–Fn roadmaps for post-MVP hygiene when product pri
 
 | Layer | Mechanism |
 |-------|-----------|
-| **Tests** | 240 RSpec + 9 Capybara system + 13 functional Playwright E2E; fake AI in CI; SimpleCov 100% line + branch |
+| **Tests** | 256 RSpec + 9 Capybara system + 19 Playwright E2E (4 capture + 15 functional); fake AI in CI; SimpleCov 100% line + branch |
 | **CI** | `bin/ci` parity with GHA (RuboCop, Brakeman, bundler-audit, importmap, RSpec) |
 | **Encryption** | Active Record Encryption on sanitized logs, reports, correlation payloads |
 | **Champion (M5)** | TypeScript PR review agent + GHA AI review workflow; `@szymoniwacz/ai-toolkit` on GitHub Packages |
@@ -92,7 +92,7 @@ Both plans include phased F1–Fn roadmaps for post-MVP hygiene when product pri
 | M4 lesson | Artifact |
 |-----------|----------|
 | M4L2 Repo map | [`context/map/repo-map.md`](../map/repo-map.md) |
-| M4L3 Flow research | [`context/changes/case-submission-flow-analysis/research.md`](../changes/case-submission-flow-analysis/research.md) |
+| M4L3 Flow research | [`10x-archive/case-submission-flow-analysis/research.md`](../../10x-archive/case-submission-flow-analysis/research.md) |
 | M4L4 Refactor ranking | [`context/changes/refactor-opportunities/research.md`](../changes/refactor-opportunities/research.md) |
 | M4L5 Domain | [`context/domain/`](../domain/) |
 | Readiness audit | [`context/reviews/m4-architect-readiness-review.md`](../reviews/m4-architect-readiness-review.md) |

@@ -11,7 +11,7 @@ Artifact from foundation docs, README, AGENTS.md, and runtime code (`app/models/
 | `context/foundation/prd.md` | Active PRD — vision, FR-001–FR-011, guardrails |
 | `context/foundation/shape-notes.md` | Shape session — domain decisions, non-goals |
 | `context/map/repo-map.md` | Repo map — where business logic lives |
-| `context/changes/case-submission-flow-analysis/research.md` | Intake → redaction → persist analysis |
+| `10x-archive/case-submission-flow-analysis/research.md` | Intake → redaction → persist analysis |
 | `context/changes/refactor-opportunities/research.md` | Structural refactor candidates |
 
 ### Stack and repo structure

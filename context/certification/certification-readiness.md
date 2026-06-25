@@ -30,7 +30,7 @@ Full rules, SafeLog artifact mapping, and recommended strategy: [`submission-gui
 
 | Badge | Modules | Verdict | Summary |
 |-------|---------|---------|---------|
-| **10xBuilder** | M1–M3 | **READY** | MVP shipped; 240 RSpec + 9 system + 13 functional Playwright; Fly.io at https://safelog-ai.fly.dev/; submission screenshots captured; local `bin/ci` + remote GHA green on `main` (re-verify GHA after latest push). |
+| **10xBuilder** | M1–M3 | **READY** | MVP shipped; 256 RSpec + 9 system + 19 Playwright E2E (4 capture + 15 functional); Fly.io at https://safelog-ai.fly.dev/; submission screenshots captured; local `bin/ci` + remote GHA green on `main` (re-verify GHA after latest push). |
 | **10xArchitect** | M4 | **READY** | M4L2–L5 complete — repo map, flow research, ranked refactors, DDD distillation + invariant/ACL plans; [`architecture-report.md`](architecture-report.md) two-pager; readiness review + excerpt screenshots. |
 | **10xChampion** | M5 | **READY** | M5L2 review agent + M5L3 GHA AI review (PR #11 fail / #12 pass) + M5L4 `@szymoniwacz/ai-toolkit` on GitHub Packages ([PR #13](https://github.com/szymoniwacz/safelog-ai/pull/13), [run 27877220442](https://github.com/szymoniwacz/safelog-ai/actions/runs/27877220442)); readiness review + screenshots. |
 
@@ -71,7 +71,7 @@ flowchart LR
 | CRUD — create, read (index/show), archive | **PASS** | Request specs; no edit/destroy (intentional MVP); **archive only** — no unarchive (post-MVP parked; `roadmap.md` Parked, `test-plan.md` §7) |
 | Business logic — redaction, intake, correlation, analyze, export | **PASS** | `app/services/*`; service + request specs |
 | Context documents — PRD, roadmap, test-plan, infra, deploy-plan | **PASS** | `context/foundation/*` |
-| Tests — meaningful coverage | **PASS** | 240 RSpec + 9 system + 13 functional Playwright (17 total incl. 4 capture specs); SimpleCov 100% line + branch in full suite |
+| Tests — meaningful coverage | **PASS** | 256 RSpec + 9 system + 19 Playwright E2E (4 capture + 15 functional); SimpleCov 100% line + branch in full suite |
 | CI/CD — local gate | **PASS** | `mise exec -- bin/ci` green 2026-06-24 (240 examples) |
 | CI/CD — GitHub Actions config | **PASS** | `.github/workflows/ci.yml` parity with `config/ci.rb` |
 | CI/CD — remote GHA on latest `main` | **PASS** | Re-run GHA after push; prior green [Run 27970702328](https://github.com/szymoniwacz/safelog-ai/actions/runs/27970702328) on `2ecea64` (2026-06-22) |
@@ -124,7 +124,7 @@ Module 4 course prompts:
 | `.cursor/prompts/m4l2-1-territory-git-history.md` | `context/map/artifact-1-territory.md` | **PASS** |
 | `.cursor/prompts/m4l2-2-structure-dependency-cruiser.md` | `context/map/artifact-2-structure.md` | **PASS** |
 | `.cursor/prompts/m4l2-repo-map-synthesis.md` | `context/map/repo-map.md` | **PASS** |
-| `.cursor/prompts/m4l3-1-research-with-map.md` | `context/changes/case-submission-flow-analysis/research.md` | **PASS** |
+| `.cursor/prompts/m4l3-1-research-with-map.md` | `10x-archive/case-submission-flow-analysis/research.md` | **PASS** |
 | `.cursor/prompts/m4l3-2-ast-grep-verification.md` | AST-grep verification in same research doc | **PASS** |
 | `.cursor/prompts/m4l4-1-new-change-intention.md` | `context/changes/refactor-opportunities/change.md` | **PASS** |
 | `.cursor/prompts/m4l4-2-refactor-opportunities-research.md` | `context/changes/refactor-opportunities/research.md` | **PASS** |
@@ -139,7 +139,7 @@ Module 4 course prompts:
 |------|--------|-------|
 | Architecture work — repo map / territory analysis | **PASS** | [`repo-map.md`](../map/repo-map.md) + artifacts 1–3 |
 | Large-context workflows — map synthesis | **PASS** | [`repo-map.md`](../map/repo-map.md) synthesizes territory, structure, contributors |
-| Large-context workflows — targeted research with map | **PASS** | [`case-submission-flow-analysis/research.md`](../changes/case-submission-flow-analysis/research.md) (M4L3-1) |
+| Large-context workflows — targeted research with map | **PASS** | [`case-submission-flow-analysis/research.md`](../../10x-archive/case-submission-flow-analysis/research.md) (M4L3-1) |
 | Structural verification — ast-grep (flow analysis) | **PASS** | AST-grep section in case-submission research (M4L3-2) |
 | Refactoring exploration — ranked opportunities | **PASS** | [`refactor-opportunities/research.md`](../changes/refactor-opportunities/research.md) (M4L4-2); ast-grep verified (M4L4-3) |
 | Domain distillation — ubiquitous language, subdomains, aggregates | **PASS** | [`01-domain-distillation.md`](../domain/01-domain-distillation.md) (M4L5-1) |
@@ -159,7 +159,7 @@ Module 4 course prompts:
 | Architecture report (two-pager) | [`architecture-report.md`](architecture-report.md) · [`architecture-report.pdf`](architecture-report.pdf) |
 | Repo map synthesis | [`context/map/repo-map.md`](../map/repo-map.md) |
 | Map artifacts | [`context/map/artifact-1-territory.md`](../map/artifact-1-territory.md), [`artifact-2-structure.md`](../map/artifact-2-structure.md), [`artifact-3-contributors.md`](../map/artifact-3-contributors.md) |
-| Flow research (M4L3) | [`context/changes/case-submission-flow-analysis/research.md`](../changes/case-submission-flow-analysis/research.md) |
+| Flow research (M4L3) | [`10x-archive/case-submission-flow-analysis/research.md`](../../10x-archive/case-submission-flow-analysis/research.md) |
 | Refactor ranking (M4L4) | [`context/changes/refactor-opportunities/research.md`](../changes/refactor-opportunities/research.md) |
 | Domain distillation (M4L5) | [`context/domain/`](../domain/) |
 | E2E dependency diagram | [`context/map/diagrams/e2e-helper-hub.svg`](../map/diagrams/e2e-helper-hub.svg) |

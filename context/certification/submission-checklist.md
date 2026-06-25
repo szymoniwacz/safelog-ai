@@ -39,7 +39,7 @@ Platform post (course): *10xBuilder certification: submission form and key rules
 
 ### Project summary
 
-SafeLog AI is a Rails app for safe multi-source production incident debugging. Raw logs are redacted **in memory** before persistence and before any AI call — only sanitized evidence is stored (encrypted in SQLite). The user creates a case from multiple pasted log sources, reviews the redaction summary, runs AI analysis (hypothesis-framed report, not a verdict), exports Markdown, and archives the case. Auth: Devise; per-user isolation (404 cross-user). Tests: 240 RSpec + 9 system + 13 functional Playwright E2E; fake AI in CI.
+SafeLog AI is a Rails app for safe multi-source production incident debugging. Raw logs are redacted **in memory** before persistence and before any AI call — only sanitized evidence is stored (encrypted in SQLite). The user creates a case from multiple pasted log sources, reviews the redaction summary, runs AI analysis (hypothesis-framed report, not a verdict), exports Markdown, and archives the case. Auth: Devise; per-user isolation (404 cross-user). Tests: 256 RSpec + 9 system + 19 Playwright E2E (4 capture + 15 functional); fake AI in CI.
 
 ### Screenshots to attach
 
@@ -78,7 +78,7 @@ Select **both** Architect and Champion in the same submission.
 | **Architecture report** | Upload [`architecture-report.pdf`](architecture-report.pdf) |
 | **Report source (markdown)** | [`architecture-report.md`](architecture-report.md) |
 | **Repo map** | `context/map/repo-map.md` |
-| **Flow research** | `context/changes/case-submission-flow-analysis/research.md` |
+| **Flow research** | `10x-archive/case-submission-flow-analysis/research.md` |
 | **Refactor ranking** | `context/changes/refactor-opportunities/research.md` |
 | **Domain notes** | `context/domain/` (3 files) |
 | **Readiness review** | `context/reviews/m4-architect-readiness-review.md` |
