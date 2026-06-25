@@ -30,7 +30,7 @@ Full rules, SafeLog artifact mapping, and recommended strategy: [`submission-gui
 
 | Badge | Modules | Verdict | Summary |
 |-------|---------|---------|---------|
-| **10xBuilder** | M1–M3 | **READY** | MVP shipped; 256 RSpec + 9 system + 19 Playwright E2E (4 capture + 15 functional); Fly.io at https://safelog-ai.fly.dev/; submission screenshots captured; local `bin/ci` + remote GHA green on `main` (re-verify GHA after latest push). |
+| **10xBuilder** | M1–M3 | **READY** | MVP shipped; 262 RSpec + 9 system + 19 Playwright E2E (4 capture + 15 functional); Fly.io at https://safelog-ai.fly.dev/; submission screenshots captured; local `bin/ci` + remote GHA green on `main` (re-verify GHA after latest push). |
 | **10xArchitect** | M4 | **READY** | M4L2–L5 complete — repo map, flow research, ranked refactors, DDD distillation + invariant/ACL plans; [`architecture-report.md`](architecture-report.md) two-pager; readiness review + excerpt screenshots. |
 | **10xChampion** | M5 | **READY** | M5L2 review agent + M5L3 GHA AI review (PR #11 fail / #12 pass) + M5L4 `@szymoniwacz/ai-toolkit` on GitHub Packages ([PR #13](https://github.com/szymoniwacz/safelog-ai/pull/13), [run 27877220442](https://github.com/szymoniwacz/safelog-ai/actions/runs/27877220442)); readiness review + screenshots. |
 
@@ -71,7 +71,7 @@ flowchart LR
 | CRUD — create, read (index/show), archive | **PASS** | Request specs; no edit/destroy (intentional MVP); **archive only** — no unarchive (post-MVP parked; `roadmap.md` Parked, `test-plan.md` §7) |
 | Business logic — redaction, intake, correlation, analyze, export | **PASS** | `app/services/*`; service + request specs |
 | Context documents — PRD, roadmap, test-plan, infra, deploy-plan | **PASS** | `context/foundation/*` |
-| Tests — meaningful coverage | **PASS** | 256 RSpec + 9 system + 19 Playwright E2E (4 capture + 15 functional); SimpleCov 100% line + branch in full suite |
+| Tests — meaningful coverage | **PASS** | 262 RSpec + 9 system + 19 Playwright E2E (4 capture + 15 functional); SimpleCov 100% line + branch in full suite |
 | CI/CD — local gate | **PASS** | `mise exec -- bin/ci` green 2026-06-24 (240 examples) |
 | CI/CD — GitHub Actions config | **PASS** | `.github/workflows/ci.yml` parity with `config/ci.rb` |
 | CI/CD — remote GHA on latest `main` | **PASS** | Re-run GHA after push; prior green [Run 27970702328](https://github.com/szymoniwacz/safelog-ai/actions/runs/27970702328) on `2ecea64` (2026-06-22) |

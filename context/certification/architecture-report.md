@@ -78,7 +78,7 @@ Both plans include phased F1–Fn roadmaps for post-MVP hygiene when product pri
 
 | Layer | Mechanism |
 |-------|-----------|
-| **Tests** | 256 RSpec + 9 Capybara system + 19 Playwright E2E (4 capture + 15 functional); fake AI in CI; SimpleCov 100% line + branch |
+| **Tests** | 262 RSpec + 9 Capybara system + 19 Playwright E2E (4 capture + 15 functional); fake AI in CI; SimpleCov 100% line + branch |
 | **CI** | `bin/ci` parity with GHA (RuboCop, Brakeman, bundler-audit, importmap, RSpec) |
 | **Encryption** | Active Record Encryption on sanitized logs, reports, correlation payloads |
 | **Champion (M5)** | TypeScript PR review agent + GHA AI review workflow; `@szymoniwacz/ai-toolkit` on GitHub Packages |
