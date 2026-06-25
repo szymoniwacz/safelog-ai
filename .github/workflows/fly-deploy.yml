@@ -23,3 +23,16 @@ jobs:
 
       - name: Deploy to Fly.io
         run: flyctl deploy --config fly.toml --app safelog-ai --remote-only --access-token "$FLYCTL_ACCESS_TOKEN"
+
+      - name: Smoke check — verify /healthz endpoint
+        run: |
+          for attempt in {1..5}; do
+            if curl --fail --silent https://safelog-ai.fly.dev/healthz > /dev/null 2>&1; then
+              echo "✓ Health check passed"
+              exit 0
+            fi
+            echo "Attempt $attempt/5 failed, retrying..."
+            sleep 2
+          done
+          echo "✗ Health check failed after 5 attempts"
+          exit 1
