@@ -74,6 +74,8 @@ jobs:
       RAILS_ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY: "CITestPrimaryKey00000000000001"
       RAILS_ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY: "CITestDeterministicKey00000001"
       RAILS_ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT: "CITestKeyDerivationSalt000001"
+      # Never use real AI provider in CI — force FakeClient (empty OPENAI_API_KEY).
+      OPENAI_API_KEY: ""
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
