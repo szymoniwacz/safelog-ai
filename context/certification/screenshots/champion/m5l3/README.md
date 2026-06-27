@@ -1,6 +1,18 @@
 # Champion — M5L3 CI code review
 
-Captured from GitHub via Playwright (`e2e/capture-champion-screenshots.spec.ts`), 2026-06-18.
+## Form submission — 3 attachments (Pipeline M5)
+
+Upload these **pass** scenario PNGs to the certification form:
+
+| Form requirement | File | Live source |
+|------------------|------|-------------|
+| Pipeline view with ≥1 job | [`05-actions-workflow-run-pass.png`](05-actions-workflow-run-pass.png) | [GHA run 27763104255](https://github.com/szymoniwacz/safelog-ai/actions/runs/27763104255) |
+| Job logs during code review | [`06-actions-job-logs-pass.png`](06-actions-job-logs-pass.png) | [Job 82142437908](https://github.com/szymoniwacz/safelog-ai/actions/runs/27763104255/job/82142437908) |
+| PR with agent review comment | [`04-pr-ai-review-comment-pass.png`](04-pr-ai-review-comment-pass.png) | [PR #12](https://github.com/szymoniwacz/safelog-ai/pull/12) |
+
+Workflow: [`.github/workflows/ai-code-review.yml`](../../../../.github/workflows/ai-code-review.yml) · Agent: [`packages/code-reviewer/`](../../../../packages/code-reviewer/)
+
+Captured from GitHub via Playwright (`e2e/capture-champion-screenshots.spec.ts`). Pass scenario re-captured 2026-06-28.
 
 ## Fail scenario (intentional security issues)
 

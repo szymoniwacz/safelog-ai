@@ -101,7 +101,7 @@ Course requires **one** of two paths; SafeLog covers **both**.
 | Workflow | `.github/workflows/ai-code-review.yml` |
 | Fail PR | https://github.com/szymoniwacz/safelog-ai/pull/11 |
 | Pass PR | https://github.com/szymoniwacz/safelog-ai/pull/12 |
-| Screenshots | [`screenshots/champion/m5l3/`](screenshots/champion/m5l3/) (6 PNGs) |
+| Screenshots | [`screenshots/champion/m5l3/`](screenshots/champion/m5l3/) — **form: 04, 05, 06 (pass)** |
 
 #### Option B — Team AI registry (M5L4)
 
