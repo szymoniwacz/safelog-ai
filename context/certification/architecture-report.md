@@ -2,7 +2,7 @@
 project: SafeLog AI
 type: architecture-report
 scope: 10xDevs M4 Architect submission (two-pager)
-updated: 2026-06-22
+updated: 2026-06-28
 sources:
   - context/map/repo-map.md
   - 10x-archive/case-submission-flow-analysis/research.md
@@ -12,11 +12,13 @@ sources:
 
 # SafeLog AI — Architecture Report
 
-**Author:** Szymon Iwacz · **Stack:** Rails 8.1 monolith, SQLite, Devise, server-rendered ERB · **Live demo:** https://safelog-ai.fly.dev/
+**Author:** Szymon Iwacz · **Stack:** Rails 8.1 monolith, SQLite, Devise, server-rendered ERB · **Demo:** https://safelog-ai.fly.dev/
 
-## 1. System overview
+**M4 synthesis (four lesson artifacts):** M4L2 repo map → M4L3 intake flow research → M4L4 ranked refactors → M4L5 domain distillation + invariant/ACL plans. This report is a concise two-pager built from those artifacts, not a single-prompt dump.
 
-SafeLog AI helps engineers debug production issues from **multiple pasted log sources** without leaking secrets. The core insight: **deterministic redaction runs in memory before any persistence or AI reasoning**. Raw pasted content and raw→placeholder mappings exist only for the duration of the request.
+## 1. System shape (M4L2 — repo map)
+
+SafeLog AI helps engineers debug production incidents from **multiple pasted log sources** without leaking secrets. **Deterministic redaction runs in memory before any persistence or AI call**; raw paste and placeholder mappings exist only for the request lifetime.
 
 ```mermaid
 flowchart LR
@@ -31,73 +33,56 @@ flowchart LR
   Redaction -.->|must not import| AI
 ```
 
-**Runtime territory (M4L2):** product logic lives in `app/services/{intake,redaction,correlation,analysis,ai}/`; HTTP is thin; security oracles in `spec/requests/*_security*`. High git activity in `context/changes/` is **documentation workflow**, not deployable runtime — a common catalog illusion in this repo.
+**Territory:** product logic in `app/services/{intake,redaction,correlation,analysis,ai}/`; thin controllers; security oracles in `spec/requests/*_security*`. High activity in `context/changes/` is **documentation workflow**, not runtime — a catalog illusion called out in [`repo-map.md`](../map/repo-map.md).
 
-**Structure (M4L2):** Ruby services form a **DAG with no cycles**. Critical boundary: **`redaction ⊥ ai`** — verified by constant scan and dependency analysis (`artifact-2-structure.md`). E2E tests are black-box (`depcruise:validate` — 0 violations).
+**Structure:** Ruby services form a **DAG** (no cycles). Verified boundary: **`redaction ⊥ ai`** — constant scan + dependency analysis ([`artifact-2-structure.md`](../map/artifact-2-structure.md)). E2E layer stays black-box (`depcruise:validate` — 0 violations).
 
 ---
 
 ## 2. Intake flow and refactor direction (M4L3–M4L4)
 
-**Primary flow researched:** `POST /debugging_cases` → `Intake::CaseSubmission` (validation) → `Intake::ProcessCaseSubmission` (transaction, redaction, persist) → show page with sanitized evidence and redaction summary.
+**Researched path:** `POST /debugging_cases` → `Intake::CaseSubmission` → `Intake::ProcessCaseSubmission` (transaction, redaction, persist) → show with sanitized evidence and redaction summary ([`case-submission-flow-analysis/research.md`](../../10x-archive/case-submission-flow-analysis/research.md), ast-grep verified).
 
-**Findings (ast-grep verified):**
+**Key findings:**
 
-- Single runtime path from paste to persist; no parallel intake shortcuts in production.
-- `redaction_findings.create!` has one call-site in `ProcessCaseSubmission` — implicit contract between `Redaction::Engine` output and persistence.
-- Security oracles prove raw substrings never land in SQLite; AI prompts contain placeholders only.
+- Single production path from paste to persist; no parallel intake shortcuts.
+- `redaction_findings.create!` has one call-site — implicit contract between `Redaction::Engine` and persistence.
+- Tests prove raw substrings never reach SQLite; AI prompts use placeholders only.
 
-**Ranked refactor opportunities (exploration only — M4L4):**
+**Ranked refactor opportunities** ([`refactor-opportunities/research.md`](../changes/refactor-opportunities/research.md) — exploration only for M4):
 
-| Rank | ID | Opportunity | Why first |
+| Rank | ID | Opportunity | Rationale |
 |------|-----|-------------|-----------|
-| 1 | TD-2 | Typed finding persist boundary | Lowest cost; closes implicit hash contract (**partially shipped** post-M4 as `RedactionFinding.build_from_engine_finding`) |
-| 2 | IMPL-1 | Extract persist object from `ProcessCaseSubmission` | Composes with TD-2; enables rollback specs |
+| 1 | TD-2 | Typed finding persist boundary | Closes implicit hash contract (partially shipped: `RedactionFinding.build_from_engine_finding`) |
+| 2 | IMPL-1 | Extract persist object from `ProcessCaseSubmission` | Composes with TD-2; clearer rollback surface |
 | 3 | TD-5 | CRLF normalization in `Redaction::Engine` | Low blast radius; paste correctness |
 
-Hard rule during M4: **research and ranking only** — no mandatory production refactor for the Architect badge.
+M4 scope was **research and ranking**, not mandatory production refactor for the Architect badge.
 
 ---
 
 ## 3. Domain model and planned hardening (M4L5)
 
-**Ubiquitous language:** Debugging case, log source, redaction finding, correlation signal, hypothesis report. Subdomains: **Intake & Redaction** (core), **Correlation** (pure extraction), **Analysis & AI** (hypothesis generation behind adapter).
+**Ubiquitous language** ([`01-domain-distillation.md`](../domain/01-domain-distillation.md)): debugging case, log source, redaction finding, correlation signal, hypothesis report. Subdomains: **Intake & Redaction** (core), **Correlation** (pure extraction), **Analysis & AI** (hypothesis generation behind adapter).
 
-**Primary invariant — INV-G1:** No diagnostic content reaches persistence until it passes in-memory redaction; raw paste and mappings are never stored. Today enforced procedurally in `ProcessCaseSubmission` plus schema absence of `raw_*` columns and test oracles — **not** by a structural aggregate type.
+**Invariant INV-G1:** no diagnostic content persists until in-memory redaction; raw paste and mappings never stored. Enforced today procedurally in `ProcessCaseSubmission`, schema absence of `raw_*` columns, and test oracles — **not** yet by a structural aggregate type.
 
-**Planned improvements (plan-only, not certification blockers):**
+**Plan-only hardening** (M4L5 deliverables — implementation optional post-MVP):
 
-1. **`SanitizedCaseDraft` aggregate guardian** — typed gate so AR models cannot accept unsanitized strings (`02-invariant-aggregate-refactor.md`).
-2. **`HypothesisGenerator` port + ACL** — isolate OpenAI/provider details from domain; `Analysis::AnalyzeCase` depends on port, adapter wraps `Ai::Client` (`03-anti-corruption-layer.md`).
-
-Both plans include phased F1–Fn roadmaps for post-MVP hygiene when product prioritizes structural debt over new features.
+1. **`SanitizedCaseDraft` aggregate guardian** — typed gate before AR persistence ([`02-invariant-aggregate-refactor.md`](../domain/02-invariant-aggregate-refactor.md)).
+2. **`HypothesisGenerator` port + ACL** — isolate provider details; domain depends on port, adapter wraps `Ai::Client` ([`03-anti-corruption-layer.md`](../domain/03-anti-corruption-layer.md)).
 
 ---
 
-## 4. Quality, security, and team automation
+## 4. Quality and security (cross-cutting)
 
-| Layer | Mechanism |
-|-------|-----------|
-| **Tests** | 280 RSpec + 10 Capybara system + 23 Playwright E2E (4 capture + 19 functional); fake AI in CI; SimpleCov 100% line + branch |
-| **CI** | `bin/ci` parity with GHA (RuboCop, Brakeman, bundler-audit, importmap, RSpec) |
-| **Encryption** | Active Record Encryption on sanitized logs, reports, correlation payloads |
-| **Champion (M5)** | TypeScript PR review agent + GHA AI review workflow; `@szymoniwacz/ai-toolkit` on GitHub Packages |
+| Concern | Mechanism |
+|---------|-----------|
+| Tests | 280 RSpec + system/Playwright; fake AI in CI; security oracles on intake and analyze |
+| CI | `bin/ci` ↔ GHA parity (RuboCop, Brakeman, bundler-audit, RSpec) |
+| Encryption | Active Record Encryption on sanitized logs, reports, correlation payloads |
+| Access | `current_user.debugging_cases.find` → 404 cross-user |
 
-**Security narrative for reviewers:** transient raw intake → encrypted sanitized evidence only → scoped `current_user.debugging_cases.find` (404 cross-user) → `PromptBuilder` sanitized-only → hypothesis-framed output with uncertainty notes.
+**Reviewer narrative:** transient raw intake → encrypted sanitized evidence → scoped ownership → sanitized-only prompts → hypothesis-framed reports with uncertainty notes.
 
----
-
-## 5. Evidence index
-
-| M4 lesson | Artifact |
-|-----------|----------|
-| M4L2 Repo map | [`context/map/repo-map.md`](../map/repo-map.md) |
-| M4L3 Flow research | [`10x-archive/case-submission-flow-analysis/research.md`](../../10x-archive/case-submission-flow-analysis/research.md) |
-| M4L4 Refactor ranking | [`context/changes/refactor-opportunities/research.md`](../changes/refactor-opportunities/research.md) |
-| M4L5 Domain | [`context/domain/`](../domain/) |
-| Readiness audit | [`context/reviews/m4-architect-readiness-review.md`](../reviews/m4-architect-readiness-review.md) |
-| Screenshots | [`screenshots/architect/`](screenshots/architect/) |
-
-**Defensibility:** This report synthesizes artifacts produced across M4L2–L5 with ast-grep verification and live code inspection — not a single-prompt dump. Next structural slice when prioritized: follow F1–F5 in `02-invariant-aggregate-refactor.md` (INV-G1 aggregate guardian).
-
-**PDF export:** [`architecture-report.pdf`](architecture-report.pdf) — regenerate with `npm run cert:architecture-pdf`.
+**Source artifacts:** [`repo-map.md`](../map/repo-map.md) (M4L2) · [`case-submission-flow-analysis/research.md`](../../10x-archive/case-submission-flow-analysis/research.md) (M4L3) · [`refactor-opportunities/research.md`](../changes/refactor-opportunities/research.md) (M4L4) · [`context/domain/`](../domain/) (M4L5).

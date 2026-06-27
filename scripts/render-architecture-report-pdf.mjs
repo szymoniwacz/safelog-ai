@@ -75,11 +75,11 @@ const html = `<!DOCTYPE html>
   <meta charset="utf-8" />
   <title>SafeLog AI — Architecture Report</title>
   <style>
-    @page { size: A4; margin: 18mm 16mm; }
+    @page { size: A4; margin: 14mm 14mm; }
     body {
       font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-      font-size: 10.5pt;
-      line-height: 1.45;
+      font-size: 9.5pt;
+      line-height: 1.38;
       color: #1a1a1a;
       max-width: 100%;
     }
@@ -90,8 +90,8 @@ const html = `<!DOCTYPE html>
       padding-bottom: 6pt;
     }
     h2 {
-      font-size: 12pt;
-      margin: 14pt 0 6pt;
+      font-size: 11pt;
+      margin: 10pt 0 5pt;
       color: #1e40af;
     }
     p { margin: 0 0 8pt; }
@@ -147,7 +147,7 @@ await page.pdf({
   path: pdfPath,
   format: "A4",
   printBackground: true,
-  margin: { top: "18mm", right: "16mm", bottom: "18mm", left: "16mm" },
+  margin: { top: "14mm", right: "14mm", bottom: "14mm", left: "14mm" },
 });
 await browser.close();
 

@@ -20,7 +20,7 @@ scope: Copy-paste guide for all three 10xDevs certification forms
 | Fly deploy (CRUD on production) | `fly deploy --app safelog-ai` | `/up` 200; **Cases** index shows **Actions** | **DONE** 2026-06-26 |
 | Builder screenshots 01–08 | `e2e/capture-submission-screenshots.spec.ts` | 8 PNGs in `screenshots/builder/` | **DONE** 2026-06-26 |
 | Production health | `curl -sf https://safelog-ai.fly.dev/up` | HTTP 200 | **DONE** |
-| Architect PDF | `npm run cert:architecture-pdf` | `architecture-report.pdf` exists | **DONE** |
+| Architect PDF | `npm run cert:architecture-pdf` | `architecture-report.pdf` — **2 pages**, M4L2–L5 synthesis | **DONE** 2026-06-28 |
 
 ---
 
